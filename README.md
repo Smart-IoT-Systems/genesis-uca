@@ -1,4 +1,4 @@
-GeneSIS - Generation, orchestration and deployment of Smart IoT Systems
+#GeneSIS - Generation, orchestration and deployment of Smart IoT Systems
 
 In the past years, multiple tools have emerged to support the building as well as the automated and continuous deployment of software systems with a specific focus on cloud infrastructures (e.g., Puppet, Chef, Ansible, Vagrant, Brooklyn, CloudML, etc.). However, very little effort has been spent on providing solution for the delivery and deployment of application across the whole IoT, edge and cloud space. In particular, there is a lack of languages and abstractions that can be used to support the orchestration of software services and their deployment on heterogeneous devices.
 
