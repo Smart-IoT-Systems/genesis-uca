@@ -12,7 +12,7 @@ If you want to run the latest code from git, here's how to get started:
 
 1. Clone the code:
 
-        git clone https://
+        git clone https://gitlab.com/enact/GeneSIS.git
         cd GeneSIS
 
 2. Install the dependencies
