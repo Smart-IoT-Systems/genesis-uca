@@ -2,6 +2,8 @@ var express = require('express');
 var path = require('path');
 var app = express();
 var runtime = require('./engine/engine.js');
+var logger=require('./engine/logger.js');
+
 // Define the port to run on
 app.set('port', 8880);
 
@@ -15,11 +17,11 @@ app.use("/repository", express.static(path.join(__dirname, 'repository')));
 app.use(express.static(path.join(__dirname, '')));
 
 //Start the engine
-console.log('Engine started!\n');
+logger.log('info','Engine started!');
 runtime.start();
 
 // Listen for editor requests
 var server = app.listen(app.get('port'), function () {
     var port = server.address().port;
-    console.log('Magic happens on port ' + port);
+    logger.log('info','Magic happens on port ' + port);
 });
