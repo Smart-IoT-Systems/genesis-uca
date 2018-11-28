@@ -188,9 +188,9 @@ var component = function (spec) {
 
 
 /*****************************/
-/*Host                       */
+/*infrastructure_component   */
 /*****************************/
-var host = function (spec) {
+var infrastructure_component = function (spec) {
     var that = component(spec); //the inheritance
     that.ip = spec.ip || '127.0.0.1';
     that.port = spec.port || ['80', '22'];
@@ -218,7 +218,7 @@ var flow = function (spec) {
 /* Docker HOST               */
 /*****************************/
 var docker_host = function (spec) {
-    var that = host(spec);
+    var that = infrastructure_component(spec);
     that._type = "docker_host";
 
     return that;
@@ -228,7 +228,7 @@ var docker_host = function (spec) {
 /* VM Host                   */
 /*****************************/
 var vm_host = function (spec) {
-    var that = host(spec);
+    var that = infrastructure_component(spec);
     that._type = "vm_host";
 
     return that;
@@ -237,10 +237,11 @@ var vm_host = function (spec) {
 /*****************************/
 /*****************************/
 var device = function (spec) {
-    var that = host(spec);
+    var that = infrastructure_component(spec);
     that._type = "device";
     that.physical_port = "";
     that.device_type = "";
+    that.isLocal=spec.isLocal || false;
 
     return that;
 };
@@ -288,6 +289,8 @@ var link = function (spec) {
     that.src = spec.src || null;
     that.target = spec.target || null;
     that.isControl = spec.isControl || false;
+    that.isMandatory = spec.isMandatory || false;
+    that.isDeployer = spec.isDeployer || false;
 
     return that;
 }
@@ -340,6 +343,6 @@ module.exports = {
     vm_host: vm_host,
     docker_host: docker_host,
     flow: flow,
-    host: host,
+    infrastructure_component: infrastructure_component,
     component: component
 }
