@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SISFramework - Deployer</title>
+    <title>GeneSIS</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -47,14 +47,17 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">File<span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                            aria-expanded="false">File<span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#" id="load" data-toggle="modal" data-target="#modalLoad">Load Deployment model</a></li>
+                            <li><a href="#" id="load" data-toggle="modal" data-target="#modalLoad">Load Deployment
+                                    model</a></li>
                             <li><a href="#" id="save">Store Deployment model</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Add Host<span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                            aria-expanded="false">Add InfrastructureComponent<span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="#" id="device">Device</a></li>
                             <li><a href="#" id="docker">Docker Engine</a></li>
@@ -62,7 +65,8 @@
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Add Component<span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                            aria-expanded="false">Add SoftwareComponent<span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li class="dropdown-submenu">
                                 <a class="test">External Component<span class="caret"></span></a>
@@ -72,9 +76,9 @@
                                 </ul>
                             </li>
                             <li class="dropdown-submenu">
-                                <a class="test">Software Component<span class="caret"></span></a>
+                                <a class="test">Internal Component<span class="caret"></span></a>
                                 <ul class="dropdown-menu" id="dynamic_menu">
-                                    <li><a href="#" id="software">Generic Software Component</a></li>
+                                    <li><a href="#" id="software">Generic Internal Component</a></li>
                                     <li role="separator" class="divider"></li>
                                     <li><a href="#" id="node_red">Node-red</a></li>
                                 </ul>
@@ -82,7 +86,8 @@
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Add Link<span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                            aria-expanded="false">Add Link<span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="#" id="container" data-toggle="modal" data-target="#modalContainment">Containment</a></li>
                             <li><a href="#" id="communication" data-toggle="modal" data-target="#modalLink">Communication</a></li>
@@ -91,7 +96,8 @@
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Deploy <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                            aria-expanded="false">Deploy <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="#" data-toggle="modal" data-target="#modalConnect">Connect</a></li>
                             <li><a href="#" id="deployAll">All</a></li>
@@ -108,18 +114,25 @@
     <div class="modal fade" id="welcomeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-
-                <div class="modal-body" id="ctx_modal_content">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-xs-4">
-                                <img src="./img/Logo.png" style="width: 100%">
-                            </div>
-                            <div class="col-xs-8">
-                                <h2>Welcome!</h2>
-                            </div>
-                        </div>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <div>
+                        <img src="./img/Logo.png" style="width: 50%">
                     </div>
+                    <div>
+                        <h2>Welcome!</h2>
+                    </div>
+                </div>
+                <div class="modal-body" id="ctx_modal_content">
+
+                    <div class="input-group">
+                        <span class="input-group-addon" id="basic-addon1">Connect to server:</span>
+                        <input type="text" id="url" class="form-control" placeholder="ws://127.0.0.1:9060" value="ws://127.0.0.1:9060">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" data-dismiss="modal" type="button" id='go'>Go!</button>
+                        </span>
+                    </div>
+
                 </div>
 
             </div>
@@ -148,9 +161,12 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal" id="ctx_delete"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
-                    <button type="button" class="btn btn-primary pull-right" data-dismiss="modal" id="ctx_save"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Save</button>
-                    <button type="button" class="btn btn-info pull-right" data-dismiss="modal" id="ctx_goto"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Go to!</button>
+                    <button type="button" class="btn btn-danger pull-left" data-dismiss="modal" id="ctx_delete"><span
+                            class="glyphicon glyphicon-remove" aria-hidden="true"></span> Delete</button>
+                    <button type="button" class="btn btn-primary pull-right" data-dismiss="modal" id="ctx_save"><span
+                            class="glyphicon glyphicon-plus" aria-hidden="true"></span>Save</button>
+                    <button type="button" class="btn btn-info pull-right" data-dismiss="modal" id="ctx_goto"><span
+                            class="glyphicon glyphicon-plus" aria-hidden="true"></span>Go to!</button>
                 </div>
 
             </div>
@@ -177,8 +193,10 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default btn-danger pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</button>
-                    <button id="addHost" type="button" class="btn btn-primary pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Add</button>
+                    <button type="button" class="btn btn-default btn-danger pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"
+                            aria-hidden="true"></span> Cancel</button>
+                    <button id="addHost" type="button" class="btn btn-primary pull-right" data-dismiss="modal"><span
+                            class="glyphicon glyphicon-plus" aria-hidden="true"></span>Add</button>
                 </div>
 
             </div>
@@ -218,11 +236,19 @@
                         <label class="form-check-label">
                             <input id="isController" type="checkbox" class="form-check-input"> Is Controller?
                         </label>
+                        <label class="form-check-label">
+                            <input id="isDeployer" type="checkbox" class="form-check-input"> Is Deployer?
+                        </label>
+                        <label class="form-check-label">
+                            <input id="isMandatory" type="checkbox" class="form-check-input"> Is Mandatory?
+                        </label>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default btn-danger pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</button>
-                    <button id="addLink" type="button" class="btn btn-primary pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Add</button>
+                    <button type="button" class="btn btn-default btn-danger pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"
+                            aria-hidden="true"></span> Cancel</button>
+                    <button id="addLink" type="button" class="btn btn-primary pull-right" data-dismiss="modal"><span
+                            class="glyphicon glyphicon-plus" aria-hidden="true"></span>Add</button>
                 </div>
 
             </div>
@@ -233,7 +259,8 @@
     <!-- modal -->
 
     <!-- Modal Containment -->
-    <div class="modal fade" tabindex="-1" id="modalContainment" role="dialog" aria-labelledby="modalContainementLabel" aria-hidden="true">
+    <div class="modal fade" tabindex="-1" id="modalContainment" role="dialog" aria-labelledby="modalContainementLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
 
@@ -257,8 +284,10 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default btn-danger pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</button>
-                    <button id="addContainment" type="button" class="btn btn-primary pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>Add</button>
+                    <button type="button" class="btn btn-default btn-danger pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"
+                            aria-hidden="true"></span> Cancel</button>
+                    <button id="addContainment" type="button" class="btn btn-primary pull-right" data-dismiss="modal"><span
+                            class="glyphicon glyphicon-plus" aria-hidden="true"></span>Add</button>
                 </div>
 
             </div>
@@ -269,7 +298,8 @@
     <!-- modal -->
 
     <!-- Load modal -->
-    <div class="modal fade" tabindex="-1" id="modalLoad" role="dialog" aria-labelledby="modalContainementLabel" aria-hidden="true">
+    <div class="modal fade" tabindex="-1" id="modalLoad" role="dialog" aria-labelledby="modalContainementLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
 
@@ -282,8 +312,10 @@
                     <input id="selectedFile" type="file" class="input-file">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default btn-danger pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Cancel</button>
-                    <button id="loadFile" type="button" class="btn btn-primary pull-right" data-dismiss="modal"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Load</button>
+                    <button type="button" class="btn btn-default btn-danger pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"
+                            aria-hidden="true"></span> Cancel</button>
+                    <button id="loadFile" type="button" class="btn btn-primary pull-right" data-dismiss="modal"><span
+                            class="glyphicon glyphicon-plus" aria-hidden="true"></span> Load</button>
                 </div>
 
             </div>
@@ -294,7 +326,8 @@
     <!-- modal -->
 
     <!-- Connect modal -->
-    <div class="modal fade" tabindex="-1" id="modalConnect" role="dialog" aria-labelledby="modalConnectLabel" aria-hidden="true">
+    <div class="modal fade" tabindex="-1" id="modalConnect" role="dialog" aria-labelledby="modalConnectLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
 
