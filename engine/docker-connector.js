@@ -1,5 +1,6 @@
 var Docker = require('dockerode');
 var bus = require('./event-bus.js');
+var logger=require('./logger.js');
 
 var docker_connector = function () {
     var that = {};
@@ -14,6 +15,7 @@ var docker_connector = function () {
         that.docker.getContainer(container_id).stop(function (done) {
             that.docker.getContainer(container_id).remove(function (removed) {
                 bus.emit('removed', container_id);
+                logger.log('info','Docker container removed!'+container_id);
             });
         });
     };
@@ -97,10 +99,11 @@ var docker_connector = function () {
             //return container.start();
             container.start(function () {
                 bus.emit('container-started', container.id, that.comp_name);
+                logger.log('info','Container started: '+container.id+'('+that.comp_name+')');
             });
         }).catch(function (err) {
             bus.emit('container-error', that.comp_name);
-            console.log(err);
+            logger.log('info','Error while starting container for: '+that.comp_name+'\n'+err);
         });
 
 
