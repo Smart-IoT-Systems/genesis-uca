@@ -8,6 +8,8 @@ var bus = require('./event-bus.js');
 var uuidv4 = require('uuid/v4');
 var comp = require('./model-comparison.js');
 var class_loader = require('./class-loader.js');
+var agent=require('./deployment-agent.js');
+var logger=require('./logger.js');
 
 var engine = (function () {
     var that = {};
@@ -113,7 +115,7 @@ var engine = (function () {
         //We collect all the started events, once they are all received we generate the flow skeleton based on the links
         bus.on('container-started', function (container_id, comp_name) {
             tmp++;
-            console.log(tmp + ' :: ' + nb);
+            //console.log(tmp + ' :: ' + nb);
             //Add container id to the component
             var comp = dm.find_node_named(comp_name);
             comp.container_id = container_id;
@@ -170,12 +172,20 @@ var engine = (function () {
         for (var j in src_tab) {
             var tgt_component = dm.find_node_named(src_tab[j].target);
             var source_component = dm.find_node_named(src_tab[j].src);
+            var tgt_host_id = tgt_component.id_host;
+            var tgt_host = dm.find_node_named(tgt_host_id);
+            var src_host_id=source_component.id_host;
+            var src_host = dm.find_node_named(src_host_id);
+
             if (tgt_component._type === 'node_red' && source_component._type === 'node_red') {
-                var tgt_host_id = tgt_component.id_host;
-                var tgt_host = dm.find_node_named(tgt_host_id);
                 var client = uuidv4();
                 flow += '{"id":"' + uuidv4() + '","type":"websocket out","z": "dac41de7.a03038","name":"to_' + tgt_component.name + '","server":"","client":"' + client + '","x":331.5,"y":237,"wires":[]},{"id":"' + client + '","type":"websocket-client","path":"ws://' + tgt_host.ip + ':' + tgt_component.port + '/ws/' + source_component.name + '","wholemsg":"false"},';
             } else {
+                if(src_tab[j].isController){//Then we use the deployment agent
+                    var agent=agent(src_host, tgt_host, tgt_component);
+                    agent.prepare();
+                    agent.install();
+                }
                 if (source_component._type === 'node_red') { //Check if we have a plugin for this type of component
                     if (tgt_component.nr_description !== undefined && tgt_component.nr_description !== "") {
                         for (w in tgt_component.nr_description.node) {
@@ -209,7 +219,7 @@ var engine = (function () {
         if (flow.length > 2) { // not empty "[]"
             var t = JSON.parse(flow);
             var result = filtered_old_components.concat(t)
-            console.log(JSON.stringify(result));
+            //console.log(JSON.stringify(result));
             if (dependencies !== "") {
                 that.installNodeType(ip_host, tgt_port, dependencies, function (str) {
                     that.setFlow(ip_host, tgt_port, JSON.stringify(result), tgt_tab, src_tab, dm);
@@ -224,7 +234,6 @@ var engine = (function () {
 
     //To be migrated in a node-red connector
     that.installNodeType = function (tgt_host, tgt_port, data, callback) {
-        console.log("===>" + data);
         var options = {
             host: tgt_host,
             path: '/nodes',
@@ -242,7 +251,7 @@ var engine = (function () {
             });
 
             response.on('end', function () {
-                console.log("Install Request completed " + str);
+                logger.log("info","Install Request completed " + str);
                 bus.emit('node installed', str);
                 callback(str);
             });
@@ -270,7 +279,7 @@ var engine = (function () {
                 callback(tgt_host, tgt_port, src_tab, tgt_tab, dm, JSON.parse(chunk));
             });
         }).on("error", function (e) {
-            console.log("Got error: " + e.message);
+            logger.log("error","Error while getting current Node-red flow: " + e.message);
             setTimeout(function () { //Should only test n times
                 that.getCurrentFlow(tgt_host, tgt_port, src_tab, tgt_tab, dm, callback);
             }, 2000);
@@ -297,7 +306,7 @@ var engine = (function () {
             });
 
             response.on('end', function () {
-                console.log("Request completed " + str);
+                logger.log("info","Request to upload Node-Red flow completed " + str);
                 for (var w in tgt_tab) { //if success, send feedback
                     bus.emit('link-ok', tgt_tab[w].name);
                 }
@@ -311,7 +320,7 @@ var engine = (function () {
         });
 
         req.on('error', function (err) {
-            console.log("Connection to " + tgt_host + " not yet open");
+            logger.log("info","Connection to " + tgt_host + " not yet open");
             setTimeout(function () {
                 for (var w in tgt_tab) {
                     bus.emit('link-ko', tgt_tab[w].name);
@@ -327,14 +336,6 @@ var engine = (function () {
     }
 
     that.start = function () {
-
-        //Lets do some stupid tests
-        /*var ssh_conn = sshc();
-        ssh_conn.initialize("192.168.43.1", "8022", "/Users/ferrynico/Documents/Code/id_rsa");
-        ssh_conn.on('initialized', function () {
-            ssh_conn.executeCommand('node-red');
-        });*/
-
 
         that.webSocketServerObject.on('connection', function (socketObject) {
             that.socketObject = socketObject;
@@ -365,17 +366,19 @@ var engine = (function () {
                 socketObject.on('message', function (message) {
 
                     //Load the model
+                    logger.log("info", "Received model from the editor");
                     var data = JSON.parse(message);
 
                     dm.revive_components(data.components);
                     dm.revive_links(data.links);
 
-                    console.log(JSON.stringify(dm.components));
+                    logger.log("info", "Model Loaded: "+ JSON.stringify(dm.components));
 
                     if (that.dep_model === 'undefined') {
                         that.dep_model = dm;
                         //Deploy: keep it because I know it works :p
                         //TODO: remove this
+                        logger.log("info", "Starting deployment");
                         that.run(that.dep_model);
                     } else {
                         //Compare model
@@ -384,11 +387,11 @@ var engine = (function () {
                         that.dep_model = dm; //target model becomes current
 
                         //First do all the removal stuff
-                        console.log("Stopping removed containers");
+                        logger.log("info","Stopping removed containers");
                         that.remove_containers(that.diff, that.dep_model);
 
                         //Deploy only the added stuff
-                        console.log("Starting new containers");
+                        logger.log("info","Starting new containers");
                         deploy(that.diff, that.dep_model);
 
                     }
@@ -396,7 +399,7 @@ var engine = (function () {
             });
 
             socketObject.on('close', function (c, d) {
-                console.log('Disconnect ' + c + ' -- ' + d);
+                logger.log('info','Disconnect ' + c + ' -- ' + d);
             });
 
         });
