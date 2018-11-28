@@ -1,6 +1,6 @@
 {
     "name": "GeneSIS",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "private": true,
     "scripts": {
         "start": "node ./app.js"
@@ -19,6 +19,7 @@
         "ws": "3.1.0",
         "uuid": "3.1.0",
         "walk": "2.3.9",
-        "simple-ssh": "1.0.0"
+        "ssh2": "0.6.1",
+        "winston": "^3.1.0"
     }
 }
