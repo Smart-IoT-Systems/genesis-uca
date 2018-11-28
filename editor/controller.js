@@ -234,6 +234,12 @@ $('#addLink').on('click', function (evt) {
     l.name = name;
     l.src = selectedSrc;
     l.target = selectedTarget;
+    if ($('#isDeployer').is(':checked')) {
+        l.isDeployer = true;
+    }
+    if ($('#isMandatory').is(':checked')) {
+        l.isMandatory = true;
+    }
     if ($('#isController').is(':checked')) {
         edge.classes = 'control';
         l.isControl = true;
