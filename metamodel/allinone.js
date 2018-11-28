@@ -121,13 +121,21 @@ var deployment_model = function (spec) {
 
     that.get_all_hosted = function () {
         var tab = that.components.filter(function (elem) {
-            console.log(elem);
             if (elem.hasOwnProperty('id_host')) {
                 return elem;
             }
         });
         return tab;
     };
+
+    that.get_all_deployer_links = function(){
+        var tab=that.links.filter(function(elem){
+            if(elem.isDeployer){
+                return elem;
+            }
+        });
+        return tab;
+    }
 
     that.get_all_inputs_of_component = function (comp) {
         var tab = that.links.filter(function (elem) {
