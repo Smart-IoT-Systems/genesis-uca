@@ -8,8 +8,8 @@ var bus = require('./event-bus.js');
 var uuidv4 = require('uuid/v4');
 var comp = require('./model-comparison.js');
 var class_loader = require('./class-loader.js');
-var agent=require('./deployment-agent.js');
-var logger=require('./logger.js');
+var agent = require('./deployment-agent.js');
+var logger = require('./logger.js');
 
 var engine = (function () {
     var that = {};
@@ -104,7 +104,7 @@ var engine = (function () {
                     if (comp[i]._type === "node_red") {
                         //then we deploy node red
                         //TODO: what if port_bindings is empty?
-                        connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", "nicolasferry/sis-framework-arm:latest", comp[i].docker_resource.mounts, comp[i].name); //
+                        connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", "nicolasferry/node-red-contrib-thingml-rpi:latest", comp[i].docker_resource.mounts, comp[i].name); //
                     } else {
                         connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, comp[i].docker_resource.command, comp[i].docker_resource.image, comp[i].docker_resource.mounts, comp[i].name);
                     }
@@ -130,22 +130,40 @@ var engine = (function () {
 
             if (tmp >= nb) {
                 tmp = 0;
+
+                var links_deployer_tab = dm.get_all_deployer_links();
+                //Deployment agent
+                for (var l in links_deployer_tab) {
+                    var tgt_agent = dm.find_node_named(links_deployer_tab[l].target);
+                    var host_agent = dm.find_node_named(links_deployer_tab[l].src);
+                    var tgt_agent_host_id = tgt_agent.id_host;
+                    var tgt_agent_host = dm.find_node_named(tgt_agent_host_id);
+                    var src__agent_host_id = host_agent.id_host;
+                    var src_agent_host = dm.find_node_named(src__agent_host_id);
+
+                    var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
+                    d_agent.prepare();
+                    d_agent.install();
+                }
+
+
                 var comp_tab = dm.get_all_hosted();
-
-                //For all hosted components we generate the websocket proxies
+                //For all Node-Red hosted components we generate the websocket proxies
                 for (var i in comp_tab) {
-                    var host_id = comp_tab[i].id_host;
-                    var host = dm.find_node_named(host_id);
+                    if (comp_tab[i]._type === 'node_red') {
+                        var host_id = comp_tab[i].id_host;
+                        var host = dm.find_node_named(host_id);
 
-                    //Get all links that start from the component
-                    var src_tab = dm.get_all_outputs_of_component(comp_tab[i]);
-                    //Get all links that end in the component
-                    var tgt_tab = dm.get_all_inputs_of_component(comp_tab[i]);
+                        //Get all links that start from the component
+                        var src_tab = dm.get_all_outputs_of_component(comp_tab[i]);
+                        //Get all links that end in the component
+                        var tgt_tab = dm.get_all_inputs_of_component(comp_tab[i]);
 
-                    if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
+                        if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
 
-                        that.getCurrentFlow(host.ip, comp_tab[i].port, src_tab, tgt_tab, dm, that.generate_components);
+                            that.getCurrentFlow(host.ip, comp_tab[i].port, src_tab, tgt_tab, dm, that.generate_components);
 
+                        }
                     }
                 }
             }
@@ -156,6 +174,7 @@ var engine = (function () {
     //This part has to be heavily refactored... Too late for this right now...
     that.generate_components = function (ip_host, tgt_port, src_tab, tgt_tab, dm, old_components) {
         //We keep the old elements without the generated ones
+        console.log("hiiiiihaaaaaaa>"+ JSON.stringify(old_components));
         var filtered_old_components = old_components.filter(function (elem) {
             if (elem.name !== undefined) {
                 if (!elem.name.startsWith("to_") && !elem.name.startsWith("from_")) {
@@ -166,7 +185,7 @@ var engine = (function () {
 
         var flow = '[{"id":"dac41de7.a03038","type":"tab","label":"Flow 1"},';
         var dependencies = "";
-        var tab=uuidv4();
+        var tab = uuidv4();
 
         //For each link starting from the component we add a websocket out component
         for (var j in src_tab) {
@@ -174,22 +193,17 @@ var engine = (function () {
             var source_component = dm.find_node_named(src_tab[j].src);
             var tgt_host_id = tgt_component.id_host;
             var tgt_host = dm.find_node_named(tgt_host_id);
-            var src_host_id=source_component.id_host;
+            var src_host_id = source_component.id_host;
             var src_host = dm.find_node_named(src_host_id);
 
             if (tgt_component._type === 'node_red' && source_component._type === 'node_red') {
                 var client = uuidv4();
                 flow += '{"id":"' + uuidv4() + '","type":"websocket out","z": "dac41de7.a03038","name":"to_' + tgt_component.name + '","server":"","client":"' + client + '","x":331.5,"y":237,"wires":[]},{"id":"' + client + '","type":"websocket-client","path":"ws://' + tgt_host.ip + ':' + tgt_component.port + '/ws/' + source_component.name + '","wholemsg":"false"},';
             } else {
-                if(src_tab[j].isController){//Then we use the deployment agent
-                    var agent=agent(src_host, tgt_host, tgt_component);
-                    agent.prepare();
-                    agent.install();
-                }
                 if (source_component._type === 'node_red') { //Check if we have a plugin for this type of component
                     if (tgt_component.nr_description !== undefined && tgt_component.nr_description !== "") {
                         for (w in tgt_component.nr_description.node) {
-                            var _tmp=tgt_component.nr_description.node[w];
+                            var _tmp = tgt_component.nr_description.node[w];
                             flow += JSON.stringify(_tmp) + ','; //how could we configure this?
                         }
                         if (tgt_component.nr_description.package !== undefined) {
@@ -219,7 +233,6 @@ var engine = (function () {
         if (flow.length > 2) { // not empty "[]"
             var t = JSON.parse(flow);
             var result = filtered_old_components.concat(t)
-            //console.log(JSON.stringify(result));
             if (dependencies !== "") {
                 that.installNodeType(ip_host, tgt_port, dependencies, function (str) {
                     that.setFlow(ip_host, tgt_port, JSON.stringify(result), tgt_tab, src_tab, dm);
@@ -251,7 +264,7 @@ var engine = (function () {
             });
 
             response.on('end', function () {
-                logger.log("info","Install Request completed " + str);
+                logger.log("info", "Install Request completed " + str);
                 bus.emit('node installed', str);
                 callback(str);
             });
@@ -276,10 +289,14 @@ var engine = (function () {
         };
         http.get(opt, function (resp) {
             resp.on('data', function (chunk) {
-                callback(tgt_host, tgt_port, src_tab, tgt_tab, dm, JSON.parse(chunk));
+                var d_flow=[];
+                if(Array.isArray(JSON.parse(chunk))){
+                    d_flow=JSON.parse(chunk);
+                }
+                callback(tgt_host, tgt_port, src_tab, tgt_tab, dm, d_flow);
             });
         }).on("error", function (e) {
-            logger.log("error","Error while getting current Node-red flow: " + e.message);
+            logger.log("error", "Error while getting current Node-red flow: " + e.message);
             setTimeout(function () { //Should only test n times
                 that.getCurrentFlow(tgt_host, tgt_port, src_tab, tgt_tab, dm, callback);
             }, 2000);
@@ -306,7 +323,7 @@ var engine = (function () {
             });
 
             response.on('end', function () {
-                logger.log("info","Request to upload Node-Red flow completed " + str);
+                logger.log("info", "Request to upload Node-Red flow completed " + str);
                 for (var w in tgt_tab) { //if success, send feedback
                     bus.emit('link-ok', tgt_tab[w].name);
                 }
@@ -320,7 +337,7 @@ var engine = (function () {
         });
 
         req.on('error', function (err) {
-            logger.log("info","Connection to " + tgt_host + " not yet open");
+            logger.log("info", "Connection to " + tgt_host + " not yet open");
             setTimeout(function () {
                 for (var w in tgt_tab) {
                     bus.emit('link-ko', tgt_tab[w].name);
@@ -372,7 +389,7 @@ var engine = (function () {
                     dm.revive_components(data.components);
                     dm.revive_links(data.links);
 
-                    logger.log("info", "Model Loaded: "+ JSON.stringify(dm.components));
+                    logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));
 
                     if (that.dep_model === 'undefined') {
                         that.dep_model = dm;
@@ -387,11 +404,11 @@ var engine = (function () {
                         that.dep_model = dm; //target model becomes current
 
                         //First do all the removal stuff
-                        logger.log("info","Stopping removed containers");
+                        logger.log("info", "Stopping removed containers");
                         that.remove_containers(that.diff, that.dep_model);
 
                         //Deploy only the added stuff
-                        logger.log("info","Starting new containers");
+                        logger.log("info", "Starting new containers");
                         deploy(that.diff, that.dep_model);
 
                     }
@@ -399,7 +416,7 @@ var engine = (function () {
             });
 
             socketObject.on('close', function (c, d) {
-                logger.log('info','Disconnect ' + c + ' -- ' + d);
+                logger.log('info', 'Disconnect ' + c + ' -- ' + d);
             });
 
         });
