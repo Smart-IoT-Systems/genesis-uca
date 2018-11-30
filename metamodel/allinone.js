@@ -247,8 +247,8 @@ var vm_host = function (spec) {
 var device = function (spec) {
     var that = infrastructure_component(spec);
     that._type = "device";
-    that.physical_port = "";
-    that.device_type = "";
+    that.physical_port = spec.physical_port || "";
+    that.device_type = spec.device_type || "";
     that.isLocal=spec.isLocal || false;
 
     return that;
