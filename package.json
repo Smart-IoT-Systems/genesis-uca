@@ -1,7 +1,11 @@
 {
     "name": "GeneSIS",
     "version": "0.0.1",
+    "description": "Automatice deployment over IoT, Edge and Cloud space",
+    "homepage": "https://gitlab.com/enact/genesis   ",
     "private": true,
+    "license": "Apache v2.0",
+    "keywords": [ "genesis", "thingml" ],
     "scripts": {
         "start": "node ./app.js"
     },
@@ -20,6 +24,7 @@
         "uuid": "3.1.0",
         "walk": "2.3.9",
         "ssh2": "0.6.1",
-        "winston": "^3.1.0"
+        "winston": "^3.1.0",
+        "node-ansible-wrapper": "^0.5.6"
     }
 }
