@@ -9,6 +9,7 @@ var dc = require('./docker-connector.js');
 var uuidv4 = require('uuid/v4');
 var http = require('http');
 var logger = require('./logger.js');
+var bus = require('./event-bus.js');
 
 var deployment_agent = function (host, host_target, deployment_target) {
     var that={};
@@ -58,6 +59,7 @@ var deployment_agent = function (host, host_target, deployment_target) {
             });
 
             response.on('end', function () {
+                bus.emit('deployment-agent-started', tgt_host)
                 logger.log("info","Request completed " + str);
             });
         });
@@ -71,7 +73,6 @@ var deployment_agent = function (host, host_target, deployment_target) {
 
 
         //This is the data we are posting, it needs to be a string or a buffer
-        console.log("mmmm>"+ data);
         req.write(data);
         req.end();
     };
