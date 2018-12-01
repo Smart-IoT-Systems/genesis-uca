@@ -128,9 +128,9 @@ var deployment_model = function (spec) {
         return tab;
     };
 
-    that.get_all_deployer_links = function(){
-        var tab=that.links.filter(function(elem){
-            if(elem.isDeployer){
+    that.get_all_deployer_links = function () {
+        var tab = that.links.filter(function (elem) {
+            if (elem.isDeployer) {
                 return elem;
             }
         });
@@ -154,6 +154,18 @@ var deployment_model = function (spec) {
         });
         return tab;
     };
+
+    return that;
+}
+
+/*****************************/
+/*Credentials                  */
+/*****************************/
+var credentials = function (spec) {
+    var that = {};
+    that.username = spec.username || "ubuntu";
+    that.password = spec.password || "ubuntu";
+    that.sshkey = spec.sshkey || "";
 
     return that;
 }
@@ -202,10 +214,7 @@ var infrastructure_component = function (spec) {
     var that = component(spec); //the inheritance
     that.ip = spec.ip || '127.0.0.1';
     that.port = spec.port || ['80', '22'];
-    that.credentials = spec.credentials || {
-        login: 'ubuntu',
-        password: 'ubuntu'
-    };
+    that.credentials = spec.credentials || credentials({});
 
     return that;
 };
@@ -249,7 +258,7 @@ var device = function (spec) {
     that._type = "device";
     that.physical_port = spec.physical_port || "";
     that.device_type = spec.device_type || "";
-    that.isLocal=spec.isLocal || false;
+    that.isLocal = spec.isLocal || false;
 
     return that;
 };
@@ -262,6 +271,7 @@ var software_node = function (spec) {
     that.id_host = spec.id_host || null;
     that.docker_resource = spec.docker_resource || docker_resource({});
     that.ssh_resource = spec.ssh_resource || ssh_resource({});
+    that.ansible_resource = spec.ansible_resource || ansible_resource({});
     that._type = "software";
     that.port = spec.port || '1880';
 
@@ -333,15 +343,29 @@ var ssh_resource = function (spec) {
     that.startCommand = spec.startCommand || "";
     that.downloadCommand = spec.downloadCommand || "";
     that.configureCommand = spec.downloadCommand || "";
+    that.credentials = spec.credentials || credentials({});
 
     return that;
 }
 
+/*****************************/
+/*Ansible resource           */
+/*****************************/
+var ansible_resource = function (spec) {
+    var that = {};
+    that.name = spec.name || "a resource";
+    that.playbook_path = spec.playbook_path || "";
+    that.playbook_host = spec.playbook_path || "";
+    that.credentials = spec.credentials || credentials({});
+
+    return that;
+}
 
 ////////////////////////////////////////////////
 module.exports = {
     deployment_model: deployment_model,
     ssh_resource: ssh_resource,
+    ansible_resource: ansible_resource,
     docker_resource: docker_resource,
     link: link,
     external_node: external_node,
