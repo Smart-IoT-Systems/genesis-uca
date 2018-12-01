@@ -10,6 +10,7 @@ var comp = require('./model-comparison.js');
 var class_loader = require('./class-loader.js');
 var agent = require('./deployment-agent.js');
 var logger = require('./logger.js');
+var ac=require('./ansible-connector.js');
 
 var engine = (function () {
     var that = {};
@@ -94,12 +95,28 @@ var engine = (function () {
         var nb = 0;
         var tmp = 0;
 
+        var links_deployer_tab = dm.get_all_deployer_links();
+        //Deployment agent
+        for (var l in links_deployer_tab) {
+            nb++;
+            var tgt_agent = dm.find_node_named(links_deployer_tab[l].target);
+            var host_agent = dm.find_node_named(links_deployer_tab[l].src);
+            var tgt_agent_host_id = tgt_agent.id_host;
+            var tgt_agent_host = dm.find_node_named(tgt_agent_host_id);
+            var src__agent_host_id = host_agent.id_host;
+            var src_agent_host = dm.find_node_named(src__agent_host_id);
+
+            var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
+            d_agent.prepare();
+            d_agent.install();
+        }
+
         for (var i in comp) {
             var host_id = comp[i].id_host;
             var host = dm.find_node_named(host_id);
             if (host !== undefined) {
-                var connector = dc();
                 if (host._type === "docker_host") {
+                    var connector = dc();
                     nb++;
                     if (comp[i]._type === "node_red") {
                         //then we deploy node red
@@ -109,8 +126,13 @@ var engine = (function () {
                         connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, comp[i].docker_resource.command, comp[i].docker_resource.image, comp[i].docker_resource.mounts, comp[i].name);
                     }
                 }
+                if(comp[i].ansible_resource.playbook_path !== ""){
+                    var connector= ac(host, comp[i].ansible_resource);
+                    connector.executePlaybook();
+                }
             }
         }
+
 
         //We collect all the started events, once they are all received we generate the flow skeleton based on the links
         bus.on('container-started', function (container_id, comp_name) {
@@ -130,22 +152,6 @@ var engine = (function () {
 
             if (tmp >= nb) {
                 tmp = 0;
-
-                var links_deployer_tab = dm.get_all_deployer_links();
-                //Deployment agent
-                for (var l in links_deployer_tab) {
-                    var tgt_agent = dm.find_node_named(links_deployer_tab[l].target);
-                    var host_agent = dm.find_node_named(links_deployer_tab[l].src);
-                    var tgt_agent_host_id = tgt_agent.id_host;
-                    var tgt_agent_host = dm.find_node_named(tgt_agent_host_id);
-                    var src__agent_host_id = host_agent.id_host;
-                    var src_agent_host = dm.find_node_named(src__agent_host_id);
-
-                    var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
-                    d_agent.prepare();
-                    d_agent.install();
-                }
-
 
                 var comp_tab = dm.get_all_hosted();
                 //For all Node-Red hosted components we generate the websocket proxies
@@ -174,7 +180,6 @@ var engine = (function () {
     //This part has to be heavily refactored... Too late for this right now...
     that.generate_components = function (ip_host, tgt_port, src_tab, tgt_tab, dm, old_components) {
         //We keep the old elements without the generated ones
-        console.log("hiiiiihaaaaaaa>"+ JSON.stringify(old_components));
         var filtered_old_components = old_components.filter(function (elem) {
             if (elem.name !== undefined) {
                 if (!elem.name.startsWith("to_") && !elem.name.startsWith("from_")) {
@@ -204,6 +209,10 @@ var engine = (function () {
                     if (tgt_component.nr_description !== undefined && tgt_component.nr_description !== "") {
                         for (w in tgt_component.nr_description.node) {
                             var _tmp = tgt_component.nr_description.node[w];
+                            _tmp.z = "dac41de7.a03038";
+                            if (_tmp.serialport !== undefined && _tmp.serialport !== "") {
+                                _tmp.serialport = tgt_host.physical_port;
+                            }
                             flow += JSON.stringify(_tmp) + ','; //how could we configure this?
                         }
                         if (tgt_component.nr_description.package !== undefined) {
@@ -289,14 +298,14 @@ var engine = (function () {
         };
         http.get(opt, function (resp) {
             resp.on('data', function (chunk) {
-                var d_flow=[];
-                if(Array.isArray(JSON.parse(chunk))){
-                    d_flow=JSON.parse(chunk);
+                var d_flow = [];
+                if (Array.isArray(JSON.parse(chunk))) {
+                    d_flow = JSON.parse(chunk);
                 }
                 callback(tgt_host, tgt_port, src_tab, tgt_tab, dm, d_flow);
             });
         }).on("error", function (e) {
-            logger.log("error", "Error while getting current Node-red flow: " + e.message);
+            logger.log("warning", "Cannot get current Node-red flow: " + e.message);
             setTimeout(function () { //Should only test n times
                 that.getCurrentFlow(tgt_host, tgt_port, src_tab, tgt_tab, dm, callback);
             }, 2000);
