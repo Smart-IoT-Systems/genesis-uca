@@ -20,7 +20,7 @@ cache:
 test:
   script:
    - npm install
-   - npm start
+#   - npm start
 
 #test_db:
 #  script:
