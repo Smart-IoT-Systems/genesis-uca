@@ -72,7 +72,12 @@ var cy = window.cy = cytoscape({
             css: {
                 'background-image': './img/node-red-256.png',
             }
-    },
+    }, {
+        selector: 'node.ansible',
+        css: {
+            'background-image': './img/ansible.png',
+        }
+},
         {
             selector: 'node.device',
             css: {
@@ -155,6 +160,8 @@ var graph_factory = function () {
 
         } else if (type === "device") {
             node.classes = 'device';
+        } else if (type === 'ansible'){
+            node.classes = 'ansible';
         }
         return node;
     }
