@@ -8,7 +8,8 @@ var rfxcom = function (spec) {
     that._type = "rfxcom";
     that.nr_description = {
         package: "node-red-contrib-rfxcom",
-        node: [{
+        "version": "2.6.1",
+        node: [{ //If you want something specific in node-red
             "id": "20d1732e.942b84",
             "type": "rfx-sensor",
             "z": "36abed84.04bdb2",
