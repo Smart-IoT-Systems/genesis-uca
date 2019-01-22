@@ -2,12 +2,13 @@ var logger = require('./logger.js');
 var ansible = require('node-ansible-wrapper');
 var emitter = require('events').EventEmitter;
 var fs = require('fs');
+var bus = require('./event-bus.js');
 
-var ansible_connector = function (tgt_node, ansible_resource) {
+var ansible_connector = function (tgt_node, comp) {
 
     var that = new emitter();
     that.tgt_node = tgt_node;
-    that.ansible_resource = ansible_resource;
+    that.ansible_resource = comp.ansible_resource;
 
 
     that.prepareInventory = function () {
@@ -18,14 +19,16 @@ var ansible_connector = function (tgt_node, ansible_resource) {
 
     that.executePlaybook = function () {
         that.prepareInventory();
-        var playbook = new ansible.Playbook().playbook(ansible_resource.playbook_path).inventory("./hosts");;
+        var playbook = new ansible.Playbook().playbook(that.ansible_resource.playbook_path).inventory("./hosts");;
         playbook.on('stdout', function (data) {
             logger.log("info", data.toString());
         });
         playbook.on('stderr', function (data) {
             logger.log("info", data.toString());
         });
-        var promise = playbook.exec();
+        var promise = playbook.exec().then(function(successResult) {
+            bus.emit('ansible-started', comp.name);
+        });
     };
 
     return that;

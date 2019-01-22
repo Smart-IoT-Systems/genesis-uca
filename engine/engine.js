@@ -90,6 +90,14 @@ var engine = (function () {
         that.socketObject.send("#" + JSON.stringify(s));
     });
 
+    bus.on('ansible-started', function(comp_name){
+        var s = {
+            node: comp_name,
+            status: 'running'
+        };
+        that.socketObject.send("#" + JSON.stringify(s));
+    });
+
     that.run = function (dm) { //TODO: factorize
         var comp = dm.get_all_hosted();
         var nb = 0;
@@ -127,7 +135,7 @@ var engine = (function () {
                     }
                 }
                 if(comp[i].ansible_resource.playbook_path !== ""){
-                    var connector= ac(host, comp[i].ansible_resource);
+                    var connector= ac(host, comp[i]);
                     connector.executePlaybook();
                 }
             }
@@ -305,7 +313,7 @@ var engine = (function () {
                 callback(tgt_host, tgt_port, src_tab, tgt_tab, dm, d_flow);
             });
         }).on("error", function (e) {
-            logger.log("warning", "Cannot get current Node-red flow: " + e.message);
+            logger.log("error", "Cannot get current Node-red flow: " + e.message);
             setTimeout(function () { //Should only test n times
                 that.getCurrentFlow(tgt_host, tgt_port, src_tab, tgt_tab, dm, callback);
             }, 2000);
