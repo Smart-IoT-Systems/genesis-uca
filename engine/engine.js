@@ -11,6 +11,7 @@ var class_loader = require('./class-loader.js');
 var agent = require('./deployment-agent.js');
 var logger = require('./logger.js');
 var ac=require('./ansible-connector.js');
+var thingmlcli=require('./thingml-compiler.js');
 
 var engine = (function () {
     var that = {};
@@ -137,6 +138,11 @@ var engine = (function () {
                 if(comp[i].ansible_resource.playbook_path !== ""){
                     var connector= ac(host, comp[i]);
                     connector.executePlaybook();
+                }
+                if (comp[i]._type === "thingml") {
+                    //we should generate the plantuml
+                    var tcli=thingmlcli(comp[i]);
+                    tcli.build("./generated", "uml");
                 }
             }
         }
