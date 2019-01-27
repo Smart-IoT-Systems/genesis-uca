@@ -17,6 +17,7 @@
 
     <!-- Custom CSS -->
     <link href="css/simple-sidebar.css" rel="stylesheet">
+    <link href="css/jsoneditor.min.css" rel="stylesheet">
 
     <link href="css/style.css" rel="stylesheet">
 
@@ -53,6 +54,15 @@
                             <li><a href="#" id="load" data-toggle="modal" data-target="#modalLoad">Load Deployment
                                     model</a></li>
                             <li><a href="#" id="save">Store Deployment model</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                            aria-expanded="false">Deploy <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" data-toggle="modal" data-target="#modalConnect">Connect</a></li>
+                            <li><a href="#" id="deployAll">All</a></li>
+                            <li><a href="#" id="removeAll">Remove all</a></li>
                         </ul>
                     </li>
                     <li class="dropdown">
@@ -94,17 +104,12 @@
                         </ul>
                     </li>
                 </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                            aria-expanded="false">Deploy <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#" data-toggle="modal" data-target="#modalConnect">Connect</a></li>
-                            <li><a href="#" id="deployAll">All</a></li>
-                            <li><a href="#" id="removeAll">Remove all</a></li>
-                        </ul>
-                    </li>
+
+                <ul class="nav navbar-nav navbar-right nav-pills">
+                    <li class="active"><a data-toggle="pill" href="#Graph">GraphEditor</a></li>
+                    <li><a data-toggle="pill" href="#json" id="jseditor">JSONEditor</a></li>
                 </ul>
+
             </div>
         </div>
     </nav>
@@ -354,11 +359,25 @@
     <div id="alert-div" style="position:fixed;width:500px;left: 50%;margin-left: -250px;z-index:100000"></div>
 
     <div id="page-content-wrapper" class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <div id="cy"></div>
+
+        <div class="tab-content">
+            <div id="Graph" class="tab-pane fade in active">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div id="cy"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="json" class="tab-pane fade">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div id="jsoneditor"></div>
+                    </div>
+                </div>
             </div>
         </div>
+
+
     </div>
 
     <script src="js/jquery.js"></script>
@@ -375,12 +394,15 @@
 
     <script src="js/websocket.js"></script>
 
+    <script src="js/jsoneditor.min.js"></script>
+
     <script src="metamodel/allinone.js"></script>
 
     <script src="editor/graph.js"></script>
 
     <script src="editor/controller.js"></script>
 
+    <script src="editor/jseditor.js"></script>
 
     <script>
         $(document).ready(function () {
