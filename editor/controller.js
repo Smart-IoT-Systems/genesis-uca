@@ -69,7 +69,6 @@ var context_menu = (function () {
 }());
 
 
-
 /***************************************/
 /*Manage the creation modal and its    */
 /*content                              */
@@ -323,8 +322,14 @@ $('#loadFile').on('click', function (evt) {
         dm.components = data.dm.components;
         dm.revive_links(data.dm.links);
         cy.json(data.graph);
+        editor.set(dm);
     }
 
+});
+
+//Load model in editor on click
+$('#jseditor').on('click', function (evt) {
+    editor.set(dm);
 });
 
 $('#save').on('click', function (evt) {
