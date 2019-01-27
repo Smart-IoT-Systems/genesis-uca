@@ -2,6 +2,8 @@ var express = require('express');
 var path = require('path');
 var app = express();
 var runtime = require('./engine/engine.js');
+var broker = require('./engine/MQTTBroker.js');
+var puml = require('./engine/plantuml.js');
 var logger=require('./engine/logger.js');
 
 // Define the port to run on
@@ -19,6 +21,8 @@ app.use(express.static(path.join(__dirname, '')));
 //Start the engine
 logger.log('info','Engine started!');
 runtime.start();
+broker.start();
+puml.start();
 
 // Listen for editor requests
 var server = app.listen(app.get('port'), function () {
