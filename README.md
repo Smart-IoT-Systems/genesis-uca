@@ -7,6 +7,8 @@ In the past years, multiple tools have emerged to support the building as well a
 GeneSIS aims to facilitate the engineering and continuous deployment of smart IoT systems, allowing decentralized processing across heterogeneous the IoT, edge and cloud space. GeneSIS includes: (i) a domain specific modelling language to model the orchestration and deployment of smart IoT systems across the IoT, edge and cloud spaces; and (ii) an execution engine that will support the orchestration of IoT, edge and cloud services as well as their automatic deployment over IoT, edge and cloud resources.
 
 ## Metamodel (To be completed)
+![alt text](docs/genesis-metamodel.png "GeneSIS - Metamodel")
+
 The GeneSIS Modelling language is inspired by component-based approaches in order to facilitate separation of concerns and reusability. In this respect, deployment models can be regarded as assemblies of components exposing ports, and bindings between these ports.
 
 A _component_ represents a reusable type of software component of a smart IoT system. A _Component_ can be an _ExternalComponent_ xxx (e.g., a database) or an _InternalComponent_ xxx (e.g., an instance of SIS-Node). A _component_ can be associated to _Resources_. A _Resource_ represents an artefact (e.g., scripts, Docker Images, etc.) adopted to manage the deployment life-cycle (e.g., download, configure, install, start, and stop). 
@@ -16,6 +18,19 @@ An _Host_ represents a reusable type of xxx that can host _Components_ (e.g., Ra
 Inspired by CloudML (cf. http://cloudml.org), _Virtual Machine_ are characterized by the following properties. The properties _minCores_, _maxCores_, _minRam_, _maxRam_, _minStorage_, and _maxStorage_ represent the lower and upper bounds of virtual compute cores, RAM, and storage, respectively, of the required VM (e.g., _minCores_=1, _minRam_=1024). The property _OS_ represents the operating system to be run by the VM (e.g., _OS_="ubuntu"). These properties, which are provider independent, are used as constraints during the provisioning process in order to become provider specific. All these are optional and do not have to be defined.
 
 ## Installation
+
+### Pre-requisite:
+* Node.js v7
+* npm v4
+
+If you want to deploy docker containers, please remember to turn on the Docker Remote API on the target host. 
+On Raspberry Pi, you can install docker using:
+
+        curl -sSL https://get.docker.com | sh
+
+and configure it by following these instructions: https://success.docker.com/article/how-do-i-enable-the-remote-api-for-dockerd
+
+### From git:
 If you want to run the latest code from git, here's how to get started:
 
 1. Clone the code:
