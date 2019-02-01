@@ -7,7 +7,8 @@
     "license": "Apache v2.0",
     "keywords": [ "genesis", "thingml" ],
     "scripts": {
-        "start": "node ./app.js"
+        "start": "node ./app.js",
+        "postinstall": "curl -L --create-dirs --output lib/thingml/ThingML2CLI.jar https://github.com/TelluIoT/ThingML/releases/download/2.0.0-MGWK-0.9.7/ThingMLCLI.jar"
     },
     "dependencies": {
         "body-parser": "~1.17.1",
@@ -25,6 +26,12 @@
         "walk": "2.3.9",
         "ssh2": "0.6.1",
         "winston": "^3.1.0",
-        "node-ansible-wrapper": "^0.5.6"
+        "node-ansible-wrapper": "^0.5.6",
+        "mosca": "~2.8.3",
+        "mqtt": "~2.18.8",
+        "node-plantuml": "~0.8.1",
+        "path": "~0.12.7",
+        "child_process": "~1.0.2",
+        "adm-zip": "^0.4.13"
     }
 }

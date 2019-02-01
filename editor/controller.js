@@ -32,7 +32,7 @@ var context_menu = (function () {
     $('#ctx_delete').on('click', function (evt) {
         if (target_node) {
             cy.remove(target_node); //remove from the display
-            dm.remove_component(elem); //remove from the model
+            dm.remove_component(elem); //remove from the model together with associated links
 
         } else {
             cy.remove(target_link); //remove from the display
@@ -127,7 +127,7 @@ var create_modal = function (modules) {
     });
 
     $('#addHost').on('click', function (evt) { //When you click on add in the modal
-        var fac = graph_factory();
+        var fac = graph_factory($("#ctx_name").val());
         var node = fac.create_node(type);
         cy.add(node);
         save_form(elem);
@@ -177,9 +177,18 @@ function save_form(elem) {
         } else {
             if (typeof elem[item_value] === 'object') {
                 var val = $('#ctx_' + item_value).val();
-                elem[item_value] = JSON.parse(val);
+                try {
+                    elem[item_value] = JSON.parse(val);
+                } catch (e) {
+                    alertMessage("success", val+ " is not a valid JSON", 2000);
+                }
+                return true;
             } else {
-                elem[item_value] = $('#ctx_' + item_value).val();
+                if ($('#ctx_' + item_value).val().indexOf(' ') >= 0) {
+                    alertMessage("success", $('#ctx_' + item_value).val()+ " is not a valid string", 2000);
+                } else {
+                    elem[item_value] = $('#ctx_' + item_value).val();
+                }
             }
         }
     }

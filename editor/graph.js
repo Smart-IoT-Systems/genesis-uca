@@ -123,8 +123,8 @@ var cy = window.cy = cytoscape({
 
 });
 
-var graph_factory = function () {
-    var name = $("#ctx_name").val();
+var graph_factory = function (name) {
+    //var name = $("#ctx_name").val();
 
     var node = { // Add to the display
         group: "nodes", //we need a factory for this.

@@ -64,6 +64,19 @@ var deployment_model = function (spec) {
         if (i > -1) {
             that.components.splice(i, 1); //The second parameter of splice is the number of elements to remove. Note that splice modifies the array in place and returns a new array containing the elements that have been removed. 
         }
+        //we also need to remove the associated links
+        var tab_indexes = [];
+        for (var i in that.links) {
+            if (that.links[i].target === component.name ||
+                that.links[i].src === component.name) {
+                tab_indexes.push(i);
+            }
+        }
+        if (tab_indexes.length > 0) {
+            tab_indexes.forEach(function () {
+                that.links.splice(elem, 1);
+            });
+        }
     };
 
     that.remove_link = function (link) {
@@ -119,6 +132,15 @@ var deployment_model = function (spec) {
         return tab;
     };
 
+    that.get_hosted = function (name) {
+        var tab = that.components.filter(function (elem) {
+            if (elem.id_host === name) {
+                return elem;
+            }
+        });
+        return tab;
+    };
+
     that.get_all_hosted = function () {
         var tab = that.components.filter(function (elem) {
             if (elem.hasOwnProperty('id_host')) {
@@ -153,6 +175,62 @@ var deployment_model = function (spec) {
             }
         });
         return tab;
+    };
+
+    that.is_valid_name = function (name) {
+        var valid_name = true;
+        that.components.forEach(function (elem) {
+            if (elem.name === name) {
+                valid_name = false;
+            }
+        });
+        return valid_name;
+    };
+
+    that.is_valid_id = function (id) {
+        var valid_id = true;
+        that.components.forEach(function (elem) {
+            if (elem.id === id) {
+                valid_id = false;
+            }
+        });
+        return valid_id;
+    };
+
+    that.is_valid = function () {
+        var dm_valid = true;
+        
+        for (var i = 0; i < that.components.length; i++) {
+            for (var j = i+1; j < that.components.length; j++) {
+                if (that.components[i].name === that.components[j].name) {
+                    console.log("Names are not uniq! " + that.components[i].name);
+                    dm_valid = false;
+                }
+                if (that.components[i].id === that.components[j].id) {
+                    console.log("Ids are not uniq! " + that.components[i].id);
+                    dm_valid = false;
+                }
+            }
+        }
+
+        //Make sure all links relate to existing components
+        that.links.forEach(function (elem) {
+            if ((that.find_node_named(elem.src) === undefined) ||
+                (that.find_node_named(elem.target) === undefined)) {
+                console.log("Src or target of " + elem.name + " does not exist!");
+                dm_valid = false;
+            }
+        });
+
+        //Make sure all hosted comps are on existing hosts.
+        that.get_all_hosted().forEach(function (elem) {
+            if (that.find_node_named(elem.id_host) === undefined) {
+                console.log("Host " + elem.id_host + " does not exist!");
+                dm_valid = false;
+            }
+        });
+
+        return dm_valid;
     };
 
     return that;
@@ -360,6 +438,8 @@ var ansible_resource = function (spec) {
 
     return that;
 }
+
+
 
 ////////////////////////////////////////////////
 module.exports = {
