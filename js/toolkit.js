@@ -8,7 +8,7 @@
               .html("<b>Success.</b> " + message);
           break;
       case "error":
-          alertDiv.attr("class", "alert alert-error fade in")
+          alertDiv.attr("class", "alert alert-danger fade in")
               .html("<b>Error.</b> " + message);
           break;
       case "warning":
