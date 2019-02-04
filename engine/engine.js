@@ -10,8 +10,8 @@ var comp = require('./model-comparison.js');
 var class_loader = require('./class-loader.js');
 var agent = require('./deployment-agent.js');
 var logger = require('./logger.js');
-var ac=require('./ansible-connector.js');
-var thingmlcli=require('./thingml-compiler.js');
+var ac = require('./ansible-connector.js');
+var thingmlcli = require('./thingml-compiler.js');
 
 var engine = (function () {
     var that = {};
@@ -91,7 +91,7 @@ var engine = (function () {
         that.socketObject.send("#" + JSON.stringify(s));
     });
 
-    bus.on('ansible-started', function(comp_name){
+    bus.on('ansible-started', function (comp_name) {
         var s = {
             node: comp_name,
             status: 'running'
@@ -135,13 +135,13 @@ var engine = (function () {
                         connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, comp[i].docker_resource.command, comp[i].docker_resource.image, comp[i].docker_resource.mounts, comp[i].name);
                     }
                 }
-                if(comp[i].ansible_resource.playbook_path !== ""){
-                    var connector= ac(host, comp[i]);
+                if (comp[i].ansible_resource.playbook_path !== "") {
+                    var connector = ac(host, comp[i]);
                     connector.executePlaybook();
                 }
                 if (comp[i]._type === "thingml") {
                     //we should generate the plantuml
-                    var tcli=thingmlcli(comp[i]);
+                    var tcli = thingmlcli(comp[i]);
                     tcli.build("./generated", "uml");
                 }
             }
@@ -411,30 +411,35 @@ var engine = (function () {
 
                     dm.revive_components(data.components);
                     dm.revive_links(data.links);
+                    if (dm.is_valid()) {
 
-                    logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));
+                        logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));
 
-                    if (that.dep_model === 'undefined') {
-                        that.dep_model = dm;
-                        //Deploy: keep it because I know it works :p
-                        //TODO: remove this
-                        logger.log("info", "Starting deployment");
-                        that.run(that.dep_model);
-                    } else {
-                        //Compare model
-                        var comparator = comp(that.dep_model);
-                        that.diff = comparator.compare(dm);
-                        that.dep_model = dm; //target model becomes current
+                        if (that.dep_model === 'undefined') {
+                            that.dep_model = dm;
+                            //Deploy: keep it because I know it works :p
+                            //TODO: remove this
+                            logger.log("info", "Starting deployment");
+                            that.run(that.dep_model);
+                        } else {
+                            //Compare model
+                            var comparator = comp(that.dep_model);
+                            that.diff = comparator.compare(dm);
+                            that.dep_model = dm; //target model becomes current
 
-                        //First do all the removal stuff
-                        logger.log("info", "Stopping removed containers");
-                        that.remove_containers(that.diff, that.dep_model);
+                            //First do all the removal stuff
+                            logger.log("info", "Stopping removed containers");
+                            that.remove_containers(that.diff, that.dep_model);
 
-                        //Deploy only the added stuff
-                        logger.log("info", "Starting new containers");
-                        deploy(that.diff, that.dep_model);
+                            //Deploy only the added stuff
+                            logger.log("info", "Starting new containers");
+                            deploy(that.diff, that.dep_model);
 
+                        }
+                    }else{
+                        logger.log("info", "Model not loaded since not valid: " + JSON.stringify(dm.components));
                     }
+
                 });
             });
 
