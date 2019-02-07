@@ -1,11 +1,19 @@
-FROM ubuntu:17.04
+FROM node:10.15.1-jessie
+
 RUN apt-get update
-RUN apt-get install -y curl git nodejs npm
-RUN ln -s /usr/bin/nodejs /usr/bin/node
+RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" | \
+  tee /etc/apt/sources.list.d/webupd8team-java.list
+RUN echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" | \
+  tee -a /etc/apt/sources.list.d/webupd8team-java.list
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
+RUN echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections
+RUN apt-get update
+RUN apt-get install -y oracle-java8-installer
 
-RUN npm install npm@latest -g
 
-RUN git clone https://github.com/SINTEF-9012/SIS-Framework-Deployer.git
-WORKDIR "/SIS-Framework-Deployer"
+RUN git clone https://gitlab.com/enact/GeneSIS.git
+WORKDIR "/GeneSIS"
 RUN npm install
+
 ENTRYPOINT npm start
+
