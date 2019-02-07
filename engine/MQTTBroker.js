@@ -1,31 +1,41 @@
-var mosca = require('mosca');
 var logger = require('./logger.js');
+var aedes = require('aedes')();
 
 var MQTTBroker = (function () {
     var that = {};
+    that.server = require('net').createServer(aedes.handle);
+    that.port = 1883;
 
     that.start = function () {
-        var settings = {
-            port: 1883
-        };
 
-        var server = new mosca.Server(settings);
-
-        server.on('clientConnected', function (client) {
-            logger.log("info", 'Client connected to the GeneSIS broker' + client.id);
+        that.server.listen(that.port, function () {
+            logger.log("info",'MQTT server listening on port ' + that.port)
         });
 
-        // fired when a message is received
-        server.on('published', function (packet, client) {
-            logger.log("info", 'Published: '+ packet.payload);
+        aedes.on('clientError', function (client, err) {
+            logger.log("info",'client error', client.id, err.message, err.stack)
         });
 
-        server.on('ready', setup);
+        aedes.on('connectionError', function (client, err) {
+            logger.log("info",'client error', client, err.message, err.stack)
+        });
 
-        // fired when the mqtt server is ready
-        function setup() {
-            logger.log("info", 'Mosca server is up and running');
-        }
+        aedes.on('publish', function (packet, client) {
+            if (client) {
+                logger.log("info",'message from client', client.id)
+            }
+        });
+
+        aedes.on('subscribe', function (subscriptions, client) {
+            if (client) {
+                logger.log("info",'subscribe from client', subscriptions, client.id)
+            }
+        });
+
+        aedes.on('client', function (client) {
+            logger.log("info",'new client', client.id)
+        });
+
     }
 
     return that;
