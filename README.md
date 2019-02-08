@@ -22,6 +22,7 @@ Inspired by CloudML (cf. http://cloudml.org), _Virtual Machine_ are characterize
 ### Pre-requisite:
 * Node.js v7
 * npm v4
+* Java v8
 
 If you want to deploy docker containers, please remember to turn on the Docker Remote API on the target host. 
 On Raspberry Pi, you can install docker using:
@@ -45,5 +46,13 @@ If you want to run the latest code from git, here's how to get started:
 4. Run
 
         npm start
+
+5. Access the GeneSIS web interface
+
+Once GeneSIS started, you can access the GeneSIS web interface at the following address:
+
+        http://your_pi:8880
+
+
 
 ## Architecture
