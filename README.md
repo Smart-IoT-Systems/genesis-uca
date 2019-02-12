@@ -53,6 +53,40 @@ Once GeneSIS started, you can access the GeneSIS web interface at the following 
 
         http://your_pi:8880
 
+### From DockerFile:
+You may build your own Docker image of GeneSIS by using our DockerFile. This image will run the latest code from git. 
 
+1. Download the DockerFile:
+
+        wget -L https://gitlab.com/enact/GeneSIS/raw/master/Dockerfiles/Dockerfile
+
+2. In the repository where you downloaded the DockerFile, build your image:
+
+        docker -t genesis build .
+
+3. Run the docker container (Depending on how you plan to use GeneSIS, remember to open the proper ports, cf. https://docs.docker.com/engine/reference/run/).
+
+        docker run -p 8880:8880 genesis
+
+4. Access the GeneSIS web interface
+
+Once GeneSIS started, you can access the GeneSIS web interface at the following address:
+
+        http://your_pi:8880
+
+### From the public Docker image:
+1. Pull the image:
+
+        docker pull nicolasferry/genesis
+
+2. Run the docker container (Depending on how you plan to use GeneSIS, remember to open the proper ports, cf. https://docs.docker.com/engine/reference/run/).
+
+        docker run -p 8880:8880 genesis
+
+3. Access the GeneSIS web interface
+
+Once GeneSIS started, you can access the GeneSIS web interface at the following address:
+
+        http://your_pi:8880
 
 ## Architecture
