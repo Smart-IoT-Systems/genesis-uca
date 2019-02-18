@@ -130,8 +130,9 @@ var create_modal = function (modules) {
         var fac = graph_factory($("#ctx_name").val());
         var node = fac.create_node(type);
         cy.add(node);
-        save_form(elem);
-        dm.add_component(elem);
+        save_form(elem, function(elem){
+            dm.add_component(elem);
+        });
     });
 };
 
@@ -167,7 +168,7 @@ function build_form(elem, container) {
     }
 }
 
-function save_form(elem) {
+function save_form(elem, callback) {
     var props = get_all_properties(elem);
     for (var p in props) {
         var item_value = props[p];
@@ -182,7 +183,6 @@ function save_form(elem) {
                 } catch (e) {
                     alertMessage("success", val+ " is not a valid JSON", 2000);
                 }
-                return true;
             } else {
                 if ($('#ctx_' + item_value).val().indexOf(' ') >= 0) {
                     alertMessage("success", $('#ctx_' + item_value).val()+ " is not a valid string", 2000);
@@ -193,6 +193,7 @@ function save_form(elem) {
         }
     }
     alertMessage("success", "Modification saved!", 2000);
+    callback(elem);
 }
 
 /***************************************/
