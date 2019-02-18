@@ -177,6 +177,15 @@ var deployment_model = function (spec) {
         return tab;
     };
 
+    that.need_deployment_agent = function(comp){
+        that.get_all_inputs_of_component(comp).forEach(function(elem){
+            if(elem.isDeployer){
+                return true;
+            }
+        });
+        return false;
+    };
+
     that.is_valid_name = function (name) {
         var valid_name = true;
         that.components.forEach(function (elem) {
