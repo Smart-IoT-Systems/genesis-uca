@@ -23,7 +23,7 @@ var thingml_compiler = function (node) {
             files.forEach(function (file) {
                 var filepath = path.resolve(dirpath, file);
                 if (fs.lstatSync(filepath).isDirectory()) {
-                    cleanDirectory(filepath);
+                    that.cleanDirectory(filepath);
                     fs.rmdirSync(filepath);
                 } else {
                     fs.unlinkSync(filepath);
@@ -71,9 +71,11 @@ var thingml_compiler = function (node) {
         process.stderr.on('data', (data) => {
             data.trim().split('\n').forEach(line => {
                 if (!line.toLowerCase().startsWith('warning')) {
+                    logger.log("warn",line);
+                } else if (line.toLowerCase().startsWith('error')) {
                     hasError = true;
                     logger.log("error",line);
-                } else {
+                }else {
                     logger.log("info",data);
                 }
             });
