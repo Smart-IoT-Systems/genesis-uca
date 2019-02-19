@@ -25,6 +25,10 @@ var plantuml_generator=(function(){
           var readFile = fs.createReadStream("./generated_uml_"+req.params.uml+"/"+req.params.uml+"/docs/"+req.params.uml+".plantuml");
           var gen = plantuml.generate({format: 'png'});
          
+          readStream.on('error', function(err) {
+            res.end(err);
+          });
+
           //decode.out.pipe(gen.in);
           readFile.pipe(gen.in);
           gen.out.pipe(res);
@@ -37,6 +41,10 @@ var plantuml_generator=(function(){
           var readFile = fs.createReadStream("./generated_uml_"+req.params.uml+"/"+req.params.uml+"/docs/"+req.params.uml+".plantuml");
           var gen = plantuml.generate({format: 'svg'});
          
+          readStream.on('error', function(err) {
+            res.end(err);
+          });
+
           //decode.out.pipe(gen.in);
           readFile.pipe(gen.in);
           gen.out.pipe(res);
@@ -48,7 +56,11 @@ var plantuml_generator=(function(){
           //var decode = plantuml.decode(req.params.uml);
           var readFile = fs.createReadStream("./generated_uml_"+req.params.uml+"/"+req.params.uml+"/docs/"+req.params.uml+"_class.plantuml");
           var gen = plantuml.generate({format: 'svg'});
-         
+          
+          readStream.on('error', function(err) {
+            res.end(err);
+          });
+
           //decode.out.pipe(gen.in);
           readFile.pipe(gen.in);
           gen.out.pipe(res);
@@ -61,6 +73,10 @@ var plantuml_generator=(function(){
           var readFile = fs.createReadStream("./generated_uml_"+req.params.uml+"/"+req.params.uml+"/docs/"+req.params.uml+"_datatypes.plantuml");
           var gen = plantuml.generate({format: 'svg'});
          
+          readStream.on('error', function(err) {
+            res.end(err);
+          });
+
           //decode.out.pipe(gen.in);
           readFile.pipe(gen.in);
           gen.out.pipe(res);
