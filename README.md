@@ -11,11 +11,13 @@ GeneSIS aims to facilitate the engineering and continuous deployment of smart Io
 
 The GeneSIS Modelling language is inspired by component-based approaches in order to facilitate separation of concerns and reusability. In this respect, deployment models can be regarded as assemblies of components exposing ports, and bindings between these ports.
 
-A _component_ represents a reusable type of software component of a smart IoT system. A _Component_ can be an _ExternalComponent_ xxx (e.g., a database) or an _InternalComponent_ xxx (e.g., an instance of SIS-Node). A _component_ can be associated to _Resources_. A _Resource_ represents an artefact (e.g., scripts, Docker Images, etc.) adopted to manage the deployment life-cycle (e.g., download, configure, install, start, and stop). 
+A _DeploymentModel_ consists of _SISElemenst_. All _SISElements_ have a _name_ and a unique _identifier_. In addition, they can all be associated with a list of _properties_ in the form of key-value pairs. The two main types of _SISElements_ are _Components_ and _Links_. 
 
-An _Host_ represents a reusable type of xxx that can host _Components_ (e.g., Raspberry pi, Docker engine, Virtual Machine). A _Host_ can be _ExternalHost_ managed and provided third party or an _InternalHost_ on top of which, _Components_ can be managed and deployed by GeneSIS. A _Virtual Machine_ is a specific type of Host that can be dynamically provisioned by GeneSIS. 
+A _Component_ represents a reusable type of node. It can be a _SoftwareComponent_ representing a piece of software to be deployed on an host. A _SoftwareComponent_ can be an _InternalComponent_ meaning that it is managed by GeneSIS, or an _ExternalComponent_ meaning that it is either managed by an external provider or hosted on a blackbox device. An _InfrastructureComponent_ provides hosting facilities (i.e, it provides an execution environment) to _SoftwareComponents_
 
-Inspired by CloudML (cf. http://cloudml.org), _Virtual Machine_ are characterized by the following properties. The properties _minCores_, _maxCores_, _minRam_, _maxRam_, _minStorage_, and _maxStorage_ represent the lower and upper bounds of virtual compute cores, RAM, and storage, respectively, of the required VM (e.g., _minCores_=1, _minRam_=1024). The property _OS_ represents the operating system to be run by the VM (e.g., _OS_="ubuntu"). These properties, which are provider independent, are used as constraints during the provisioning process in order to become provider specific. All these are optional and do not have to be defined.
+There are two main types of _Links_. A _Hosting_ depicts that an _InternalComponent_ will execute on a specific host. A _Communication_ represents a communication binding between two _SoftwareComponents_.
+
+More details of the GeneSIS modelling language can be found in the following paper:
 
 ## Installation
 
