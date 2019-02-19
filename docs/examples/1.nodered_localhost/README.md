@@ -1,6 +1,6 @@
 # Deploying Node-RED on a Docker engine
 
-In this example we will simply deploy a Node-Red container on the machine running GeneSIS by using Docker.
+In this example we will simply deploy a Node-Red container on the machine running GeneSIS by using Docker. 
 
 Here, we assume that (i) a Docker engine is running on the machine running GeneSIS with the Docker Remote engine accessible, and (ii) GeneSIS is properly installed on the machine.
 
@@ -73,6 +73,11 @@ Once the deployment started, you can observe deployment logs in the console wher
 ![alt text](docs/examples/1.nodered_localhost/images/deployment.png "Successful deployment")
 
 Finally, you can access to your Node-RED by right-clicking on the component in the graph view of the editor before clicking on the “Go To” button.
+
+## Deploy on a remote Host
+
+So far, we deployed Node-RED on the machine running GeneSIS. But actually, we could have use the same process to deploy Node-RED on a remote host.
+To do so, we only change the IP parameter of the InfrastructureComponent (aka., the host) to the IP address of the host where we want to deploy Node-RED.
 
 In the next tutorial we will observe how to deploy a ThingML component!
 
