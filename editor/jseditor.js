@@ -21,7 +21,7 @@ document.getElementById('saveJSON').onclick = function () {
         var r = compare(dm, edited);
         dm = edited;
         alertMessage("success", "Model updated!", 3000);
-    }else{
+    } else {
         //TODO: we need to provide more relevant info
         alertMessage("error", "Model is not valid!", 3000);
     }
@@ -46,16 +46,23 @@ function compare(src_dm, target_dm) {
     for (var i in comps) {
         var tmp_host = target_dm.find_node_named(comps[i].name);
         if (tmp_host === undefined) {
-            //if removed component is hosting components (in new model then we should not remove these)
-            var tmp_hosted = target_dm.get_hosted(comps[i].name);
-            if (tmp_hosted !== undefined) {
-                tmp_hosted.forEach(function (elem) {
-                    console.log(elem.name);
-                    cy.$('#' + elem.name).move({
+            console.log("Here we go");
+            //if removed component is hosting components and formerly hosted components are still in model we should move them
+            var tmp_h = src_dm.get_hosted(comps[i].name);
+            tmp_h.forEach(function(e){
+                var _tmp=target_dm.find_node_named(e.name);
+                if(_tmp !== undefined){
+                    cy.$('#' + e.name).move({
+                        parent: _tmp.id_host
+                    });
+                }
+                if(e.id_host === null){
+                    cy.$('#' + e.name).move({
                         parent: null
                     });
-                });
-            }
+                }
+            });
+
             //Then we remove the hosts
             cy.remove('#' + comps[i].name);
         }

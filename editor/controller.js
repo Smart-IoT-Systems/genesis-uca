@@ -44,10 +44,24 @@ var context_menu = (function () {
         //It should always be a name
         //First we update the display (in the graph and its style to update the label display)
         if (target_node) {
-            target_node.id($('#ctx_name').val());
-            cy.$('#' + target_node.id()).css({
-                content: $('#ctx_name').val()
-            });
+            
+            //In cytoscape ids are immutable so we need to create a new node
+            var tmp=target_node.json();
+            tmp.data.id=$('#ctx_name').val();
+            cy.add(tmp);
+            var tmp_hosted = target_node.children();
+            if (tmp_hosted !== undefined) {
+                tmp_hosted.forEach(function (elem) {
+                    elem.move({
+                        parent: $('#ctx_name').val()
+                    });
+
+                    var component_tmp = dm.find_node_named(elem.id());
+                    component_tmp.id_host=$('#ctx_name').val();
+                });
+            }
+            cy.remove("#"+target_node.id());
+
         } else {
             if (!target_link.isControl) {
                 cy.$('#' + target_link.id()).removeClass('control');
@@ -55,7 +69,9 @@ var context_menu = (function () {
         }
 
         //then the node in the model
-        save_form(elem);
+        save_form(elem, function () {
+            alertMessage("success", "Modification saved!", 2000);
+        });
     });
 
     $('#ctx_goto').on('click', function (evt) {
@@ -130,8 +146,9 @@ var create_modal = function (modules) {
         var fac = graph_factory($("#ctx_name").val());
         var node = fac.create_node(type);
         cy.add(node);
-        save_form(elem, function(elem){
+        save_form(elem, function (elem) {
             dm.add_component(elem);
+            alertMessage("success", "Modification saved!", 2000);
         });
     });
 };
@@ -181,18 +198,17 @@ function save_form(elem, callback) {
                 try {
                     elem[item_value] = JSON.parse(val);
                 } catch (e) {
-                    alertMessage("success", val+ " is not a valid JSON", 2000);
+                    alertMessage("error", val + " is not a valid JSON", 2000);
                 }
             } else {
                 if ($('#ctx_' + item_value).val().indexOf(' ') >= 0) {
-                    alertMessage("success", $('#ctx_' + item_value).val()+ " is not a valid string", 2000);
+                    alertMessage("error", $('#ctx_' + item_value).val() + " is not a valid string", 2000);
                 } else {
                     elem[item_value] = $('#ctx_' + item_value).val();
                 }
             }
         }
     }
-    alertMessage("success", "Modification saved!", 2000);
     callback(elem);
 }
 
