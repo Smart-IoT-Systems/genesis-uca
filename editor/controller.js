@@ -44,24 +44,23 @@ var context_menu = (function () {
         //It should always be a name
         //First we update the display (in the graph and its style to update the label display)
         if (target_node) {
-            
-            //In cytoscape ids are immutable so we need to create a new node
-            var tmp=target_node.json();
-            tmp.data.id=$('#ctx_name').val();
-            cy.add(tmp);
-            var tmp_hosted = target_node.children();
-            if (tmp_hosted !== undefined) {
-                tmp_hosted.forEach(function (elem) {
-                    elem.move({
-                        parent: $('#ctx_name').val()
+            if (target_node.id() !== $('#ctx_name').val()) {
+                //In cytoscape ids are immutable so we need to create a new node
+                var tmp = target_node.json();
+                tmp.data.id = $('#ctx_name').val();
+                cy.add(tmp);
+                var tmp_hosted = target_node.children();
+                if (tmp_hosted !== undefined) {
+                    tmp_hosted.forEach(function (elem) {
+                        elem.move({
+                            parent: $('#ctx_name').val()
+                        });
+                        var component_tmp = dm.find_node_named(elem.id());
+                        component_tmp.id_host = $('#ctx_name').val();
                     });
-
-                    var component_tmp = dm.find_node_named(elem.id());
-                    component_tmp.id_host=$('#ctx_name').val();
-                });
+                }
+                cy.remove("#" + target_node.id());
             }
-            cy.remove("#"+target_node.id());
-
         } else {
             if (!target_link.isControl) {
                 cy.$('#' + target_link.id()).removeClass('control');
