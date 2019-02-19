@@ -1,39 +1,44 @@
 var logger = require('./logger.js');
 var aedes = require('aedes')();
+var ws = require('websocket-stream');
 
 var MQTTBroker = (function () {
     var that = {};
-    that.server = require('net').createServer(aedes.handle);
+    that.server = require('http').createServer();
     that.port = 1883;
 
     that.start = function () {
 
-        that.server.listen(that.port, function () {
-            logger.log("info",'MQTT server listening on port ' + that.port)
-        });
+        ws.createServer({
+            server: that.server
+          }, aedes.handle);
+          
+          that.server.listen(that.port, "0.0.0.0", function () {
+            logger.log("info",'MQTT websocket server listening on port '+that.port);
+          });
 
         aedes.on('clientError', function (client, err) {
-            logger.log("info",'client error', client.id, err.message, err.stack)
+            logger.log("info",'client error '+client.id+" "+err.message+" "+err.stack)
         });
 
         aedes.on('connectionError', function (client, err) {
-            logger.log("info",'client error', client, err.message, err.stack)
+            logger.log("info",'client error '+client.id+" "+err.message+" "+err.stack)
         });
 
         aedes.on('publish', function (packet, client) {
             if (client) {
-                logger.log("info",'message from client', client.id)
+                logger.log("info",'message from client: '+client.id)
             }
         });
 
         aedes.on('subscribe', function (subscriptions, client) {
             if (client) {
-                logger.log("info",'subscribe from client', subscriptions, client.id)
+                logger.log("info",'subscribe from client '+ subscriptions+ " from "+ client.id)
             }
         });
 
         aedes.on('client', function (client) {
-            logger.log("info",'new client', client.id)
+            logger.log("info",'New MQTT client '+client.id)
         });
 
     }

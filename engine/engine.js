@@ -12,6 +12,7 @@ var agent = require('./deployment-agent.js');
 var logger = require('./logger.js');
 var ac = require('./ansible-connector.js');
 var thingmlcli = require('./thingml-compiler.js');
+var mvn_builder = require('./maven-builder');
 
 var engine = (function () {
     var that = {};
@@ -121,28 +122,58 @@ var engine = (function () {
         }
 
         for (var i in comp) {
-            var host_id = comp[i].id_host;
-            var host = dm.find_node_named(host_id);
-            if (host !== undefined) {
-                if (host._type === "docker_host") {
-                    var connector = dc();
-                    nb++;
-                    if (comp[i]._type === "node_red") {
-                        //then we deploy node red
-                        //TODO: what if port_bindings is empty?
-                        connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", "nicolasferry/node-red-contrib-thingml-rpi:latest", comp[i].docker_resource.mounts, comp[i].name); //
+            //if not to be deployed by a deployment agent
+            if (!dm.need_deployment_agent(comp[i])) {
+
+                var host_id = comp[i].id_host;
+                var host = dm.find_node_named(host_id);
+                if (host !== undefined) {
+                    if (comp[i]._type === "thingml") {
+                        //we should generate the plantuml
+                        var tcli = thingmlcli(comp[i]);
+                        tcli.build("./generated_uml_" + comp[i].name, "uml").catch(function (err) {
+                            logger.log("error", err);
+                        });
+
+                        //Then we generate for the target
+                        tcli.build("./generated_" + comp[i].name, comp[i].target_language).then(function (elem) {
+                            //if java we need to build and deploy
+                            if (comp[i].target_language === 'java') {
+                                mb = mvn_builder("./generated_" + comp[i].name + '/pom.xml');
+                                mb.clean_install().then(function () {
+                                    //TODO: make it more generic
+                                    //as a start we connect and deploy via SSH
+                                    var sc=sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.sshkey);
+                                    sc.upload_file("./generated_" + comp[i].name + '/target/'+comp[i].name+'-1.0.0-jar-with-dependencies.jar','/home/'+comp[i].ssh_resource.credentials.username+'/'+comp[i].name+'-1.0.0-jar-with-dependencies.jar').then(function(file_path_tgt){
+                                        sc.execute_command(comp[i].ssh_resource.startCommand);
+                                    }).catch(function(err){
+                                        logger.log("error", err);
+                                    });
+                                }).catch(function () {
+                                    logger.log("error", "mvn clean install failed");
+                                });
+                            }
+                        }).catch(function (err) {
+                            logger.log("error", err);
+                        });
                     } else {
-                        connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, comp[i].docker_resource.command, comp[i].docker_resource.image, comp[i].docker_resource.mounts, comp[i].name);
+                        if (host._type === "docker_host") {
+                            let connector = dc();
+                            nb++;
+                            if (comp[i]._type === "node_red") {
+                                //then we deploy node red
+                                //TODO: what if port_bindings is empty?
+                                connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", "nicolasferry/node-red-contrib-thingml-rpi:latest", comp[i].docker_resource.mounts, comp[i].name); //
+                            } else {
+                                connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, comp[i].docker_resource.command, comp[i].docker_resource.image, comp[i].docker_resource.mounts, comp[i].name);
+                            }
+                        }
+                        if (comp[i].ansible_resource.playbook_path !== "") {
+                            let connector = ac(host, comp[i]);
+                            connector.executePlaybook();
+                        }
+                        
                     }
-                }
-                if (comp[i].ansible_resource.playbook_path !== "") {
-                    var connector = ac(host, comp[i]);
-                    connector.executePlaybook();
-                }
-                if (comp[i]._type === "thingml") {
-                    //we should generate the plantuml
-                    var tcli = thingmlcli(comp[i]);
-                    tcli.build("./generated", "uml");
                 }
             }
         }
@@ -436,7 +467,7 @@ var engine = (function () {
                             deploy(that.diff, that.dep_model);
 
                         }
-                    }else{
+                    } else {
                         logger.log("info", "Model not loaded since not valid: " + JSON.stringify(dm.components));
                     }
 

@@ -46,7 +46,6 @@ function compare(src_dm, target_dm) {
     for (var i in comps) {
         var tmp_host = target_dm.find_node_named(comps[i].name);
         if (tmp_host === undefined) {
-            console.log("Here we go");
             //if removed component is hosting components and formerly hosted components are still in model we should move them
             var tmp_h = src_dm.get_hosted(comps[i].name);
             tmp_h.forEach(function(e){

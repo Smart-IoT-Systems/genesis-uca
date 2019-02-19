@@ -22,7 +22,7 @@ var plantuml_generator=(function(){
           logger.log("info", 'Get Plantuml');
          
           //var decode = plantuml.decode(req.params.uml);
-          var readFile = fs.createReadStream("./generated/"+req.params.uml+"/docs/"+req.params.uml+".plantuml");
+          var readFile = fs.createReadStream("./generated_uml_"+req.params.uml+"/"+req.params.uml+"/docs/"+req.params.uml+".plantuml");
           var gen = plantuml.generate({format: 'png'});
          
           //decode.out.pipe(gen.in);
@@ -30,11 +30,11 @@ var plantuml_generator=(function(){
           gen.out.pipe(res);
         });
          
-        app.get('/svg/:uml', function(req, res) {
+        app.get('/svg/components/:uml', function(req, res) {
           res.set('Content-Type', 'image/svg+xml');
          
           //var decode = plantuml.decode(req.params.uml);
-          var readFile = fs.createReadStream("./generated/"+req.params.uml+"/docs/"+req.params.uml+".plantuml");
+          var readFile = fs.createReadStream("./generated_uml_"+req.params.uml+"/"+req.params.uml+"/docs/"+req.params.uml+".plantuml");
           var gen = plantuml.generate({format: 'svg'});
          
           //decode.out.pipe(gen.in);
@@ -46,7 +46,7 @@ var plantuml_generator=(function(){
           res.set('Content-Type', 'image/svg+xml');
          
           //var decode = plantuml.decode(req.params.uml);
-          var readFile = fs.createReadStream("./generated/"+req.params.uml+"/docs/"+req.params.uml+"_class.plantuml");
+          var readFile = fs.createReadStream("./generated_uml_"+req.params.uml+"/"+req.params.uml+"/docs/"+req.params.uml+"_class.plantuml");
           var gen = plantuml.generate({format: 'svg'});
          
           //decode.out.pipe(gen.in);
@@ -58,7 +58,7 @@ var plantuml_generator=(function(){
           res.set('Content-Type', 'image/svg+xml');
          
           //var decode = plantuml.decode(req.params.uml);
-          var readFile = fs.createReadStream("./generated/"+req.params.uml+"/docs/"+req.params.uml+"_datatypes.plantuml");
+          var readFile = fs.createReadStream("./generated_uml_"+req.params.uml+"/"+req.params.uml+"/docs/"+req.params.uml+"_datatypes.plantuml");
           var gen = plantuml.generate({format: 'svg'});
          
           //decode.out.pipe(gen.in);
