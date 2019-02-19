@@ -29,7 +29,27 @@ On Raspberry Pi, you can install docker using:
 
         curl -sSL https://get.docker.com | sh
 
-and configure it by following these instructions: https://success.docker.com/article/how-do-i-enable-the-remote-api-for-dockerd
+and configure it as follows:
+* Create a file called:
+
+        /etc/systemd/system/docker.service.d/startup_options.conf
+
+* Add to the file:
+
+        # /etc/systemd/system/docker.service.d/override.conf
+        [Service]
+        ExecStart=
+        ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2376 -H unix:///var/run/docker.sock
+
+* Reload the unit files
+
+        sudo systemctl daemon-reload
+
+* Restart Dockerd
+
+        sudo systemctl restart docker.service
+
+
 
 ### From git:
 If you want to run the latest code from git, here's how to get started:
