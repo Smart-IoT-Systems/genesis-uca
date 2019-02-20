@@ -65,6 +65,4 @@ Once the deployment completed, you should see the logs depicted in the figure be
 
 ![alt text](./images/shell.png "Device Component")
 
-## Observe UML diagrams of your ThingML program
-
 
