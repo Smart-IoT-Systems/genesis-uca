@@ -36,12 +36,12 @@ In this example, our deployment model will be composed of two components:
 * an _InfrastructureComponent_ (i.e., the host on top of which we will deploy our SoftwareComponent).
 
 First, we start by creating the InfrastructureComponent by clicking on 'InfrastructureComponent > Device'.
-In the creation form we specify its 'name' and 'id' and we fill the field 'IP' with the IP address of the host on top of which our program written in ThingML will be deployed  and click on 'add'.
+In the creation form we specify its 'name' and 'id' and we fill the field 'IP' with the IP address of the host on top of which our program written in ThingML will be deployed. Once the form completed we can click on the 'add' button to actually add the component in the deployment model.
 For details on how to manipulate and edit components with the GeneSIS editor, please refer to our [first tutorial](https://gitlab.com/enact/GeneSIS/tree/master/docs/examples/1.nodered_localhost).
 
 ![alt text](./images/my_machine.png "Device Component")
 
-We can now create the SoftwareComponent by clicking on 'SoftwareComponent > InternalComponent > thingml'. For this tutorial we provide a simple ThingML Hello world program whose name is Hello (i.e., name of the Configuration in ThingML).
+We can now create the SoftwareComponent by clicking on 'SoftwareComponent > InternalComponent > thingml'. For this tutorial we provide a simple [ThingML Hello world program](https://gitlab.com/enact/GeneSIS/blob/master/docs/examples/2.thingml_localhost/hello.thingml) whose name is Hello (i.e., name of the Configuration in ThingML).
 For GeneSIS to fully support the deployment, compilation and deployment of ThingML programs it is important that **the name of the ThingML is the same than the name of the ThingML program**. We thus set the name of our component to Hello.
 We also need to fill the field "File" with the path to the [Hello.thingml](https://gitlab.com/enact/GeneSIS/blob/master/docs/examples/2.thingml_localhost/hello.thingml) file.
 
@@ -59,6 +59,9 @@ Select the proper nodes and click on 'add'.
 ## Deploy
 
 Click on 'Deploy > All'.
+
+Once the deployment started, you can observe deployment logs in the console where you started GeneSIS. In particular, you will see: (i) the ThingML compiler generating the Java code, (ii) the generated code being build, and (iii) the generated binary being uploaded on the target host before it is started.
+Once the deployment completed, you should see the logs depicted in the figure below (please note that the highlighted line indicates the result of the execution of the ThingML program). 
 
 ![alt text](./images/shell.png "Device Component")
 
