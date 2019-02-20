@@ -41,7 +41,7 @@ First, we start by creating the InternalComponent by clicking on 'SoftwareCompon
 At the current moment just specify it 'name' and 'id' and click on 'add'.
 A circle should appear in the editor! Please note that you can (i) zoom in/out but using the mouse wheel, (ii) you can move a component by drag and drop, and (iii) you can edit the properties of a component with a right click on it.
 
-We can now create the InfrastructureComponent by clicking on 'Click on 'InfrastructureComponent > InternalComponent > Docker Engine'
+We can now create the InfrastructureComponent by clicking on 'InfrastructureComponent > Docker Engine'
 At the current moment just specify it 'name' and 'id' and click on 'add'. A rectangle should appear!
 
 We will now specify that our InternalComponent will be deployed on our InfrastructureComponent (i.e., Node-RED on Docker). To do so, we need to create a containement relationship between the two components by clicking on 'Add Link > Containment'.
