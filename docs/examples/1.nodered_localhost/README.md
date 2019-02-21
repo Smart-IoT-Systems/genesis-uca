@@ -1,8 +1,8 @@
 # Deploying Node-RED on a Docker engine
 
-In this example we will simply deploy a Node-Red container on the machine running GeneSIS by using Docker. 
+In this example we will simply deploy a Node-Red container via Docker on the machine running GeneSIS. 
 
-Here, we assume that (i) a Docker engine is running on the machine running GeneSIS with the Docker Remote engine accessible, and (ii) GeneSIS is properly installed on the machine.
+Here, we assume that (i) a Docker engine is up on the machine running GeneSIS and with the Docker Remote engine accessible, and (ii) GeneSIS is properly installed on the machine.
 
 ## Start GeneSIS:
 
@@ -28,20 +28,20 @@ Once GeneSIS started, you can access the GeneSIS editor at the following address
 
 We can now start specifying our deployment model. We first start by the high level architecture of our deployment before we dig into the configuration of the different components that form our deployment model. 
 
-We need first to remember that the GeneSIS Modelling language is inspired by component-based approaches. Deployment models can be regarded as assemblies of components. 
+We need first to remember that the GeneSIS Modelling language is inspired by component-based approaches. Deployment models can thus be regarded as assemblies of components. 
 
 In this example, our deployment model will be composed of two components: 
-* a SoftwareComponent (i.e., the Node-RED container that will be deployed by GeneSIS) and more precisely an InternalComponent as its deployment life-cycle will be managed by GeneSIS.
-* an InfrastructureComponent (i.e., the host on top of which we will deploy our SoftwareComponent, in our case a DockerEngine).
+* a _SoftwareComponent_ (i.e., the Node-RED container that will be deployed by GeneSIS) and more precisely an InternalComponent as its deployment life-cycle will be managed by GeneSIS.
+* an _InfrastructureComponent_ (i.e., the host on top of which we will deploy our SoftwareComponent, in our case a DockerEngine).
 
 First, we start by creating the InternalComponent by clicking on 'SoftwareComponent > InternalComponent > Nodered' as depicted in the Figure below.
 
 ![alt text](docs/examples/1.nodered_localhost/images/create_component.png "Create Component")
 
-At the current moment just specify it 'name' and 'id' and click on 'add'.
+At the current moment we just specify its 'name' and 'id' and click on the 'add' button to actually add the component to our deployment model.
 A circle should appear in the editor! Please note that you can (i) zoom in/out but using the mouse wheel, (ii) you can move a component by drag and drop, and (iii) you can edit the properties of a component with a right click on it.
 
-We can now create the InfrastructureComponent by clicking on 'Click on 'InfrastructureComponent > InternalComponent > Docker Engine'
+We can now create the InfrastructureComponent by clicking on 'InfrastructureComponent > Docker Engine'
 At the current moment just specify it 'name' and 'id' and click on 'add'. A rectangle should appear!
 
 We will now specify that our InternalComponent will be deployed on our InfrastructureComponent (i.e., Node-RED on Docker). To do so, we need to create a containement relationship between the two components by clicking on 'Add Link > Containment'.
@@ -50,14 +50,14 @@ Select the proper nodes and click on 'add'. The circle should now be contained b
 ![alt text](docs/examples/1.nodered_localhost/images/containment.png "Containment")
 
 We are now going to configure our two components. 
-For our InfrastructureComponent (aka., Docker Engine), we need to make sure that the IP property of the component is set to 127.0.0.1.
-We can edit this property of the component by right-clicking on it and modifying the property 'IP' as depicted in the Figure below.
+For our InfrastructureComponent (aka., Docker Engine), we need to make sure that the 'IP' property of the component is set to '127.0.0.1'.
+We can edit this property of the component by right-clicking on it and modifying the 'IP' field as depicted in the Figure below.
 
 ![alt text](docs/examples/1.nodered_localhost/images/port_container.png "Set port of the Docker engine")
 
 For editing the InternalComponent (aka., Node-RED), we can use the GeneSIS JSON editor. You can move to the JSON editor view by clicking on the top right button named 'JSONEditor'.
-We need to specify the Docker port binding (i.e., how the port of the service running in the container will be accessible from outside).
-We can edit the JSON as depicted in the figure below. Typically, node-red is exposed using port 1880.
+We need to specify the Docker port binding (i.e., how the port of the service running in the Docker container will be accessible from outside).
+We can edit the JSON as depicted in the figure below. Typically, Node-RED is exposed using port 1880.
 
 ![alt text](docs/examples/1.nodered_localhost/images/delete.png "Delete inputs in the JSON")
 ![alt text](docs/examples/1.nodered_localhost/images/port.png "Set port of the Docker binding")
@@ -72,7 +72,7 @@ Once the deployment started, you can observe deployment logs in the console wher
 
 ![alt text](docs/examples/1.nodered_localhost/images/deployment.png "Successful deployment")
 
-Finally, you can access to your Node-RED by right-clicking on the component in the graph view of the editor before clicking on the “Go To” button.
+Finally, you can access to your Node-RED by right-clicking on the component in the graph view of the editor and by clicking on the “Go To” button.
 
 ## Deploy on a remote Host
 
