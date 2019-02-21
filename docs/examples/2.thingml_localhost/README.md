@@ -32,7 +32,7 @@ Once GeneSIS started, you can access the GeneSIS editor at the following address
 
 We can now start specifying our deployment model. 
 In this example, our deployment model will be composed of two components: 
-* a _SoftwareComponent_ (i.e., the program written in ThingML that will be deployed by GeneSIS) and more precisely an InternalComponent as its deployment life-cycle will be managed by GeneSIS.
+* a _SoftwareComponent_ (i.e., representing the program written in ThingML that will be deployed by GeneSIS) and more precisely an _InternalComponent_ as its deployment life-cycle will be managed by GeneSIS.
 * an _InfrastructureComponent_ (i.e., the host on top of which we will deploy our SoftwareComponent).
 
 First, we start by creating the InfrastructureComponent by clicking on 'InfrastructureComponent > Device'.
@@ -41,8 +41,8 @@ For details on how to manipulate and edit components with the GeneSIS editor, pl
 
 ![alt text](./images/my_machine.png "Device Component")
 
-We can now create the SoftwareComponent by clicking on 'SoftwareComponent > InternalComponent > thingml'. For this tutorial we provide a simple [ThingML Hello world program](https://gitlab.com/enact/GeneSIS/blob/master/docs/examples/2.thingml_localhost/hello.thingml) whose name is Hello (i.e., name of the Configuration in ThingML).
-For GeneSIS to fully support the deployment, compilation and deployment of ThingML programs it is important that **the name of the ThingML is the same than the name of the ThingML program**. We thus set the name of our component to Hello.
+We can now create the SoftwareComponent by clicking on 'SoftwareComponent > InternalComponent > thingml'. For this tutorial we provide a simple [ThingML Hello world program](https://gitlab.com/enact/GeneSIS/blob/master/docs/examples/2.thingml_localhost/hello.thingml) whose name is Hello (i.e., name of the _Configuration_ in ThingML).
+For GeneSIS to fully support the deployment, compilation and deployment of ThingML programs it is important that **the name of the ThingML InternalComponent is the same than the name of the ThingML program**. We thus set the name of our component to Hello.
 We also need to fill the field "File" with the path to the [Hello.thingml](https://gitlab.com/enact/GeneSIS/blob/master/docs/examples/2.thingml_localhost/hello.thingml) file.
 
 Finally, because there might be different ways to start the binary generated from the ThingML program, we need to specify how to start it.
@@ -54,11 +54,11 @@ In our case we need to define (i) the _startCommand_ of our SSH-Resource describ
 We also need to specify that we should generate Java code from our ThingML program. To do so, we set the property 'target_language' to java.
 
 Finally, we specify that our InternalComponent will be deployed on our InfrastructureComponent. To do so, we need to create a containement relationship between the two components by clicking on 'Add Link > Containment'.
-Select the proper nodes and click on 'add'.
+Select the proper nodes and click on the 'add' button.
 
 ## Deploy
 
-Click on 'Deploy > All'.
+Click on 'Deploy > All'. This will send our deployment model to the GeneSIS deployment engine and trigger the deployment.
 
 Once the deployment started, you can observe deployment logs in the console where you started GeneSIS. In particular, you will see: (i) the ThingML compiler generating the Java code, (ii) the generated code being build, and (iii) the generated binary being uploaded on the target host before it is started.
 Once the deployment completed, you should see the logs depicted in the figure below (please note that the highlighted line indicates the result of the execution of the ThingML program). 
