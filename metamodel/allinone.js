@@ -5,7 +5,7 @@
 
 var deployment_model = function (spec) {
     var that = {};
-    that.name = spec.name || 'a name';
+    that.name = spec.name || 'a _deployment_name';
     that.components = [];
     that.links = [];
     that.type_registry = [];
@@ -87,6 +87,7 @@ var deployment_model = function (spec) {
     };
 
     that.revive_components = function (comps) {
+        that.components=[];
         for (var i in comps) {
             var f = that.node_factory();
             var node = f.create_component(comps[i]._type, comps[i]);
@@ -95,6 +96,7 @@ var deployment_model = function (spec) {
     };
 
     that.revive_links = function (links) {
+        that.links=[];
         for (var i in links) {
             var l = link(links[i]);
             that.links.push(l);
