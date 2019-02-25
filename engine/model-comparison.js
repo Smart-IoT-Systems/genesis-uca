@@ -10,8 +10,12 @@ var comparator = function (dm) {
         result.list_of_removed_components = [];
         result.list_of_added_components = [];
 
+        result.list_of_added_hosted_components = [];
+
         result.list_of_removed_links = [];
         result.list_of_added_links = [];
+
+        result.list_of_added_links_deployer = [];
 
         //Added Hosts and components
         var target_comps = target_dm.components;
@@ -19,6 +23,9 @@ var comparator = function (dm) {
             var tmp_node = dm.find_node_named(target_comps[i].name);
             if (tmp_node === undefined) {
                 if (target_comps[i].hasOwnProperty('id_host')) {
+                    if (target_dm.find_node_named(target_comps[i].id_host) !== undefined) {
+                        result.list_of_added_hosted_components.push(target_comps[i]);
+                    }
                     result.list_of_added_components.push(target_comps[i]);
                 } else {
                     result.list_of_added_hosts.push(target_comps[i]);
@@ -44,8 +51,12 @@ var comparator = function (dm) {
         var target_links = target_dm.links;
         for (var i in target_links) {
             var tmp_link = dm.find_link_named(target_links[i].name);
-            if (tmp_host === undefined) {
-                result.list_of_added_links.push(target_links[i]);
+            if (tmp_link === undefined) {
+                if (target_links[i].isDeployer) {
+                    result.list_of_added_links_deployer.push(target_links[i]);
+                } else {
+                    result.list_of_added_links.push(target_links[i]);
+                }
             }
         }
 
@@ -53,7 +64,7 @@ var comparator = function (dm) {
         var links = dm.links;
         for (var i in links) {
             var tmp_link = target_dm.find_link_named(links[i].name);
-            if (tmp_host === undefined) {
+            if (tmp_link === undefined) {
                 result.list_of_removed_links.push(links[i]);
             }
         }

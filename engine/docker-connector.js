@@ -15,19 +15,19 @@ var docker_connector = function () {
         that.docker.getContainer(container_id).stop(function (done) {
             that.docker.getContainer(container_id).remove(function (removed) {
                 bus.emit('removed', container_id);
-                logger.log('info','Docker container removed!'+container_id);
+                logger.log('info','Docker container removed! '+container_id);
             });
         });
     };
 
-    that.buildAndDeploy = function (endpoint, port, port_bindings, devices, command, image, mounts, compo_name) {
+    that.buildAndDeploy = function (endpoint, port, port_bindings, devices, command, image, mounts, compo_name, host_id) {
         that.docker = new Docker({
             host: endpoint,
             port: port
         });
         that.comp_name = compo_name;
         that.docker.pull(image, function (err, stream) {
-            bus.emit('container-config', compo_name);
+            bus.emit('host-config', host_id);
             if (stream !== null) {
                 stream.pipe(process.stdout, {
                     end: true
@@ -44,6 +44,7 @@ var docker_connector = function () {
     that.createContainerAndStart = function (port_bindings, command, image, devices, mounts) {
         //Create a container from an image
         //This is crappy code :)
+        bus.emit('container-config', that.comp_name);
         var port = '{';
         var exposedPort = '{';
         for (var i in port_bindings) {
@@ -99,7 +100,7 @@ var docker_connector = function () {
             //return container.start();
             container.start(function () {
                 bus.emit('container-started', container.id, that.comp_name);
-                logger.log('info','Container started: '+container.id+'('+that.comp_name+')');
+                logger.log('info','Container started: '+container.id+' ('+that.comp_name+')');
             });
         }).catch(function (err) {
             bus.emit('container-error', that.comp_name);

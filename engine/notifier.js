@@ -1,6 +1,6 @@
 var bus = require('./event-bus.js');
 
-var notifier = (function (socket) {
+var notifier = (function (socket, dm) {
     var that = {};
     that.socketObject = socket;
 
@@ -15,21 +15,14 @@ var notifier = (function (socket) {
             that.socketObject.send("#" + JSON.stringify(s));
         });
 
-        bus.on('container-config', function (comp_name) {
+        bus.on('host-config', function (comp_name) {
             //basically, host is accessible
-            var host_id = that.dep_model.find_node_named(comp_name).id_host;
             var h = {
-                node: host_id,
+                node: comp_name,
                 status: 'running'
             };
             that.socketObject.send("#" + JSON.stringify(h));
 
-            //Send status info to the UI
-            var s = {
-                node: comp_name,
-                status: 'config'
-            };
-            that.socketObject.send("#" + JSON.stringify(s));
         });
 
         bus.on('link-ok', function (link_name) {
@@ -60,6 +53,15 @@ var notifier = (function (socket) {
             var s = {
                 node: comp_name,
                 status: 'running'
+            };
+            that.socketObject.send("#" + JSON.stringify(s));
+        });
+
+        bus.on('container-config', function (comp_name) {
+            //Send status info to the UI
+            var s = {
+                node: comp_name,
+                status: 'config'
             };
             that.socketObject.send("#" + JSON.stringify(s));
         });
