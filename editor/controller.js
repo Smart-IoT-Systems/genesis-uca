@@ -362,7 +362,15 @@ $('#save').on('click', function (evt) {
         dm: dm,
         graph: cy.json()
     };
-    window.open("data:application/octet-stream," + JSON.stringify(all_in_one));
+    //window.open("data:text/json;charset=utf-8," + JSON.stringify(all_in_one));
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(all_in_one));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "model.json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+
 });
 
 
