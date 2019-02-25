@@ -40,6 +40,8 @@ We start by specifying, the 'name' and 'id' of the component, and the 'port' it 
 We can now define how to install, configure and start CouchDB by associating an _Ansible-Resource_ to our InternalComponent. In the GeneSIS Modelling language A _SoftwareComponent_ can be associated with _Resources_ (e.g., scripts, configuration files) adopted to manage its deployment life-cycle (i.e., download, configure, install, start, and stop).
 TO BE COMPLETED
 
+![alt text](./images/resource.png "Ansible-resource")
+
 Finally, we specify that our InternalComponent will be deployed on our InfrastructureComponent. To do so, we need to create a containement relationship between the two components by clicking on 'Add Link > Containment'.
 Select the proper nodes and click on the 'add' button.
 
