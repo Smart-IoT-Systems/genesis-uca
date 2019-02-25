@@ -43,7 +43,13 @@ TO BE COMPLETED
 Finally, we specify that our InternalComponent will be deployed on our InfrastructureComponent. To do so, we need to create a containement relationship between the two components by clicking on 'Add Link > Containment'.
 Select the proper nodes and click on the 'add' button.
 
+## Deploy
+Click on 'Deploy > All'. This will send our deployment model to the GeneSIS deployment engine and trigger the deployment.
 
+Once the deployment started, you can observe deployment logs in the console where you started GeneSIS. In particular, you will see: 
+Once the deployment completed, you should see the logs depicted in the figure below.
+
+That's all folks!
 
 
 
