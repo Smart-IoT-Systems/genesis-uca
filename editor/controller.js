@@ -300,8 +300,8 @@ var client = ws_client();
 
 $('#removeAll').on('click', function (evt) {
     cy.elements().remove();
-    var model = "{}";
-    client.send(model);
+    var model = deployment_model({});
+    client.send(JSON.stringify(model));
     alertMessage("success", "Model sent!", 3000);
 });
 

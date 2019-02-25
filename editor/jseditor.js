@@ -98,7 +98,6 @@ function compare(src_dm, target_dm) {
             cy.remove('#' + links[i].name);
         } else {
             //check for modified links: (1) control 
-            console.log(JSON.stringify(tmp_link));
             if (tmp_link.isControl && !links[i].isControl) {
                 cy.$('#' + tmp_link.name).classes = 'control';
             } else {
