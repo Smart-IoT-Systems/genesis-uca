@@ -1,18 +1,18 @@
 var webSocketServer = require('ws').Server;
 var http = require('http');
-var fs = require('fs');
 var mm = require('../metamodel/allinone.js');
 var dc = require('./docker-connector.js');
 var sshc = require('./ssh-connector.js');
 var bus = require('./event-bus.js');
 var uuidv4 = require('uuid/v4');
-var comp = require('./model-comparison.js');
+var comparison_engine = require('./model-comparison.js');
 var class_loader = require('./class-loader.js');
 var agent = require('./deployment-agent.js');
 var logger = require('./logger.js');
 var ac = require('./ansible-connector.js');
 var thingmlcli = require('./thingml-compiler.js');
 var mvn_builder = require('./maven-builder');
+var notifier = require('./notifier');
 
 var engine = (function () {
     var that = {};
@@ -25,6 +25,7 @@ var engine = (function () {
 
     that.socketObject = {};
 
+
     that.remove_containers = function (diff, dm) {
         var removed = diff.list_of_removed_components;
         var connector = dc();
@@ -34,71 +35,20 @@ var engine = (function () {
             if (host === undefined) {
                 //Need to find the host in the old model
                 var rem_hosts = diff.list_removed_hosts;
-                var tab = rem_hosts.filter(function (elem) {
+                rem_hosts.forEach(function (elem) {
                     if (elem.name === host_id) {
-                        return elem;
+                        if(elem._type === "docker_host"){
+                            connector.stopAndRemove(elem.container_id, elem.ip, elem.port);
+                        }
                     }
                 });
-                if (tab.length > 0) {
-                    connector.stopAndRemove(removed[i].container_id, tab[0].ip, tab[0].port);
-                }
             } else {
-                connector.stopAndRemove(removed[i].container_id, host.ip, host.port);
+                if(host._type === "docker_host"){
+                    connector.stopAndRemove(removed[i].container_id, host.ip, host.port);
+                }
             }
         }
     };
-
-
-    //To be refactored
-    bus.on('container-error', function (comp_name) {
-        //Send status info to the UI
-        var s = {
-            node: comp_name,
-            status: 'error'
-        };
-        that.socketObject.send("#" + JSON.stringify(s));
-    });
-
-    bus.on('container-config', function (comp_name) {
-        //basically, host is accessible
-        var host_id = that.dep_model.find_node_named(comp_name).id_host;
-        var h = {
-            node: host_id,
-            status: 'running'
-        };
-        that.socketObject.send("#" + JSON.stringify(h));
-
-        //Send status info to the UI
-        var s = {
-            node: comp_name,
-            status: 'config'
-        };
-        that.socketObject.send("#" + JSON.stringify(s));
-    });
-
-    bus.on('link-ok', function (link_name) {
-        var s = {
-            node: link_name,
-            status: 'OK'
-        };
-        that.socketObject.send("#" + JSON.stringify(s));
-    });
-
-    bus.on('link-ko', function (link_name) {
-        var s = {
-            node: link_name,
-            status: 'KO'
-        };
-        that.socketObject.send("#" + JSON.stringify(s));
-    });
-
-    bus.on('ansible-started', function (comp_name) {
-        var s = {
-            node: comp_name,
-            status: 'running'
-        };
-        that.socketObject.send("#" + JSON.stringify(s));
-    });
 
     that.run = function (dm) { //TODO: factorize
         var comp = dm.get_all_hosted();
@@ -143,14 +93,16 @@ var engine = (function () {
                                 mb.clean_install().then(function () {
                                     //TODO: make it more generic
                                     //as a start we connect and deploy via SSH
-                                    var sc=sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.sshkey);
-                                    sc.upload_file("./generated_" + comp[i].name + '/target/'+comp[i].name+'-1.0.0-jar-with-dependencies.jar','/home/'+comp[i].ssh_resource.credentials.username+'/'+comp[i].name+'-1.0.0-jar-with-dependencies.jar').then(function(file_path_tgt){
+                                    var sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.sshkey);
+                                    sc.upload_file("./generated_" + comp[i].name + '/target/' + comp[i].name + '-1.0.0-jar-with-dependencies.jar', '/home/' + comp[i].ssh_resource.credentials.username + '/' + comp[i].name + '-1.0.0-jar-with-dependencies.jar').then(function (file_path_tgt) {
                                         sc.execute_command(comp[i].ssh_resource.startCommand);
-                                    }).catch(function(err){
+                                        bus.emit('ssh-started', host.name);
+                                        bus.emit('ssh-started', comp[i].name);
+                                    }).catch(function (err) {
                                         logger.log("error", err);
                                     });
-                                }).catch(function () {
-                                    logger.log("error", "mvn clean install failed");
+                                }).catch(function (err) {
+                                    logger.log("error", "mvn clean install failed: "+err);
                                 });
                             }
                         }).catch(function (err) {
@@ -172,7 +124,7 @@ var engine = (function () {
                             let connector = ac(host, comp[i]);
                             connector.executePlaybook();
                         }
-                        
+
                     }
                 }
             }
@@ -186,14 +138,6 @@ var engine = (function () {
             //Add container id to the component
             var comp = dm.find_node_named(comp_name);
             comp.container_id = container_id;
-
-
-            //Send status info to the UI
-            var s = {
-                node: comp_name,
-                status: 'running'
-            };
-            that.socketObject.send("#" + JSON.stringify(s));
 
             if (tmp >= nb) {
                 tmp = 0;
@@ -410,16 +354,16 @@ var engine = (function () {
 
         that.webSocketServerObject.on('connection', function (socketObject) {
             that.socketObject = socketObject;
+            
+            //Send status info to the UI
+            var nfier=notifier(that.socketObject);
+            nfier.start();
+
             //Load component types from the repository
             var cl = class_loader();
             cl.findModules({
                 folder: './repository'
             }, function (modules) {
-                //Create a deployment model
-                var dm = mm.deployment_model({});
-                //Add types to the registry before we create the instances
-                dm.type_registry = modules; //can be used as follows modules[i].module({})
-
                 var tab = [];
                 var mmodel = "";
                 for (var j = 0; j < modules.length; j++) {
@@ -436,10 +380,15 @@ var engine = (function () {
                 //Wait for a model from the editor
                 socketObject.on('message', function (message) {
 
+                    //Create a deployment model
+                    var dm = mm.deployment_model({});
+                    //Add types to the registry before we create the instances
+                    dm.type_registry = modules; //can be used as follows modules[i].module({})
+                    
                     //Load the model
                     logger.log("info", "Received model from the editor");
                     var data = JSON.parse(message);
-
+                    dm.name=data.name;
                     dm.revive_components(data.components);
                     dm.revive_links(data.links);
                     if (dm.is_valid()) {
@@ -454,7 +403,7 @@ var engine = (function () {
                             that.run(that.dep_model);
                         } else {
                             //Compare model
-                            var comparator = comp(that.dep_model);
+                            var comparator = comparison_engine(that.dep_model);
                             that.diff = comparator.compare(dm);
                             that.dep_model = dm; //target model becomes current
 
@@ -513,14 +462,6 @@ function deploy(diff, dm) {
         //Add container id to the component
         var comp = dm.find_node_named(comp_name);
         comp.container_id = container_id;
-
-
-        //Send status info to the UI
-        var s = {
-            node: comp_name,
-            status: 'running'
-        };
-        that.socketObject.send("#" + JSON.stringify(s));
 
         if (tmp >= nb) {
             tmp = 0;
