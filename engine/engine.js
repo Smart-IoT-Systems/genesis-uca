@@ -11,7 +11,8 @@ var agent = require('./deployment-agent.js');
 var logger = require('./logger.js');
 var ac = require('./ansible-connector.js');
 var thingmlcli = require('./thingml-compiler.js');
-var mvn_builder = require('./maven-builder');
+//var mvn_builder = require('./maven-builder');
+var mvn_builder = require('maven');
 var notifier = require('./notifier');
 
 var engine = (function () {
@@ -92,8 +93,10 @@ var engine = (function () {
                         tcli.build("./generated_" + comp[i].name, comp[i].target_language).then(function (elem) {
                             //if java we need to build and deploy
                             if (comp[i].target_language === 'java') {
-                                mb = mvn_builder("./generated_" + comp[i].name + '/pom.xml');
-                                mb.clean_install().then(function () {
+                                
+                                logger.log("info", process.cwd()+"/generated_" + comp[i].name);
+                                var mb = mvn_builder.create({cwd: process.cwd()+"/generated_" + comp[i].name});
+                                mb.execute(['clean', 'install'], { 'skipTests': true }).then(function () {
                                     //TODO: make it more generic
                                     //as a start we connect and deploy via SSH
                                     var sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.sshkey);
