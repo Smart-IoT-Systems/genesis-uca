@@ -36,6 +36,6 @@
         "child_process": "~1.0.2",
         "adm-zip": "^0.4.13",
         "websocket-stream": "^5.1.2",
-        "node-maven-api": "^2.0.2"
+        "maven": "^4.4.1"
     }
 }
