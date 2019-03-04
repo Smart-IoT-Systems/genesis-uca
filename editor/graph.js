@@ -10,6 +10,9 @@ var cy = window.cy = cytoscape({
     boxSelectionEnabled: false,
     autounselectify: true,
 
+    maxZoom: 6,
+    minZoom: 0.4,
+
     style: [
         {
             selector: 'node',
@@ -122,6 +125,7 @@ var cy = window.cy = cytoscape({
     }
 
 });
+
 
 var graph_factory = function (name) {
     //var name = $("#ctx_name").val();
