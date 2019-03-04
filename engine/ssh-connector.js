@@ -2,15 +2,20 @@ var Client = require('ssh2').Client;
 var fs = require('fs');
 var logger = require('./logger.js');
 
-var ssh_connector = function (ip, port, username, key) {
+var ssh_connector = function (ip, port, username, passwd, key) {
 
     var that = {};
     that.options={
         host: ip,
         port: parseInt(port),
-        username: username,
-        privateKey: fs.readFileSync(key)
+        username: username
     };
+    if(key !== ""){
+        that.options.privateKey= fs.readFileSync(key);
+    }else{
+        that.options.password=passwd;
+    }
+
 
     that.upload_file = function (file_path_src, file_path_tgt) {
         return new Promise(function (resolve, reject) {
