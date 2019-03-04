@@ -5,7 +5,9 @@ In this example we will simply deploy a program written in ThingML on the machin
 GeneSIS offers specific support for the deployment of ThingML programs. [ThingML](http://thingml.org/) is a domain specific language for modelling distributed IoT systems including the behavior of the distributed components in a platform-specific or -independent way. From a ThingML code, the ThingML compiler can generate code in different languages, targeting around 10 different target platforms (ranging from tiny 8 bit microcontrollers to servers). This is particularly interesting for GeneSIS as, from a deployment model, the GeneSIS execution engine can identify the host to which a ThingML source code should be allocated and thus generate code in the relevant language before compiling and deploying it on the host. 
 The deployment of a ThingML program by GeneSIS consist in: (i) Compiling the ThingML program toward a specific target language, (ii) building the generated code, and (iii) deploying and starting it.
 
-For this tutorial, we assume that (i) the machine running GeneSIS (or any other machine) is accessible via SSH, and (ii) GeneSIS is properly installed on the machine with Java and Maven.
+For this tutorial, we assume that:
+1. The machine running where we will deploy our ThingML program is accessible via SSH (e.g., a Raspberry Pi).
+2. The machine running GeneSIS  (e.g., your laptop) has Java and Maven properly installed.
 
 ## Start GeneSIS:
 
@@ -61,10 +63,10 @@ Select the proper nodes and click on the 'add' button.
 Click on 'Deploy > All'. This will send our deployment model to the GeneSIS deployment engine and trigger the deployment.
 
 These are the steps performed during the deployment:
-* On the machine running GeneSIS, the ThingML sources are compiled toward the target language and the UML diagrams representing your ThingML program. All these files are located in the folder named "generated" located at the root of your project.
-* On the machine running GeneSIS, the generated program is built. In our case using maven.
-* From the machine running GeneSIS, an SSH connection is created to upload the generated binaries on the host.
-* From the machine running GeneSIS, an SSH connection is created to start the uploaded program based on the "startCommand" specified in the ssh-resource.
+1. On the machine running GeneSIS, the ThingML sources are compiled toward the target language and the UML diagrams representing your ThingML program. All these files are located in the folder named "generated" located at the root of your project.
+2. On the machine running GeneSIS, the generated program is built. In our case using maven.
+3. From the machine running GeneSIS, an SSH connection is created to upload the generated binaries on the host.
+4. From the machine running GeneSIS, an SSH connection is created to start the uploaded program based on the "startCommand" specified in the ssh-resource.
 
 Once the deployment started, you can observe deployment logs in the console where you started GeneSIS. In particular, you will see: (i) the ThingML compiler generating the Java code, (ii) the generated code being build, and (iii) the generated binary being uploaded on the target host before it is started.
 Once the deployment completed, you should see the logs depicted in the figure below (please note that the highlighted line indicates the result of the execution of the ThingML program). 
