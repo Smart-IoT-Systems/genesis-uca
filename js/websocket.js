@@ -34,7 +34,12 @@ var ws_client = function () {
         that.socket.onmessage = function (e) { //This behavior should not be here...
             var msg = e.data;
             if (msg[0] === "!") { // This is a notification
-                alertMessage("info", msg, 3000);
+                if(msg[1] === "-"){
+                    cy.elements().remove();
+                    alertMessage("success", "Remove all completed!", 3000);
+                }else{
+                    alertMessage("success", msg, 3000);
+                }
             } else {
                 if (msg[0] === "#") { //This is about status, contains status info, and node name
                     var json = JSON.parse(msg.substr(1, msg.length));

@@ -14,6 +14,7 @@ var thingmlcli = require('./thingml-compiler.js');
 var mvn_builder = require('maven');
 var notifier = require('./notifier');
 var nodered_connector = require('./nodered_connector.js');
+var fs = require('fs');
 
 var engine = (function () {
     var that = {};
@@ -29,6 +30,7 @@ var engine = (function () {
 
 
     that.remove_containers = function (diff) {
+        var nb_removed=0;
         var removed = diff.list_of_removed_components;
         var connector = dc();
         for (var i in removed) {
@@ -50,6 +52,12 @@ var engine = (function () {
                 }
             }
         }
+        bus.on('removed', function(){
+            nb_removed++;
+            if(nb_removed>=removed.length){
+                bus.emit('remove-all'); //make it synchronous
+            }
+        });
     };
 
     that.run = function (diff) { //TODO: factorize
@@ -125,11 +133,18 @@ var engine = (function () {
                             if (comp[i]._type === "node_red") {
                                 //then we deploy node red
                                 //TODO: what if port_bindings is empty?
-                                connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", "nicolasferry/node-red-contrib-thingml-rpi:latest", comp[i].docker_resource.mounts, comp[i].name, host.name).then(function(){
-                                    if (comp[i].nr_flow !== undefined || comp[i].nr_flow.length >= 0) { //if there is a to load with the nodered node
+                                connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", "nicolasferry/node-red-contrib-thingml-rpi:latest", comp[i].docker_resource.mounts, comp[i].name, host.name).then(function () {
+                                    if ((comp[i].nr_flow !== undefined && comp[i].nr_flow !== "") ||
+                                        (comp[i].path_flow !== "" && comp[i].path_flow !== undefined)) { //if there is a to load with the nodered node
                                         let noderedconnector = nodered_connector();
-                                        noderedconnector.installAllNodeTypes(host.ip, comp[i].port, comp[i].packages).then(function(){
-                                            noderedconnector.setFlow(host.ip, comp[i].port, JSON.stringify(comp[i].nr_flow), [], [], that.dep_model);
+                                        var _data = "";
+                                        if (comp[i].path_flow !== "" && comp[i].path_flow !== undefined) {
+                                            _data = fs.readFileSync(comp[i].path_flow);
+                                        } else {
+                                            _data = JSON.stringify(comp[i].nr_flow);
+                                        }
+                                        noderedconnector.installAllNodeTypes(host.ip, comp[i].port, comp[i].packages).then(function () {
+                                            noderedconnector.setFlow(host.ip, comp[i].port, _data, [], [], that.dep_model);
                                         });
                                     }
                                 });
@@ -142,7 +157,7 @@ var engine = (function () {
                             connector.executePlaybook();
                         }
                         if (comp[i].ssh_resource.credentials.sshkey !== "") {
-                            let sc =    sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.sshkey, comp[i].ssh_resource.credentials.sshkey);
+                            let sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.sshkey, comp[i].ssh_resource.credentials.sshkey);
                             //just for fun 0o' let's try the most crappy code ever!
                             sc.execute_command(comp[i].ssh_resource.downloadCommand).then(function () {
                                 logger.log("info", "Download command executed");
@@ -197,7 +212,7 @@ var engine = (function () {
                         if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
 
                             let noderedconnector = nodered_connector();
-                            noderedconnector.getCurrentFlow(host.ip, comp_tab[i].port).then(function(the_flow){
+                            noderedconnector.getCurrentFlow(host.ip, comp_tab[i].port).then(function (the_flow) {
                                 that.generate_components(host.ip, comp_tab[i].port, src_tab, tgt_tab, that.dep_model, the_flow);
                             });
                         }
@@ -275,8 +290,8 @@ var engine = (function () {
             var t = JSON.parse(flow);
             var result = filtered_old_components.concat(t)
             let noderedconnector = nodered_connector();
-            if (dependencies !== "") {           
-                noderedconnector.installNodeType(ip_host, tgt_port, dependencies).then(function(){
+            if (dependencies !== "") {
+                noderedconnector.installNodeType(ip_host, tgt_port, dependencies).then(function () {
                     noderedconnector.setFlow(ip_host, tgt_port, JSON.stringify(result), tgt_tab, src_tab, dm);
                 });
             } else {
@@ -286,113 +301,6 @@ var engine = (function () {
         }
     }
 
-
-    //To be migrated in a node-red connector
-    that.installNodeType = function (tgt_host, tgt_port, data, callback) {
-        var options = {
-            host: tgt_host,
-            path: '/nodes',
-            port: tgt_port,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        };
-
-        var req = http.request(options, function (response) {
-            var str = ''
-            response.on('data', function (chunk) {
-                str += chunk;
-            });
-
-            response.on('end', function () {
-                logger.log("info", "Install Request completed " + str);
-                bus.emit('node installed', str);
-                callback(str);
-            });
-
-        });
-
-        req.on('error', function (err) {
-
-        });
-
-        req.write(data);
-        req.end();
-
-    };
-
-    //TO be migrated in a node-red connector
-    that.getCurrentFlow = function (tgt_host, tgt_port, src_tab, tgt_tab, dm, callback) {
-        var opt = {
-            host: tgt_host,
-            path: '/flows', //The Flows API of nodered, which set the active flow configuration
-            port: tgt_port
-        };
-        http.get(opt, function (resp) {
-            resp.on('data', function (chunk) {
-                var d_flow = [];
-                if (Array.isArray(JSON.parse(chunk))) {
-                    d_flow = JSON.parse(chunk);
-                }
-                callback(tgt_host, tgt_port, src_tab, tgt_tab, dm, d_flow);
-            });
-        }).on("error", function (e) {
-            logger.log("error", "Cannot get current Node-red flow: " + e.message);
-            setTimeout(function () { //Should only test n times
-                that.getCurrentFlow(tgt_host, tgt_port, src_tab, tgt_tab, dm, callback);
-            }, 2000);
-        });
-    };
-
-    //TO be migrated in a node-red connector
-    that.setFlow = function (tgt_host, tgt_port, data, tgt_tab, src_tab, dm) {
-        var options = {
-            host: tgt_host,
-            path: '/flows', //The Flows API of nodered, which set the active flow configuration
-            port: tgt_port,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Node-RED-Deployment-Type': 'flows' //only flows that contain modified nodes are stopped before the new configuration is applied.
-            }
-        };
-
-        var req = http.request(options, function (response) {
-            var str = ''
-            response.on('data', function (chunk) {
-                str += chunk;
-            });
-
-            response.on('end', function () {
-                logger.log("info", "Request to upload Node-Red flow completed " + str);
-                for (var w in tgt_tab) { //if success, send feedback
-                    bus.emit('link-ok', tgt_tab[w].name);
-                }
-                for (var p in src_tab) { //if success, send feedback
-                    if (dm.find_node_named(src_tab[p].target).nr_description !== undefined) {
-                        bus.emit('link-ok', src_tab[p].name);
-                    }
-                }
-            });
-
-        });
-
-        req.on('error', function (err) {
-            logger.log("info", "Connection to " + tgt_host + " not yet open");
-            setTimeout(function () {
-                for (var w in tgt_tab) {
-                    bus.emit('link-ko', tgt_tab[w].name);
-                }
-                setFlow(tgt_host, tgt_port, data, tgt_tab); //we try to reconnect if the connection as failed
-            }, 5000);
-        });
-
-
-        //This is the data we are posting, it needs to be a string or a buffer
-        req.write(data);
-        req.end();
-    }
 
     that.start = function () {
 

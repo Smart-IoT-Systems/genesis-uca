@@ -299,7 +299,6 @@ $('#addContainment').on('click', function (evt) {
 var client = ws_client();
 
 $('#removeAll').on('click', function (evt) {
-    cy.elements().remove();
     var model = deployment_model({});
     client.send(JSON.stringify(model));
     alertMessage("success", "Model sent!", 3000);
@@ -362,17 +361,19 @@ $('#save').on('click', function (evt) {
         dm: dm,
         graph: cy.json()
     };
-    
-    //window.open("data:text/json;charset=utf-8," + JSON.stringify(all_in_one));
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(all_in_one));
-    var downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", "model.json");
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
 
-
+    var isSafari = !!navigator.userAgent.match(/Version\/[\d\.]+.*Safari/);
+    if(isSafari){
+        window.open("data:text/json;charset=utf-8," + JSON.stringify(all_in_one));
+    }else{
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(all_in_one));
+        var downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "model.json");
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }   
 });
 
 
