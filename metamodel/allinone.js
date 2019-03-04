@@ -373,6 +373,8 @@ var software_node = function (spec) {
 var node_red = function (spec) {
     var that = software_node(spec); //the inheritance
     that._type = "node_red";
+    that.nr_flow = spec.nr_flow || [];
+    that.packages = spec.packages || [];
 
     return that;
 };
@@ -431,7 +433,8 @@ var ssh_resource = function (spec) {
     that.name = spec.name || "a resource";
     that.startCommand = spec.startCommand || "";
     that.downloadCommand = spec.downloadCommand || "";
-    that.configureCommand = spec.downloadCommand || "";
+    that.installCommand = spec.installCommand || "";
+    that.configureCommand = spec.configureCommand || "";
     that.credentials = spec.credentials || credentials({});
 
     return that;
