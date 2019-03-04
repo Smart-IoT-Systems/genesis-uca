@@ -6,7 +6,7 @@ GeneSIS offers specific support for the deployment of ThingML programs. [ThingML
 The deployment of a ThingML program by GeneSIS consist in: (i) Compiling the ThingML program toward a specific target language, (ii) building the generated code, and (iii) deploying and starting it.
 
 For this tutorial, we assume that:
-1. The machine running where we will deploy our ThingML program is accessible via SSH (e.g., a Raspberry Pi).
+1. The machine running where we will deploy our ThingML program is accessible via SSH (e.g., a Raspberry Pi) and has Java properly installed.
 2. The machine running GeneSIS  (e.g., your laptop) has Java and Maven properly installed.
 
 ## Start GeneSIS:
