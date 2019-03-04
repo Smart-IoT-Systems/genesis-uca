@@ -374,6 +374,7 @@ var node_red = function (spec) {
     var that = software_node(spec); //the inheritance
     that._type = "node_red";
     that.nr_flow = spec.nr_flow || [];
+    that.path_flow = spec.path_flow || "";
     that.packages = spec.packages || [];
 
     return that;
