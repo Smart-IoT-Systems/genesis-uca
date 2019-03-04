@@ -6,6 +6,11 @@ var notifier = (function (socket, dm) {
 
     that.start = function () {
 
+
+        bus.on('remove-all', function(){
+            that.socketObject.send("!- Remove all completed!");
+        });
+
         bus.on('container-error', function (comp_name) {
             //Send status info to the UI
             var s = {
