@@ -2,6 +2,7 @@ var bus = require('./event-bus.js');
 var logger = require('./logger.js');
 var http = require('http');
 
+
 var nodered_connector = function () {
     var that = {};
 
@@ -21,10 +22,11 @@ var nodered_connector = function () {
                 var str = ''
                 response.on('data', function (chunk) {
                     str += chunk;
+                    logger.log("info", "data " + chunk);
                 });
 
                 response.on('end', function () {
-                    logger.log("info", "Install Request completed " + str);
+                    logger.log("info", "Install Request completed ");
                     bus.emit('node installed', str);
                     resolve(str);
                 });
@@ -32,7 +34,6 @@ var nodered_connector = function () {
             });
 
             req.on('error', function (err) {
-                logger.log("info", "Connection to " + tgt_host + ":" + tgt_port + " not yet open.");
                 reject(err);
             });
 
@@ -50,6 +51,7 @@ var nodered_connector = function () {
             };
             http.get(opt, function (resp) {
                 resp.on('data', function (chunk) {
+                    logger.log("info", "Connected");
                     resolve(true);
                 });
             }).on("error", function (e) {
@@ -69,6 +71,7 @@ var nodered_connector = function () {
             await that.sleep(6000);
             can = await that.tryConnect(tgt_host, tgt_port);
         }
+        await that.sleep(3000);
         return can;
     };
 
@@ -80,7 +83,7 @@ var nodered_connector = function () {
                 var data = '{"module": "' + tab[t] + '"}'
                 logger.log("info", "Installing on Node-red module: " + data);
                 allResult += await that.installNodeType(tgt_host, tgt_port, data).catch((err) => {
-                    logger.log("info", data + " " + err);
+                    //logger.log("info", data + " " + err);
                 });
             }
             return allResult;
@@ -90,7 +93,7 @@ var nodered_connector = function () {
     that.getCurrentFlow = async function (tgt_host, tgt_port) {
         const readyToGo = await that.untilConnect(tgt_host, tgt_port);
         if (readyToGo) {
-            const _flow=await that.getFlow(tgt_host, tgt_port);
+            const _flow = await that.getFlow(tgt_host, tgt_port);
             return _flow;
         }
     };
@@ -131,7 +134,7 @@ var nodered_connector = function () {
         };
 
         var req = http.request(options, function (response) {
-            var str = ''
+            var str = '';
             response.on('data', function (chunk) {
                 str += chunk;
             });
