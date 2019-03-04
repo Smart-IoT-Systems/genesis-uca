@@ -362,6 +362,7 @@ $('#save').on('click', function (evt) {
         dm: dm,
         graph: cy.json()
     };
+    
     //window.open("data:text/json;charset=utf-8," + JSON.stringify(all_in_one));
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(all_in_one));
     var downloadAnchorNode = document.createElement('a');
@@ -370,6 +371,7 @@ $('#save').on('click', function (evt) {
     document.body.appendChild(downloadAnchorNode); // required for firefox
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
+
 
 });
 
