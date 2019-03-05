@@ -4,6 +4,8 @@ In this example we will simply deploy a Node-Red container via Docker on the mac
 
 Here, we assume that (i) a Docker engine is up on the machine running GeneSIS and with the Docker Remote engine accessible, and (ii) GeneSIS is properly installed on the machine.
 
+Instructions on how to make the Docker remote engine accessible can be found [here](../../../)
+
 ## Start GeneSIS:
 
 First, let’s start GeneSIS by using the following command in the root folder of GeneSIS:
