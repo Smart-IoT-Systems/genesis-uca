@@ -8,14 +8,16 @@ var docker_connector = function () {
     that.comp_name = '';
 
     that.stopAndRemove = function (container_id, endpoint, port) {
-        that.docker = new Docker({ //TODO:Refactor
-            host: endpoint,
-            port: port
-        });
-        that.docker.getContainer(container_id).stop(function (done) {
-            that.docker.getContainer(container_id).remove(function (removed) {
-                bus.emit('removed', container_id);
-                logger.log('info', 'Docker container removed! ' + container_id);
+        return new Promise(async function (resolve, reject) {
+            that.docker = new Docker({ //TODO:Refactor
+                host: endpoint,
+                port: port
+            });
+            that.docker.getContainer(container_id).stop(function (done) {
+                that.docker.getContainer(container_id).remove(function (removed) {
+                    logger.log('info', 'Docker container removed! ' + container_id);
+                    resolve(container_id);
+                });
             });
         });
     };
@@ -34,16 +36,16 @@ var docker_connector = function () {
                         end: true
                     });
                     stream.on('end', function () {
-                        that.createContainerAndStart(port_bindings, command, image, devices, mounts).then(function(id){
+                        that.createContainerAndStart(port_bindings, command, image, devices, mounts).then(function (id) {
                             resolve(id);
-                        }).catch(function(err){
+                        }).catch(function (err) {
                             reject(err);
                         });
                     });
                 } else {
-                    that.createContainerAndStart(port_bindings, command, image, devices, mounts).then(function(id){
+                    that.createContainerAndStart(port_bindings, command, image, devices, mounts).then(function (id) {
                         resolve(id);
-                    }).catch(function(err){
+                    }).catch(function (err) {
                         reject(err);
                     });
                 }

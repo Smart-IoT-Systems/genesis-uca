@@ -29,39 +29,32 @@ var engine = (function () {
     that.socketObject = {};
 
 
-    that.remove_containers = function (diff) {
-        var nb_removed=0;
+    that.remove_containers = async function (diff) {
         var removed = diff.list_of_removed_components;
         var connector = dc();
+        if (removed.length === 0) {
+            return;
+        }
         for (var i in removed) {
             var host_id = removed[i].id_host;
             var host = that.dep_model.find_node_named(host_id); //This cannot be done!
             if (host === undefined) {
                 //Need to find the host in the old model
                 var rem_hosts = diff.list_removed_hosts;
-                rem_hosts.forEach(function (elem) {
-                    if (elem.name === host_id) {
-                        if (elem._type === "docker_host") {
-                            connector.stopAndRemove(removed[i].container_id, elem.ip, elem.port);
-                        }else{
-                            bus.emit('removed', removed[i].name);
+                for (var z in rem_hosts) {
+                    if (rem_hosts[z].name === host_id) {
+                        if (rem_hosts[z]._type === "docker_host") {
+                            await connector.stopAndRemove(removed[i].container_id, rem_hosts[z].ip, rem_hosts[z].port);
                         }
                     }
-                });
+                }
             } else {
                 if (host._type === "docker_host") {
-                    connector.stopAndRemove(removed[i].container_id, host.ip, host.port);
-                }else{
-                    bus.emit('removed', removed[i].name);
+                    await connector.stopAndRemove(removed[i].container_id, host.ip, host.port);
                 }
             }
         }
-        bus.on('removed', function(){
-            nb_removed++;
-            if(nb_removed>=removed.length){
-                bus.emit('remove-all'); //make it synchronous
-            }
-        });
+        bus.emit('remove-all');
     };
 
     that.run = function (diff) { //TODO: factorize
@@ -203,25 +196,24 @@ var engine = (function () {
 
                 var comp_tab = that.dep_model.get_all_hosted();
                 //For all Node-Red hosted components we generate the websocket proxies
-                for (var i in comp_tab) {
-                    if (comp_tab[i]._type === 'node_red') {
-                        var host_id = comp_tab[i].id_host;
+                comp_tab.forEach(function (ct_elem) {
+                    if (ct_elem._type === 'node_red') {
+                        var host_id = ct_elem.id_host;
                         var host = that.dep_model.find_node_named(host_id);
 
                         //Get all links that start from the component
-                        var src_tab = that.dep_model.get_all_outputs_of_component(comp_tab[i]);
+                        var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
                         //Get all links that end in the component
-                        var tgt_tab = that.dep_model.get_all_inputs_of_component(comp_tab[i]);
+                        var tgt_tab = that.dep_model.get_all_inputs_of_component(ct_elem);
 
                         if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
-
-                            let noderedconnector = nodered_connector();
-                            noderedconnector.getCurrentFlow(host.ip, comp_tab[i].port).then(function (the_flow) {
-                                that.generate_components(host.ip, comp_tab[i].port, src_tab, tgt_tab, that.dep_model, the_flow);
+                            var noderedconnector = nodered_connector();
+                            noderedconnector.getCurrentFlow(host.ip, ct_elem.port).then(function (the_flow) {
+                                that.generate_components(host.ip, ct_elem.port, src_tab, tgt_tab, that.dep_model, the_flow);
                             });
                         }
                     }
-                }
+                });
                 return;
             }
         });
@@ -293,13 +285,13 @@ var engine = (function () {
         if (flow.length > 2) { // not empty "[]"
             var t = JSON.parse(flow);
             var result = filtered_old_components.concat(t)
-            let noderedconnector = nodered_connector();
+            var nr_connector = nodered_connector();
             if (dependencies !== "") {
-                noderedconnector.installNodeType(ip_host, tgt_port, dependencies).then(function () {
-                    noderedconnector.setFlow(ip_host, tgt_port, JSON.stringify(result), tgt_tab, src_tab, dm);
+                nr_connector.installNodeType(ip_host, tgt_port, dependencies).then(function () {
+                    nr_connector.setFlow(ip_host, tgt_port, JSON.stringify(result), tgt_tab, src_tab, dm);
                 });
             } else {
-                noderedconnector.setFlow(ip_host, tgt_port, JSON.stringify(result), tgt_tab, src_tab, dm);
+                nr_connector.setFlow(ip_host, tgt_port, JSON.stringify(result), tgt_tab, src_tab, dm);
             }
 
         }
@@ -334,7 +326,7 @@ var engine = (function () {
 
 
                 //Wait for a model from the editor
-                socketObject.on('message', function (message) {
+                socketObject.on('message', async function (message) {
 
                     //Create a deployment model
                     var dm = mm.deployment_model({});
@@ -358,7 +350,7 @@ var engine = (function () {
 
                         //First do all the removal stuff - TODO refactor
                         logger.log("info", "Stopping removed containers");
-                        that.remove_containers(that.diff);
+                        await that.remove_containers(that.diff);
 
                         //Deploy only the added stuff
                         logger.log("info", "Starting deployment");
