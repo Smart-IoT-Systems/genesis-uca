@@ -43,12 +43,16 @@ var engine = (function () {
                     if (elem.name === host_id) {
                         if (elem._type === "docker_host") {
                             connector.stopAndRemove(removed[i].container_id, elem.ip, elem.port);
+                        }else{
+                            bus.emit('removed', removed[i].name);
                         }
                     }
                 });
             } else {
                 if (host._type === "docker_host") {
                     connector.stopAndRemove(removed[i].container_id, host.ip, host.port);
+                }else{
+                    bus.emit('removed', removed[i].name);
                 }
             }
         }
