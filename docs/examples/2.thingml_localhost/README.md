@@ -49,7 +49,8 @@ We also need to fill the field "File" with the path to the [Hello.thingml](https
 
 Finally, because there might be different ways to start the binary generated from the ThingML program, we need to specify how to start it.
 For that, we will use a _SSH-Resource_. In the GeneSIS Modelling language A _SoftwareComponent_ can be associated with _Resources_ (e.g., scripts, configuration files) adopted to manage its deployment life-cycle (i.e., download, configure, install, start, and stop).
-In our case we need to define (i) the _startCommand_ of our SSH-Resource describing how to start our SoftwareComponent and (ii) the credentials for accessing our Host.
+In our case we need to define (i) the _startCommand_ of our SSH-Resource describing how to start our SoftwareComponent and (ii) the credentials for accessing our Host. 
+Please note that in the _startCommand_, **the name of the .jar file must start with the same name of the configuration in the ThingML file**. For example, in the hello.thingml file, with this line 'configuration Hello', the generated .jar file will be 'hello-1.0.0-jar-with-dependencies.jar'.
 
 ![alt text](./images/ssh_resource.png "SSH-resource")
 
@@ -73,4 +74,6 @@ Once the deployment completed, you should see the logs depicted in the figure be
 
 ![alt text](./images/shell.png "Device Component")
 
-
+We have shown the deployment of a single .thingml file for simplicity. Note that ThingML code can span several .thingml files. 
+We only need to specify in GeneSIS the main ThingML file that contain 'configuration', like we have done with the hello.thingml file above. 
+The other .thingml files will be compiled together with the main .thingml file. 
