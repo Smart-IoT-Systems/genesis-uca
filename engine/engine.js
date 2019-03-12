@@ -57,7 +57,7 @@ var engine = (function () {
         bus.emit('remove-all');
     };
 
-    that.run = function (diff) { //TODO: factorize
+    that.run = async function (diff) { //TODO: factorize
         //var comp = dm.get_all_hosted();
         var comp = diff.list_of_added_hosted_components;
         var nb = 0;
@@ -119,6 +119,17 @@ var engine = (function () {
                                 }).catch(function (err) {
                                     logger.log("error", "mvn clean install failed: " + err);
                                 });
+                            }
+                            if (comp[i].target_language === 'nodejs') {
+                                logger.log("info", process.cwd() + "/generated_" + comp[i].name);
+                                var sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.password, comp[i].ssh_resource.credentials.sshkey);
+                                sc.upload_directory("./generated_" + comp[i].name, '/home/' + comp[i].ssh_resource.credentials.username + '/generated_' + comp[i].name).then(function (file_path_tgt) {
+                                    sc.execute_command(comp[i].ssh_resource.startCommand);
+                                    bus.emit('ssh-started', host.name);
+                                    bus.emit('ssh-started', comp[i].name);
+                                }).catch(function (err) {
+                                    logger.log("error", err);
+                                });;
                             }
                         }).catch(function (err) {
                             logger.log("error", err);
@@ -196,7 +207,7 @@ var engine = (function () {
 
                 var comp_tab = that.dep_model.get_all_hosted();
                 //For all Node-Red hosted components we generate the websocket proxies
-                comp_tab.forEach(function (ct_elem) {
+                for (var ct_elem of comp_tab) {
                     if (ct_elem._type === 'node_red') {
                         var host_id = ct_elem.id_host;
                         var host = that.dep_model.find_node_named(host_id);
@@ -213,7 +224,7 @@ var engine = (function () {
                             });
                         }
                     }
-                });
+                }
                 return;
             }
         });
@@ -354,7 +365,8 @@ var engine = (function () {
 
                         //Deploy only the added stuff
                         logger.log("info", "Starting deployment");
-                        that.run(that.diff);
+                        await that.run(that.diff);
+                        //logger.log("info", "Deployment Completed");
 
                         //}
                     } else {

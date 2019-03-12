@@ -1,6 +1,7 @@
 var Client = require('ssh2').Client;
 var fs = require('fs');
 var logger = require('./logger.js');
+const SSH2Utils = require('ssh2-utils');
 
 var ssh_connector = function (ip, port, username, passwd, key) {
 
@@ -16,6 +17,21 @@ var ssh_connector = function (ip, port, username, passwd, key) {
         that.options.password=passwd;
     }
 
+
+    that.upload_directory= function(src_dir, target_dir){
+        return new Promise(function (resolve, reject) {
+            var sftp_util = new SSH2Utils();
+            sftp_util.putDir(that.options,src_dir,target_dir, function(err){
+                if(err) {
+                    logger.log('error',err);
+                        reject(err);
+                        throw err;
+                }else{
+                    resolve(target_dir);
+                }
+            });
+        });
+    };
 
     that.upload_file = function (file_path_src, file_path_tgt) {
         return new Promise(function (resolve, reject) {
