@@ -138,7 +138,7 @@ var create_modal = function (modules) {
     });
 
     $('.generated').on('click', function (e) {
-        manage_modal(event.target.id, true);
+        manage_modal(e.target.id, true);
     });
 
     $('#addHost').on('click', function (evt) { //When you click on add in the modal
