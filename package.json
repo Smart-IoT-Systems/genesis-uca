@@ -11,7 +11,7 @@
     ],
     "scripts": {
         "start": "node ./app.js",
-        "postinstall": "curl -L --create-dirs --output lib/thingml/ThingML2CLI.jar https://github.com/TelluIoT/ThingML/releases/download/2.0.0-MGWK-0.9.7/ThingMLCLI.jar"
+        "postinstall": "curl -L --create-dirs --output lib/thingml/ThingML2CLI.jar http://thingml.org/dist/ThingML2CLI.jar"
     },
     "dependencies": {
         "body-parser": "~1.17.1",
