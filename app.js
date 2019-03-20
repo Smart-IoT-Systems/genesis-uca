@@ -3,8 +3,9 @@ var path = require('path');
 var app = express();
 var runtime = require('./engine/engine.js');
 var broker = require('./engine/MQTTBroker.js');
-var puml = require('./engine/plantuml.js');
+var puml = require('./engine/connectors/plantuml.js');
 var logger=require('./engine/logger.js');
+var dbg=require('./editor/thingml-debugger/src/index.js');
 
 // Define the port to run on
 app.set('port', 8880);
@@ -23,6 +24,7 @@ logger.log('info','Engine started!');
 runtime.start();
 broker.start();
 puml.start();
+dbg.start();
 
 // Listen for editor requests
 var server = app.listen(app.get('port'), function () {

@@ -1,19 +1,19 @@
 var webSocketServer = require('ws').Server;
 var http = require('http');
 var mm = require('../metamodel/allinone.js');
-var dc = require('./docker-connector.js');
-var sshc = require('./ssh-connector.js');
+var dc = require('./connectors/docker-connector.js');
+var sshc = require('./connectors/ssh-connector.js');
 var bus = require('./event-bus.js');
 var uuidv4 = require('uuid/v4');
 var comparison_engine = require('./model-comparison.js');
 var class_loader = require('./class-loader.js');
 var agent = require('./deployment-agent.js');
 var logger = require('./logger.js');
-var ac = require('./ansible-connector.js');
+var ac = require('./connectors/ansible-connector.js');
 var thingmlcli = require('./thingml-compiler.js');
 var mvn_builder = require('maven');
 var notifier = require('./notifier');
-var nodered_connector = require('./nodered_connector.js');
+var nodered_connector = require('./connectors/nodered_connector.js');
 var fs = require('fs');
 
 var engine = (function () {

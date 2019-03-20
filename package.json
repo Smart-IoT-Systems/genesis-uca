@@ -37,6 +37,14 @@
         "adm-zip": "^0.4.13",
         "websocket-stream": "^5.1.2",
         "maven": "^4.4.1",
-        "ssh2-utils": "^1.0.28"
+        "ssh2-utils": "^1.0.28",
+        "react": "^16.8.1",
+        "react-dom": "^16.8.1",
+        "react-scripts": "2.1.5",
+        "antd": "^3.13.2",
+        "mqtt": "^2.18.8",
+        "reqwest": "^2.0.5",
+        "react-router-native": "^4.3.0",
+        "react-router-dom": "^4.3.1"
     }
 }

@@ -5,7 +5,7 @@ var ws = require('websocket-stream');
 var MQTTBroker = (function () {
     var that = {};
     that.server = require('http').createServer();
-    that.port = 1883;
+    that.port = 9001;
 
     that.start = function () {
 
@@ -27,7 +27,7 @@ var MQTTBroker = (function () {
 
         aedes.on('publish', function (packet, client) {
             if (client) {
-                logger.log("info",'message from client: '+client.id)
+                logger.log("info",'message from client: '+client.id);
             }
         });
 

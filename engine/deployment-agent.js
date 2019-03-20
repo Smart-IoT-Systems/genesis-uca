@@ -5,7 +5,7 @@
 */
 
 var emitter = require('events').EventEmitter;
-var dc = require('./docker-connector.js');
+var dc = require('./connectors/docker-connector.js');
 var uuidv4 = require('uuid/v4');
 var http = require('http');
 var logger = require('./logger.js');

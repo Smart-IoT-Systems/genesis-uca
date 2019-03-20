@@ -31,13 +31,15 @@ In this example, our deployment model will be composed of two components:
 * an _InfrastructureComponent_ (i.e., the host on top of which we will deploy our SoftwareComponent).
 
 First, we start by creating the InfrastructureComponent by clicking on 'InfrastructureComponent > Device'.
-In the creation form we specify its 'name' and 'id' and we fill the field 'IP' with the IP address of the host on top of which our program written in ThingML will be deployed. Once the form completed we can click on the 'add' button to actually add the component in the deployment model.
+In the creation form we specify its 'name' and 'id' and we fill the field 'IP' with the IP address of the host on top of which CouchDB will be deployed. Once the form completed we can click on the 'add' button to actually add the component in the deployment model.
+
 For details on how to manipulate and edit components with the GeneSIS editor, please refer to our [first tutorial](https://gitlab.com/enact/GeneSIS/tree/master/docs/examples/1.nodered_localhost).
 
 We can now create the SoftwareComponent by clicking on 'SoftwareComponent > InternalComponent > Generic InternalComponent'.
 We start by specifying, the 'name' and 'id' of the component, and the 'port' it will be accessible from (typically 5984 for CouchDB).
 
 We can now define how to install, configure and start CouchDB by associating an _Ansible-Resource_ to our InternalComponent. In the GeneSIS Modelling language A _SoftwareComponent_ can be associated with _Resources_ (e.g., scripts, configuration files) adopted to manage its deployment life-cycle (i.e., download, configure, install, start, and stop).
+
 TO BE COMPLETED
 
 ![alt text](./images/resource.png "Ansible-resource")
