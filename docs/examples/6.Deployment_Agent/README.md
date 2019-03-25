@@ -52,5 +52,12 @@ Then we create the arduino software component to be deployed on the device:
 1. Create an internal component: 'SoftwareComponent > InternalComponent > arduino'
 2. Specify its name, id, the path to the arduino sketch to be deployed (e.g., sketch: /Users/MainCfg.ino), the libraries required to run the sketch (e.g., libraries: ["Adafruit GFX Library","Adafruit ST7735 and ST7789 Library"])
 
+Finally, we create the communication links. First, between the two Node-RED:
+1. click on Add Link > Communication', select the two components, and click on the 'add' button.
+
+Then between Node-RED and the arduino:
+1. click on Add Link > Communication', select the two components (Node-RED being the source and arduino the target of the communication), select _isControl_ and _isDeployer_ and click on the 'add' button.
+2. 
+
 
 
