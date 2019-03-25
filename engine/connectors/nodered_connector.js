@@ -67,7 +67,7 @@ var nodered_connector = function () {
     that.untilConnect = async function (tgt_host, tgt_port) {
         var can = false;
         while (!can) {
-            logger.log("info", "Trying to connect to Node-RED ");
+            logger.log("info", "Trying to connect to Node-RED "+tgt_host+":"+tgt_port);
             await that.sleep(6000);
             can = await that.tryConnect(tgt_host, tgt_port);
         }
@@ -106,10 +106,15 @@ var nodered_connector = function () {
                 port: tgt_port
             };
             http.get(opt, function (resp) {
+                var _string="";
                 resp.on('data', function (chunk) {
+                    _string+=chunk;
+                });
+
+                resp.on('end', function(){
                     var d_flow = [];
-                    if (Array.isArray(JSON.parse(chunk))) {
-                        d_flow = JSON.parse(chunk);
+                    if (Array.isArray(JSON.parse(_string))) {
+                        d_flow = JSON.parse(_string);
                     }
                     resolve(d_flow);
                 });
@@ -140,7 +145,7 @@ var nodered_connector = function () {
             });
 
             response.on('end', function () {
-                logger.log("info", "Request to upload Node-Red flow completed " + data);
+                logger.log("info", "Request to upload Node-Red flow completed on: "+tgt_host+":"+tgt_port);
                 for (var w in tgt_tab) { //if success, send feedback
                     bus.emit('link-ok', tgt_tab[w].name);
                 }

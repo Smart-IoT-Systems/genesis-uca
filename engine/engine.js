@@ -67,7 +67,6 @@ var engine = (function () {
 
         //Deployment agent
         for (var l in links_deployer_tab) {
-            nb++;
             var tgt_agent = that.dep_model.find_node_named(links_deployer_tab[l].target);
             var host_agent = that.dep_model.find_node_named(links_deployer_tab[l].src);
             var tgt_agent_host_id = tgt_agent.id_host;
@@ -81,121 +80,126 @@ var engine = (function () {
         }
 
         for (var i in comp) {
-            //if not to be deployed by a deployment agent
-            if (!that.dep_model.need_deployment_agent(comp[i])) {
+            (function (comp, i) {
+                //if not to be deployed by a deployment agent
+                if (!that.dep_model.need_deployment_agent(comp[i])) {
 
-                var host_id = comp[i].id_host;
-                var host = that.dep_model.find_node_named(host_id);
-                if (host !== undefined) {
-                    if (comp[i]._type === "thingml") {
-                        //we should generate the plantuml
-                        var tcli = thingmlcli(comp[i]);
-                        tcli.build("./generated_uml_" + comp[i].name, "uml").catch(function (err) {
-                            logger.log("error", err);
-                        });
+                    var host_id = comp[i].id_host;
+                    var host = that.dep_model.find_node_named(host_id);
+                    if (host !== undefined) {
+                        if (comp[i]._type === "thingml") {
+                            //we should generate the plantuml
+                            var tcli = thingmlcli(comp[i]);
+                            tcli.build("./generated_uml_" + comp[i].name, "uml").catch(function (err) {
+                                logger.log("error", err);
+                            });
 
-                        //Then we generate for the target
-                        tcli.build("./generated_" + comp[i].name, comp[i].target_language).then(function (elem) {
-                            //if java we need to build and deploy
-                            if (comp[i].target_language === 'java') {
+                            //Then we generate for the target
+                            tcli.build("./generated_" + comp[i].name, comp[i].target_language).then(function (elem) {
+                                //if java we need to build and deploy
+                                if (comp[i].target_language === 'java') {
 
-                                logger.log("info", process.cwd() + "/generated_" + comp[i].name);
-                                var mb = mvn_builder.create({
-                                    cwd: process.cwd() + "/generated_" + comp[i].name
-                                });
-                                mb.execute(['clean', 'install'], {
-                                    'skipTests': true
-                                }).then(function () {
-                                    //TODO: make it more generic
-                                    //as a start we connect and deploy via SSH
+                                    logger.log("info", process.cwd() + "/generated_" + comp[i].name);
+                                    var mb = mvn_builder.create({
+                                        cwd: process.cwd() + "/generated_" + comp[i].name
+                                    });
+                                    mb.execute(['clean', 'install'], {
+                                        'skipTests': true
+                                    }).then(function () {
+                                        //TODO: make it more generic
+                                        //as a start we connect and deploy via SSH
+                                        var sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.password, comp[i].ssh_resource.credentials.sshkey);
+                                        sc.upload_file("./generated_" + comp[i].name + '/target/' + comp[i].name + '-1.0.0-jar-with-dependencies.jar', '/home/' + comp[i].ssh_resource.credentials.username + '/' + comp[i].name + '-1.0.0-jar-with-dependencies.jar').then(function (file_path_tgt) {
+                                            sc.execute_command(comp[i].ssh_resource.startCommand);
+                                            bus.emit('ssh-started', host.name);
+                                            bus.emit('ssh-started', comp[i].name);
+                                        }).catch(function (err) {
+                                            logger.log("error", err);
+                                        });
+                                    }).catch(function (err) {
+                                        logger.log("error", "mvn clean install failed: " + err);
+                                    });
+                                }
+                                if (comp[i].target_language === 'nodejs') {
+                                    logger.log("info", process.cwd() + "/generated_" + comp[i].name);
                                     var sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.password, comp[i].ssh_resource.credentials.sshkey);
-                                    sc.upload_file("./generated_" + comp[i].name + '/target/' + comp[i].name + '-1.0.0-jar-with-dependencies.jar', '/home/' + comp[i].ssh_resource.credentials.username + '/' + comp[i].name + '-1.0.0-jar-with-dependencies.jar').then(function (file_path_tgt) {
+                                    sc.upload_directory("./generated_" + comp[i].name, '/home/' + comp[i].ssh_resource.credentials.username + '/generated_' + comp[i].name).then(function (file_path_tgt) {
                                         sc.execute_command(comp[i].ssh_resource.startCommand);
                                         bus.emit('ssh-started', host.name);
                                         bus.emit('ssh-started', comp[i].name);
                                     }).catch(function (err) {
                                         logger.log("error", err);
-                                    });
-                                }).catch(function (err) {
-                                    logger.log("error", "mvn clean install failed: " + err);
-                                });
-                            }
-                            if (comp[i].target_language === 'nodejs') {
-                                logger.log("info", process.cwd() + "/generated_" + comp[i].name);
-                                var sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.password, comp[i].ssh_resource.credentials.sshkey);
-                                sc.upload_directory("./generated_" + comp[i].name, '/home/' + comp[i].ssh_resource.credentials.username + '/generated_' + comp[i].name).then(function (file_path_tgt) {
-                                    sc.execute_command(comp[i].ssh_resource.startCommand);
-                                    bus.emit('ssh-started', host.name);
-                                    bus.emit('ssh-started', comp[i].name);
-                                }).catch(function (err) {
-                                    logger.log("error", err);
-                                });;
-                            }
-                        }).catch(function (err) {
-                            logger.log("error", err);
-                        });
-                    } else {
-                        if (host._type === "docker_host") {
-                            let connector = dc();
-                            nb++;
-                            if (comp[i]._type === "node_red") {
-                                //then we deploy node red
-                                //TODO: what if port_bindings is empty?
-                                connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", "nicolasferry/node-red-contrib-thingml-rpi:latest", comp[i].docker_resource.mounts, comp[i].name, host.name).then(function () {
-                                    if ((comp[i].nr_flow !== undefined && comp[i].nr_flow !== "") ||
-                                        (comp[i].path_flow !== "" && comp[i].path_flow !== undefined)) { //if there is a to load with the nodered node
-                                        let noderedconnector = nodered_connector();
-                                        var _data = "";
-                                        if (comp[i].path_flow !== "" && comp[i].path_flow !== undefined) {
-                                            _data = fs.readFileSync(comp[i].path_flow);
-                                        } else {
-                                            _data = JSON.stringify(comp[i].nr_flow);
+                                    });;
+                                }
+                            }).catch(function (err) {
+                                logger.log("error", err);
+                            });
+                        } else {
+                            if (host._type === "docker_host") {
+                                var connector = dc();
+                                nb++;
+                                if (comp[i]._type === "node_red") {
+                                    //then we deploy node red
+                                    //TODO: what if port_bindings is empty?
+                                    connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", "nicolasferry/multiarch-node-red-thingml:latest", comp[i].docker_resource.mounts, comp[i].name, host.name).then(function (id) {
+                                        if ((comp[i].nr_flow !== undefined && comp[i].nr_flow !== "") ||
+                                            (comp[i].path_flow !== "" && comp[i].path_flow !== undefined)) { //if there is a flow to load with the nodered node
+                                            let noderedconnector = nodered_connector();
+                                            var _data = "";
+                                            if (comp[i].path_flow !== "" && comp[i].path_flow !== undefined) {
+                                                _data = fs.readFileSync(comp[i].path_flow);
+                                            } else {
+                                                _data = JSON.stringify(comp[i].nr_flow);
+                                            }
+                                            noderedconnector.installAllNodeTypes(host.ip, comp[i].port, comp[i].packages).then(function () {
+                                                noderedconnector.setFlow(host.ip, comp[i].port, _data, [], [], that.dep_model);
+                                                bus.emit('node-started', id, comp[i].name);
+                                            });
                                         }
-                                        noderedconnector.installAllNodeTypes(host.ip, comp[i].port, comp[i].packages).then(function () {
-                                            noderedconnector.setFlow(host.ip, comp[i].port, _data, [], [], that.dep_model);
-                                        });
-                                    }
-                                });
-                            } else {
-                                connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, comp[i].docker_resource.command, comp[i].docker_resource.image, comp[i].docker_resource.mounts, comp[i].name, host.name);
+                                    });
+                                } else {
+                                    connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, comp[i].docker_resource.command, comp[i].docker_resource.image, comp[i].docker_resource.mounts, comp[i].name, host.name).then(function () {
+                                        bus.emit('node-started', id, comp[i].name);
+                                    });
+                                }
                             }
-                        }
-                        if (comp[i].ansible_resource.playbook_path !== "" && comp[i].ansible_resource.playbook_path !== undefined) {
-                            let connector = ac(host, comp[i]);
-                            connector.executePlaybook();
-                        }
-                        if (comp[i].ssh_resource.credentials.sshkey !== "") {
-                            let sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.sshkey, comp[i].ssh_resource.credentials.sshkey);
-                            //just for fun 0o' let's try the most crappy code ever!
-                            sc.execute_command(comp[i].ssh_resource.downloadCommand).then(function () {
-                                logger.log("info", "Download command executed");
-                                sc.execute_command(comp[i].ssh_resource.installCommand).then(function () {
-                                    logger.log("info", "Install command executed");
-                                    sc.execute_command(comp[i].ssh_resource.configureCommand).then(function () {
-                                        logger.log("info", "Configure command executed");
-                                        sc.execute_command(comp[i].ssh_resource.startCommand).then(function () {
-                                            logger.log("info", "Start command executed");
+                            if (comp[i].ansible_resource.playbook_path !== "" && comp[i].ansible_resource.playbook_path !== undefined) {
+                                var connector = ac(host, comp[i]);
+                                connector.executePlaybook();
+                            }
+                            if (comp[i].ssh_resource.credentials.sshkey !== "") {
+                                var sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.sshkey, comp[i].ssh_resource.credentials.sshkey);
+                                //just for fun 0o' let's try the most crappy code ever!
+                                sc.execute_command(comp[i].ssh_resource.downloadCommand).then(function () {
+                                    logger.log("info", "Download command executed");
+                                    sc.execute_command(comp[i].ssh_resource.installCommand).then(function () {
+                                        logger.log("info", "Install command executed");
+                                        sc.execute_command(comp[i].ssh_resource.configureCommand).then(function () {
+                                            logger.log("info", "Configure command executed");
+                                            sc.execute_command(comp[i].ssh_resource.startCommand).then(function () {
+                                                logger.log("info", "Start command executed");
+                                            }).catch(function (err) {
+                                                logger.log("error", "Start command error " + err);
+                                            });
                                         }).catch(function (err) {
-                                            logger.log("error", "Start command error " + err);
+                                            logger.log("error", "Configure command error " + err);
                                         });
                                     }).catch(function (err) {
-                                        logger.log("error", "Configure command error " + err);
+                                        logger.log("error", "Install command error " + err);
                                     });
                                 }).catch(function (err) {
-                                    logger.log("error", "Install command error " + err);
+                                    logger.log("error", "Download command error " + err);
                                 });
-                            }).catch(function (err) {
-                                logger.log("error", "Download command error " + err);
-                            });
+                            }
                         }
                     }
                 }
-            }
+            }(comp, i));
         }
 
 
         //We collect all the started events, once they are all received we generate the flow skeleton based on the links
-        bus.on('container-started', function (container_id, comp_name) {
+        bus.on('node-started', function (container_id, comp_name) {
             tmp++;
             //console.log(tmp + ' :: ' + nb);
             //Add container id to the component
@@ -208,22 +212,24 @@ var engine = (function () {
                 var comp_tab = that.dep_model.get_all_hosted();
                 //For all Node-Red hosted components we generate the websocket proxies
                 for (var ct_elem of comp_tab) {
-                    if (ct_elem._type === 'node_red') {
-                        var host_id = ct_elem.id_host;
-                        var host = that.dep_model.find_node_named(host_id);
+                    (function (comp_tab, ct_elem) {
+                        if (ct_elem._type === 'node_red') {
+                            var host_id = ct_elem.id_host;
+                            var host = that.dep_model.find_node_named(host_id);
 
-                        //Get all links that start from the component
-                        var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
-                        //Get all links that end in the component
-                        var tgt_tab = that.dep_model.get_all_inputs_of_component(ct_elem);
+                            //Get all links that start from the component
+                            var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
+                            //Get all links that end in the component
+                            var tgt_tab = that.dep_model.get_all_inputs_of_component(ct_elem);
 
-                        if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
-                            var noderedconnector = nodered_connector();
-                            noderedconnector.getCurrentFlow(host.ip, ct_elem.port).then(function (the_flow) {
-                                that.generate_components(host.ip, ct_elem.port, src_tab, tgt_tab, that.dep_model, the_flow);
-                            });
+                            if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
+                                var noderedconnector = nodered_connector();
+                                noderedconnector.getCurrentFlow(host.ip, ct_elem.port).then(function (the_flow) {
+                                    that.generate_components(host.ip, ct_elem.port, src_tab, tgt_tab, that.dep_model, the_flow);
+                                });
+                            }
                         }
-                    }
+                    }(comp_tab, ct_elem));
                 }
                 return;
             }
@@ -242,7 +248,7 @@ var engine = (function () {
             }
         });
 
-        var flow = '[{"id":"dac41de7.a03038","type":"tab","label":"Flow 1"},';
+        var flow = '[';
         var dependencies = "";
         var tab = uuidv4();
 
@@ -326,12 +332,12 @@ var engine = (function () {
                 var tab = [];
                 var mmodel = "";
                 for (var j = 0; j < modules.length; j++) {
-                    var tmp = {};
-                    tmp.id = modules[j].id.replace('.js', '');
+                    var tmp_ = {};
+                    tmp_.id = modules[j].id.replace('.js', '');
                     var comp = modules[j].module({});
-                    (comp.id_host === undefined) ? tmp.isExternal = true: tmp.isExternal = false;
-                    tmp.module = comp;
-                    tab.push(tmp);
+                    (comp.id_host === undefined) ? tmp_.isExternal = true: tmp_.isExternal = false;
+                    tmp_.module = comp;
+                    tab.push(tmp_);
                 }
                 that.socketObject.send("@" + JSON.stringify(tab));
 

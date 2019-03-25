@@ -19,14 +19,14 @@ var ansible_connector = function (tgt_node, comp) {
 
     that.executePlaybook = function () {
         that.prepareInventory();
-        var playbook = new ansible.Playbook().playbook(that.ansible_resource.playbook_path).inventory("./hosts");;
+        var playbook = new ansible.Playbook().playbook(that.ansible_resource.playbook_path).inventory("./hosts");
         playbook.on('stdout', function (data) {
             logger.log("info", data.toString());
         });
         playbook.on('stderr', function (data) {
             logger.log("info", data.toString());
         });
-        var promise = playbook.exec().then(function(successResult) {
+        playbook.exec().then(function(successResult) {
             bus.emit('ansible-started', comp.name);
         });
     };
