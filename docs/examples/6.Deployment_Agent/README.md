@@ -49,5 +49,8 @@ We can now create the host representing our Arduino:
 2. Specify its name, id, the physical port it uses to communicate with the raspberry pi (e.g., physical_port: /dev/ttyACM0), and the type of the device (i.e., device-type: arduino)
 
 Then we create the arduino software component to be deployed on the device:
-1. Create an internal component
+1. Create an internal component: 'SoftwareComponent > InternalComponent > arduino'
+2. Specify its name, id, the path to the arduino sketch to be deployed (e.g., sketch: /Users/MainCfg.ino), the libraries required to run the sketch (e.g., libraries: ["Adafruit GFX Library","Adafruit ST7735 and ST7789 Library"])
+
+
 
