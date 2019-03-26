@@ -58,7 +58,7 @@ Finally, we create the communication links. First, between the two Node-RED:
 Then between Node-RED and the arduino:
 1. click on Add Link > Communication', select the two components (Node-RED being the source and arduino the target of the communication), select _isControl_ and _isDeployer_ and click on the 'add' button.
 
-Once your deployment is started you can access to the deployment agent at the following address: _<ip-raspberry-pi>:1889_
+Once your deployment is started you can access to the deployment agent at the following address: _ip-raspberry-pi:1889_
 
 
 
