@@ -107,7 +107,6 @@ var docker_connector = function () {
                         }];
                     }
                 }
-                console.log(JSON.stringify(options));
             }
 
             options.Mounts = [];
