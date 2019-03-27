@@ -88,13 +88,26 @@ var docker_connector = function () {
             options.HostConfig.PortBindings = JSON.parse(port);
 
             if (devices !== undefined) {
-                if (devices.PathOnHost !== '') {
-                    options.HostConfig.Devices = [{
-                        'PathOnHost': devices.PathOnHost,
-                        'PathInContainer': devices.PathInContainer,
-                        'CgroupPermissions': devices.CgroupPermissions
-                    }];
+
+                if (Array.isArray(devices)) {
+                    options.HostConfig.Devices = [];
+                    devices.forEach(element => {
+                        options.HostConfig.Devices.push({
+                            'PathOnHost': element.PathOnHost,
+                            'PathInContainer': element.PathInContainer,
+                            'CgroupPermissions': element.CgroupPermissions
+                        });
+                    });
+                } else {
+                    if (devices.PathOnHost !== '') {
+                        options.HostConfig.Devices = [{
+                            'PathOnHost': devices.PathOnHost,
+                            'PathInContainer': devices.PathInContainer,
+                            'CgroupPermissions': devices.CgroupPermissions
+                        }];
+                    }
                 }
+                console.log(JSON.stringify(options));
             }
 
             options.Mounts = [];
