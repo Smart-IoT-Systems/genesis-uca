@@ -373,6 +373,7 @@ var software_node = function (spec) {
 var node_red = function (spec) {
     var that = software_node(spec); //the inheritance
     that._type = "node_red";
+    that.docker_resource = spec.docker_resource || docker_resource({image: "nicolasferry/multiarch-node-red-thingml:latest"});
     that.nr_flow = spec.nr_flow || [];
     that.path_flow = spec.path_flow || "";
     that.packages = spec.packages || [];
@@ -414,8 +415,7 @@ var docker_resource = function (spec) {
     that.image = spec.image || "ubuntu";
     that.command = spec.command || "";
     that.port_bindings = spec.port_bindings || {
-        "80": "80",
-        "22": "22"
+        "1880": "1880"
     };
     that.devices = spec.devices || {
         "PathOnHost": '',

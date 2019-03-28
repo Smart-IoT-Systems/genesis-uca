@@ -141,7 +141,11 @@ var engine = (function () {
                                 if (comp[i]._type === "node_red") {
                                     //then we deploy node red
                                     //TODO: what if port_bindings is empty?
-                                    connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", "nicolasferry/multiarch-node-red-thingml:latest", comp[i].docker_resource.mounts, comp[i].name, host.name).then(function (id) {
+                                    var docker_image_nr="nicolasferry/multiarch-node-red-thingml:latest";
+                                    if(comp[i].docker_resource.image !== docker_image_nr && comp[i].docker_resource.image !== ""){
+                                        docker_image_nr=comp[i].docker_resource.image;
+                                    }
+                                    connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", docker_image_nr, comp[i].docker_resource.mounts, comp[i].name, host.name).then(function (id) {
                                         if ((comp[i].nr_flow !== undefined && comp[i].nr_flow !== "") ||
                                             (comp[i].path_flow !== "" && comp[i].path_flow !== undefined)) { //if there is a flow to load with the nodered node
                                             let noderedconnector = nodered_connector();
