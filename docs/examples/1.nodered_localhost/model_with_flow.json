@@ -20,7 +20,7 @@
             "id_host": "my_machine",
             "docker_resource": {
                 "name": "a resource",
-                "image": "ubuntu",
+                "image": "",
                 "command": "",
                 "port_bindings": {
                     "1880": "1880"
