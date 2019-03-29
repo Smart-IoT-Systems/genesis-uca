@@ -249,6 +249,10 @@ var engine = (function () {
                 if (!elem.name.startsWith("to_") && !elem.name.startsWith("from_")) {
                     return elem;
                 }
+            }else{
+                if(elem.id !== undefined) {
+                    return elem;
+                }
             }
         });
 
