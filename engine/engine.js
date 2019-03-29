@@ -66,6 +66,7 @@ var engine = (function () {
         var links_deployer_tab = diff.list_of_added_links_deployer;
 
         //Deployment agent
+        logger.log("info", "Starting deployment of deployment agents");
         for (var l in links_deployer_tab) {
             var tgt_agent = that.dep_model.find_node_named(links_deployer_tab[l].target);
             var host_agent = that.dep_model.find_node_named(links_deployer_tab[l].src);
@@ -75,9 +76,10 @@ var engine = (function () {
             var src_agent_host = that.dep_model.find_node_named(src__agent_host_id);
 
             var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
-            d_agent.prepare();
-            d_agent.install();
+            await d_agent.prepare();
+            await d_agent.install();
         }
+        logger.log("info", "Deployment agents deployed");
 
         for (var i in comp) {
             (function (comp, i) {

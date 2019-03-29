@@ -21,7 +21,7 @@ var deployment_agent = function (host, host_target, deployment_target) {
     that.flow='';
 
     //We need to identify what should be in the deployment agent
-    that.prepare= function(){
+    that.prepare= async function(){
         that.flow='[{"id":"dac41de7.a03033","type":"tab","label":"Deployment Flow"}';
         if(host_target._type === "device"){
             var id_deployer_node_in_agent=uuidv4();
@@ -43,8 +43,41 @@ var deployment_agent = function (host, host_target, deployment_target) {
             }
         }
         that.flow += ']';
+        return that.flow;
     };
 
+    that.sleep = function (ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    };
+
+    that.untilConnect = async function (tgt_host, tgt_port) {
+        var can = false;
+        while (!can) {
+            logger.log("info", "Trying to connect to Node-RED "+tgt_host+":"+tgt_port);
+            await that.sleep(6000);
+            can = await that.tryConnect(tgt_host, tgt_port);
+        }
+        await that.sleep(3000);
+        return can;
+    };
+
+    that.tryConnect = function (tgt_host, tgt_port) {
+        return new Promise(function (resolve, reject) {
+            var opt = {
+                host: tgt_host,
+                path: '/flows',
+                port: tgt_port
+            };
+            http.get(opt, function (resp) {
+                resp.on('data', function (chunk) {
+                    logger.log("info", "Connected");
+                    resolve(true);
+                });
+            }).on("error", function (e) {
+                resolve(false);
+            });
+        });
+    };
 
     that.setFlow = function (tgt_host, tgt_port, data) {
         var options = {
@@ -83,16 +116,20 @@ var deployment_agent = function (host, host_target, deployment_target) {
         req.end();
     };
 
-    that.install=function(){
+    that.install=async function(){
         var connector = dc();
         //We start Node-red
-        connector.buildAndDeploy(host.ip, host.port, {"1889":"1880"}, {
+        await connector.buildAndDeploy(host.ip, host.port, {"1889":"1880"}, {
             "PathOnHost": that.host_target.physical_port,
             "PathInContainer": that.host_target.physical_port,
             "CgroupPermissions": "rwm"
         }, "", "nicolasferry/multiarch-node-red-thingml:latest", "", that.deployment_target.name);
 
-        that.setFlow(host.ip, 1889, that.flow);
+        var readyToGo = await that.untilConnect(host.ip, 1889);
+        if (readyToGo) {
+            that.setFlow(host.ip, 1889, that.flow);
+        }
+        return readyToGo;
     };
 
     return that;
