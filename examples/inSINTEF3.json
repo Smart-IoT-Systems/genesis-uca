@@ -11,7 +11,7 @@
                     "login": "ubuntu",
                     "password": "ubuntu"
                 },
-                "_type": "device",
+                "_type": "/infra/device",
                 "physical_port": "",
                 "device_type": ""
         }, {
@@ -24,7 +24,7 @@
                     "login": "ubuntu",
                     "password": "ubuntu"
                 },
-                "_type": "docker_host"
+                "_type": "/infra/docker_host"
         }, {
                 "name": "RaspberryPi2",
                 "properties": [],
@@ -35,7 +35,7 @@
                     "login": "ubuntu",
                     "password": "ubuntu"
                 },
-                "_type": "docker_host"
+                "_type": "/infra/docker_host"
         }, {
                 "name": "AWS_VM",
                 "properties": [],
@@ -46,7 +46,7 @@
                     "login": "ubuntu",
                     "password": "ubuntu"
                 },
-                "_type": "vm_host"
+                "_type": "/infra/vm_host"
         }, {
                 "name": "DisplayControl",
                 "properties": [],
@@ -66,7 +66,7 @@
                     "downloadCommand": "",
                     "configureCommand": ""
                 },
-                "_type": "node_red",
+                "_type": "/internal/node_red",
                 "port": "1882"
         }, {
                 "name": "DisplayMessage",
@@ -93,7 +93,7 @@
                     "downloadCommand": "",
                     "configureCommand": ""
                 },
-                "_type": "thingml",
+                "_type": "/internal/thingml",
                 "port": "1880",
                 "nr_description": {
                     "node": [{
@@ -139,7 +139,7 @@
                     "downloadCommand": "",
                     "configureCommand": ""
                 },
-                "_type": "node_red",
+                "_type": "/internal/node_red",
                 "port": "1880"
                 },
             {
@@ -161,7 +161,7 @@
                     "downloadCommand": "",
                     "configureCommand": ""
                 },
-                "_type": "node_red",
+                "_type": "/internal/node_red",
                 "port": "1881"
                 },
             {
@@ -189,7 +189,7 @@
                     "downloadCommand": "",
                     "configureCommand": ""
                 },
-                "_type": "software",
+                "_type": "/internal",
                 "port": "1880"
                 },
             {
@@ -217,7 +217,7 @@
                     "downloadCommand": "",
                     "configureCommand": ""
                 },
-                "_type": "rfxcom",
+                "_type": "/external/rfxcom",
                 "port": "1880",
                 "nr_description": {
                     "package": "node-red-contrib-rfxcom",

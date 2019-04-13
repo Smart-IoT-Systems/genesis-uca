@@ -1,22 +1,16 @@
-var express = require('express');
-var path = require('path');
-var app = express();
 var runtime = require('./engine/engine.js');
 var broker = require('./engine/MQTTBroker.js');
 var puml = require('./engine/connectors/plantuml.js');
 var logger=require('./engine/logger.js');
+var express = require("express");
+var app = express();
+var fs = require('fs');
+var bodyParser = require('body-parser')
 
-// Define the port to run on
-app.set('port', 8880);
+app.set("port", 8000);
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 
-//provide access to the editor
-app.use("/js", express.static(path.join(__dirname, 'js')));
-app.use("/editor", express.static(path.join(__dirname, 'editor')));
-app.use("/css", express.static(path.join(__dirname, 'css')));
-app.use("/fonts", express.static(path.join(__dirname, 'fonts')));
-app.use("/metamodel", express.static(path.join(__dirname, 'metamodel')));
-app.use("/repository", express.static(path.join(__dirname, 'repository')));
-app.use(express.static(path.join(__dirname, '')));
 
 //Start the engine
 logger.log('info','Engine started!');
@@ -24,8 +18,24 @@ runtime.start();
 broker.start();
 puml.start();
 
-// Listen for editor requests
+// start server
 var server = app.listen(app.get('port'), function () {
-    var port = server.address().port;
-    logger.log('info','Magic happens on port ' + port);
+	var port = server.address().port;
+	logger.log('info','GeneSIS Engine API started on ' + port);
 });
+
+//Retrieve all component types registered in the engine
+app.get("/genesis/types", runtime.getTypes);
+//Initiate deployment
+app.post("/genesis/deploy", runtime.deploy);
+//Send back the server logs
+app.get("/genesis/logs", getLogs);
+
+
+
+function getLogs(req, res){
+    var contents = fs.readFileSync(__dirname+'/genesis.log', 'utf8');
+    res.end(contents);
+}
+
+

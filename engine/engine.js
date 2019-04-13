@@ -18,7 +18,10 @@ var fs = require('fs');
 
 var engine = (function () {
     var that = {};
-    //that.dep_model = 'undefined';
+
+    that.available_types = [];
+    that.modules=[];
+
     that.dep_model = mm.deployment_model({});
     that.diff = {};
 
@@ -28,6 +31,9 @@ var engine = (function () {
 
     that.socketObject = {};
 
+    that.getTypes = function (req, res) {
+        res.end(JSON.stringify(that.available_types));
+    };
 
     that.remove_containers = async function (diff) {
         var removed = diff.list_of_removed_components;
@@ -143,9 +149,9 @@ var engine = (function () {
                                 if (comp[i]._type === "node_red") {
                                     //then we deploy node red
                                     //TODO: what if port_bindings is empty?
-                                    var docker_image_nr="nicolasferry/multiarch-node-red-thingml:latest";
-                                    if(comp[i].docker_resource.image !== docker_image_nr && comp[i].docker_resource.image !== ""){
-                                        docker_image_nr=comp[i].docker_resource.image;
+                                    var docker_image_nr = "nicolasferry/multiarch-node-red-thingml:latest";
+                                    if (comp[i].docker_resource.image !== docker_image_nr && comp[i].docker_resource.image !== "") {
+                                        docker_image_nr = comp[i].docker_resource.image;
                                     }
                                     connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", docker_image_nr, comp[i].docker_resource.mounts, comp[i].name, host.name).then(function (id) {
                                         if ((comp[i].nr_flow !== undefined && comp[i].nr_flow !== "") ||
@@ -251,8 +257,8 @@ var engine = (function () {
                 if (!elem.name.startsWith("to_") && !elem.name.startsWith("from_")) {
                     return elem;
                 }
-            }else{
-                if(elem.id !== undefined) {
+            } else {
+                if (elem.id !== undefined) {
                     return elem;
                 }
             }
@@ -324,78 +330,76 @@ var engine = (function () {
         }
     }
 
+    that.deploy = async function (req, res) {
+        //Create a deployment model
+        var dm = mm.deployment_model({});
+        //Add types to the registry before we create the instances
+        dm.type_registry = that.modules; //can be used as follows modules[i].module({})
+
+        //Load the model
+        logger.log("info", "Received model from the editor "+JSON.stringify(req.body));
+        var data = req.body;
+        dm.name = data.name;
+        dm.revive_components(data.components);
+        dm.revive_links(data.links);
+        if (dm.is_valid()) {
+
+            logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));
+
+            //Compare model
+            var comparator = comparison_engine(that.dep_model);
+            that.diff = comparator.compare(dm);
+            that.dep_model = dm; //target model becomes current
+
+            //First do all the removal stuff - TODO refactor
+            logger.log("info", "Stopping removed containers");
+            await that.remove_containers(that.diff);
+
+            //Deploy only the added stuff
+            logger.log("info", "Starting deployment");
+            await that.run(that.diff);
+            //logger.log("info", "Deployment Completed");
+            res.end(JSON.stringify({ success: that.dep_model }));
+
+        } else {
+            logger.log("info", "Model not loaded since not valid: " + JSON.stringify(dm.components));
+            res.end(JSON.stringify({ error: "Model not loaded since not valid" }));
+        }
+    }
+
 
     that.start = function () {
 
-        that.webSocketServerObject.on('connection', function (socketObject) {
+        //We use websocket for the notifications
+        /*that.webSocketServerObject.on('connection', function (socketObject) {
             that.socketObject = socketObject;
 
             //Send status info to the UI
             var nfier = notifier(that.socketObject);
             nfier.start();
 
-            //Load component types from the repository
-            var cl = class_loader();
-            cl.findModules({
-                folder: './repository'
-            }, function (modules) {
-                var tab = [];
-                var mmodel = "";
-                for (var j = 0; j < modules.length; j++) {
-                    var tmp_ = {};
-                    tmp_.id = modules[j].id.replace('.js', '');
-                    var comp = modules[j].module({});
-                    (comp.id_host === undefined) ? tmp_.isExternal = true: tmp_.isExternal = false;
-                    tmp_.module = comp;
-                    tab.push(tmp_);
-                }
-                that.socketObject.send("@" + JSON.stringify(tab));
-
-
-                //Wait for a model from the editor
-                socketObject.on('message', async function (message) {
-
-                    //Create a deployment model
-                    var dm = mm.deployment_model({});
-                    //Add types to the registry before we create the instances
-                    dm.type_registry = modules; //can be used as follows modules[i].module({})
-
-                    //Load the model
-                    logger.log("info", "Received model from the editor");
-                    var data = JSON.parse(message);
-                    dm.name = data.name;
-                    dm.revive_components(data.components);
-                    dm.revive_links(data.links);
-                    if (dm.is_valid()) {
-
-                        logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));
-
-                        //Compare model
-                        var comparator = comparison_engine(that.dep_model);
-                        that.diff = comparator.compare(dm);
-                        that.dep_model = dm; //target model becomes current
-
-                        //First do all the removal stuff - TODO refactor
-                        logger.log("info", "Stopping removed containers");
-                        await that.remove_containers(that.diff);
-
-                        //Deploy only the added stuff
-                        logger.log("info", "Starting deployment");
-                        await that.run(that.diff);
-                        //logger.log("info", "Deployment Completed");
-
-                        //}
-                    } else {
-                        logger.log("info", "Model not loaded since not valid: " + JSON.stringify(dm.components));
-                    }
-
-                });
-            });
-
             socketObject.on('close', function (c, d) {
                 logger.log('info', 'Disconnect ' + c + ' -- ' + d);
             });
 
+        });*/
+
+        //Load component types from the repository
+        var cl = class_loader();
+        cl.findModules({
+            folder: './repository'
+        }, function (modules) {
+            var tab = [];
+            for (var j = 0; j < modules.length; j++) {
+                var tmp_ = {};
+                tmp_.id = modules[j].id.replace('.js', '');
+                var comp = modules[j].module({});
+                (comp.id_host === undefined) ? tmp_.isExternal = true: tmp_.isExternal = false;
+                tmp_.module = comp;
+                tab.push(tmp_);
+            }
+            that.available_types = tab;
+            that.modules=modules;
         });
     };
 

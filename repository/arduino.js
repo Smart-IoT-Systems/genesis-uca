@@ -6,7 +6,7 @@ var uuidv1 = require('uuid/v1');
 /******************************/
 var arduino = function (spec) {
     var that = mm.software_node(spec); //the inheritance
-    that._type = "arduino";
+    that._type += "/arduino";
     that.name = spec.name || "Main";
     that.nr_description = spec.nr_description || ""; 
     that.sketch= spec.sketch || "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/docker-node-red-thingml/doc/examples/LightSensorApp/LightSensorApp.thingml";
