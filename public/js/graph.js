@@ -166,17 +166,17 @@ var graph_factory = function (name) {
     this.create_node = function (type) {
         if (type === "external_host") {
             node.classes = 'container';
-        } else if (type === "vm_host") {
+        } else if (type === "/infra/vm_host") {
             node.classes = 'vm';
-        } else if (type === "docker_host") {
+        } else if (type === "/infra/docker_host") {
             node.classes = 'container';
-        } else if (type === "external_node") {
+        } else if (type === "/external") {
 
-        } else if (type === "node_red") {
+        } else if (type === "/internal/node_red") {
             node.classes = 'node_red';
-        } else if (type === "sofware") {
+        } else if (type === "/internal") {
 
-        } else if (type === "device") {
+        } else if (type === "/infra/device") {
             node.classes = 'device';
         } else if (type === 'ansible'){
             node.classes = 'ansible';
