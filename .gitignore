@@ -1,0 +1,9 @@
+*.log
+*.pid
+*.seed
+*.pid.lock
+bower_components
+node_modules/
+jspm_packages/
+.npm
+
