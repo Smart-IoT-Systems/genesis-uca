@@ -39,8 +39,14 @@ function compare(src_dm, target_dm) {
         if (tmp_node === undefined) {
             var fac = graph_factory(target_comps[i].name);
             var node = fac.create_node(target_comps[i]._type);
-            console.log("added: " + JSON.stringify(node));
             cy.add(node);
+            
+            if(target_comps[i].id_host){
+                cy.getElementById(target_comps[i].name).move({
+                    parent: target_comps[i].id_host
+                });
+            }
+            console.log("added: " + JSON.stringify(node));
         }
     }
 
