@@ -28,6 +28,7 @@ var deployment_model = function (spec) {
                 component = software_node(spec);
             } else {
                 for (var i = 0; i < that.type_registry.length; i++) {
+                    console.log(that.type_registry[i].id);
                     if (that.type_registry[i].id.indexOf(type) >= 0) { //To be updated
                         component = that.type_registry[i].module(spec);
                         return component;
@@ -273,7 +274,7 @@ var credentials = function (spec) {
 var component = function (spec) {
     var that = {};
 
-    that.type = "";
+    that._type = "";
     that.name = spec.name || 'a_component';
     that.properties = [];
 
@@ -309,7 +310,7 @@ var component = function (spec) {
 /*****************************/
 var infrastructure_component = function (spec) {
     var that = component(spec); //the inheritance
-    that.type += "/infra";
+    that._type += "/infra";
     that.ip = spec.ip || '127.0.0.1';
     that.port = spec.port || ['80', '22'];
     that.credentials = spec.credentials || credentials({});

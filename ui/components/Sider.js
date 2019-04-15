@@ -6,6 +6,7 @@ import {
 
 import LoadModal from './LoadModal.js'
 import DrawerEdit from './DrawerEdit.js'
+import AddModal from './AddModal.js'
 
 //We load it here to avoid sync between server and client
 var mm = require('../../metamodel/allinone.js');
@@ -85,6 +86,27 @@ class SiderDemo extends React.Component {
     });
   }
 
+  showAddModal = (type, isPlugin) => {
+    console.log("ww"+type);
+    var modules=this.state.internalTypeRepo.concat(this.state.externalTypeRepo);
+    var f = dm.node_factory();
+    var elem={};
+    if (!isPlugin) {
+        elem = f.create_component(type, {});
+    } else {
+        for (var j = 0; j < modules.length; j++) {
+            if (modules[j].module._type === type) {
+                var tmp = JSON.stringify(modules[j].module);
+                elem = JSON.parse(tmp);
+                break;
+            }
+        }
+    }
+    dm.components.push(elem);
+    window.AddModal.showModal(elem);
+    window.FormEdit.build_form(elem);
+  }
+
   handleLoadModalOk = (e) => {
     var fd=e[0];
     var fr;
@@ -98,12 +120,17 @@ class SiderDemo extends React.Component {
       dm.components = data.dm.components;
       dm.revive_links(data.dm.links);
       cy.json(data.graph);
-      editor.set(dm);
     }
 
     this.setState({
       loadModalIsOpen: false,
     });
+  }
+
+  handleChangeTab = (key) =>{
+    if(key === "2"){
+      editor.set(dm);
+    }
   }
 
   handleLoadModalCancel = (e) => {
@@ -173,17 +200,6 @@ class SiderDemo extends React.Component {
 
   render() {
 
-    var items_ext=[];
-    var items_int=[];
-    for(var t=0; t < this.state.internalTypeRepo.length; t++){
-      var k="isc"+t;
-      items_int.push(<Menu.Item key={k}>{this.state.internalTypeRepo[t].id}</Menu.Item>);
-    }
-    for(var t=0; t < this.state.externalTypeRepo.length; t++){
-      var k2="esc"+t;
-      items_ext.push(<Menu.Item key={k2}>{this.state.externalTypeRepo[t].id}</Menu.Item>);
-    }
-
     window.SiderDemo = this;
 
     return (
@@ -209,11 +225,13 @@ class SiderDemo extends React.Component {
             </Menu>
           </Header>
           <LoadModal visible={this.state.loadModalIsOpen} handleOk={this.handleLoadModalOk} handleCancel={this.handleLoadModalCancel}></LoadModal>
+          <AddModal />
         <Layout>
         <Sider
           collapsible
           collapsed={this.state.collapsed}
           onCollapse={this.onCollapse}
+          width={300}
         >
           <Menu theme="dark" mode="inline">
             <Menu.Item key="1"><Icon type="deployment-unit" /><span>Fleet</span></Menu.Item>
@@ -222,21 +240,21 @@ class SiderDemo extends React.Component {
               title={<span><Icon type="edit" /><span>Edit</span></span>}
             >
               <SubMenu key="subIC" title="Infrastructure Components">
-                <Menu.Item key="IC1">Device</Menu.Item>
-                <Menu.Item key="IC2">Virtual Machine</Menu.Item>
-                <Menu.Item key="IC3">Docker Host</Menu.Item>
+                <Menu.Item onClick={() => this.showAddModal("/infra/device", false)} key="IC1">Device</Menu.Item>
+                <Menu.Item onClick={() => this.showAddModal("/infra/vm_host", false)} key="IC2">Virtual Machine</Menu.Item>
+                <Menu.Item onClick={() => this.showAddModal("/infra/docker_host", false)} key="IC3">Docker Host</Menu.Item>
               </SubMenu>
               <SubMenu key="subSC" title="Software Components">
-              <SubMenu key="subSCI" title="Internal">
-                <Menu.Item key="SCE1">Generic Internal Component</Menu.Item>
-
-                {items_int}
+                <SubMenu key="subSCI" title="Internal">
+                  <Menu.Item onClick={() => this.showAddModal("/internal", false)}  key="SCE1">Generic Internal Component</Menu.Item>
+                  <Menu.Item onClick={() => this.showAddModal("/internal/node_red", false)}  key="SCE2">Node-RED</Menu.Item>
+                  {this.state.internalTypeRepo.map( (t) => <Menu.Item onClick={() => this.showAddModal(t.module._type, true)} key={t.id}>{t.id}</Menu.Item> )}
+                </SubMenu>
+                <SubMenu key="subSCE" title="External">
+                    <Menu.Item onClick={() => this.showAddModal("/external", false)} key="SCE1">Generic External Component</Menu.Item>
+                    {this.state.externalTypeRepo.map( (et) => <Menu.Item onClick={() => this.showAddModal(et.module._type, true)} key={et.id}>{et.id}</Menu.Item>)}
+                </SubMenu>
               </SubMenu>
-              <SubMenu key="subSCE" title="External">
-                  <Menu.Item key="SCE1">Generic External Component</Menu.Item>
-                  {items_ext}
-              </SubMenu>
-            </SubMenu>
               
               <SubMenu key="subLinks" title="Links">
                 <Menu.Item key="Link1">Add Communication</Menu.Item>
@@ -253,7 +271,7 @@ class SiderDemo extends React.Component {
           <Content style={{ margin: '0 16px' }}>
             <DrawerEdit />
             <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
-              <Tabs tabPosition='right'>
+              <Tabs onChange={this.handleChangeTab} tabPosition='right'>
                 <TabPane tab="Graph View" key="1"><div style={{minHeight: 600, minWidth: '100px'}} id="cy"/></TabPane>
                 <TabPane forceRender={true} tab="JSON View" key="2">
                   <div>

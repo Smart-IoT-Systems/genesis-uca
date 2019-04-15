@@ -86,7 +86,7 @@ class FormEdit extends React.Component {
   
     render() {  
       return (
-          <Form onSubmit={this.handleSubmit}>
+          <Form>
             {this.state.result}
             <br/>
           </Form>
