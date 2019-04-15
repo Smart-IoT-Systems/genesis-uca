@@ -30,7 +30,7 @@ class AddModal extends React.Component {
         for (var prop in this.state.elem) {
             this.state.elem[prop]=window.FormEdit.state.element[prop];
         }
-        console.log(JSON.stringify(this.state.elem));
+        
         window.SiderDemo.openNotificationWithIcon("success",'Model updated!', 'The deployment model has been successfully updated!');
         this.setState({
           visible: false,

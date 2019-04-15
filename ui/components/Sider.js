@@ -87,7 +87,6 @@ class SiderDemo extends React.Component {
   }
 
   showAddModal = (type, isPlugin) => {
-    console.log("ww"+type);
     var modules=this.state.internalTypeRepo.concat(this.state.externalTypeRepo);
     var f = dm.node_factory();
     var elem={};
@@ -205,7 +204,7 @@ class SiderDemo extends React.Component {
     return (
       <Layout style={{ minHeight: '100vh' }}>
           <Header style={{ background: '#fff', padding: 0 }}>
-            <Menu theme="light" mode="horizontal" style={{ lineHeight: '64px', padding: '10px 0 10 0' }}>
+            <Menu selectable={false} theme="light" mode="horizontal" style={{ lineHeight: '64px', padding: '10px 0 10 0' }}>
               <Menu.Item key="logo" disabled={true}><img style={{ height: "55px" }} src="https://enact-project.eu/img/logo-enact-blue2.png" alt="logo enact" /></Menu.Item>
               <SubMenu
                 key="subFile"
@@ -233,7 +232,7 @@ class SiderDemo extends React.Component {
           onCollapse={this.onCollapse}
           width={300}
         >
-          <Menu theme="dark" mode="inline">
+          <Menu selectable={false} theme="dark" mode="inline">
             <Menu.Item key="1"><Icon type="deployment-unit" /><span>Fleet</span></Menu.Item>
             <SubMenu
               key="sub2"
