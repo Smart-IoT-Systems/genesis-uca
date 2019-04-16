@@ -73,7 +73,7 @@ var deployment_model = function (spec) {
             }
         }
         if (tab_indexes.length > 0) {
-            tab_indexes.forEach(function () {
+            tab_indexes.forEach(function (elem) {
                 that.links.splice(elem, 1);
             });
         }

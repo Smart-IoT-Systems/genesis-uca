@@ -7,6 +7,8 @@ import {
 import LoadModal from './LoadModal.js'
 import DrawerEdit from './DrawerEdit.js'
 import AddModal from './AddModal.js'
+import AddLinkModal from './AddLinkModal.js'
+import AddContainmentModal from './AddContainmentModal.js'
 
 //We load it here to avoid sync between server and client
 var mm = require('../../metamodel/allinone.js');
@@ -84,6 +86,14 @@ class SiderDemo extends React.Component {
     this.setState({
       loadModalIsOpen: true,
     });
+  }
+
+  showAddLinkodal = () => {
+    window.AddLinkModal.showModal();
+  }
+
+  showAddContainmentModal = () => {
+    window.AddContainmentModal.showModal();
   }
 
   showAddModal = (type, isPlugin) => {
@@ -225,6 +235,8 @@ class SiderDemo extends React.Component {
           </Header>
           <LoadModal visible={this.state.loadModalIsOpen} handleOk={this.handleLoadModalOk} handleCancel={this.handleLoadModalCancel}></LoadModal>
           <AddModal />
+          <AddLinkModal />
+          <AddContainmentModal />
         <Layout>
         <Sider
           collapsible
@@ -256,8 +268,8 @@ class SiderDemo extends React.Component {
               </SubMenu>
               
               <SubMenu key="subLinks" title="Links">
-                <Menu.Item key="Link1">Add Communication</Menu.Item>
-                <Menu.Item key="Link2">Add Containment</Menu.Item>
+                <Menu.Item onClick={this.showAddLinkodal} key="Link1">Add Communication</Menu.Item>
+                <Menu.Item onClick={this.showAddContainmentModal} key="Link2">Add Containment</Menu.Item>
               </SubMenu>
             </SubMenu>
             <Menu.Item key="9">

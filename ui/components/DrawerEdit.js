@@ -38,6 +38,27 @@ class DrawerEdit extends React.Component {
         visible: false,
       });
     };
+
+    onDelete = () => {
+      if (this.state.elem.src) {//Check if it is a link
+        cy.remove(this.state.elem); //remove from the display
+        window.SiderDemo.getDM().remove_link(this.state.elem_model); //remove from the model
+      } else {
+        cy.remove(this.state.elem); //remove from the display
+        window.SiderDemo.getDM().remove_component(this.state.elem_model); //remove from the model together with associated links
+      }
+      this.setState({
+        visible: false,
+      });
+    }
+
+    handleGoTo = () => {
+      var port = window.FormEdit.state.element.port;
+      var host_id = window.FormEdit.state.element.id_host;
+      var h = window.SiderDemo.getDM().find_node_named(host_id);
+      var win = window.open('http://' + h.ip + ':' + port, '_blank');
+      win.focus();
+    }
   
     onSave = (e) => {
       if (this.state.elem.src) {//Check if it is a link
@@ -106,7 +127,7 @@ class DrawerEdit extends React.Component {
             <EditionForm />
             <div style={{ position: 'absolute', left: 0, bottom: 0, width: '100%', borderTop: '1px solid #e9e9e9', padding: '10px 16px', background: '#fff', }} > 
               <Row>
-                <Col span={8}><Button icon="delete" onClick={this.onClose} type="danger">
+                <Col span={8}><Button icon="delete" onClick={this.onDelete} type="danger">
                     Delete
                   </Button></Col>
                 <Col span={8} offset={8}>
@@ -114,7 +135,7 @@ class DrawerEdit extends React.Component {
                     <Button icon="save" onClick={this.onSave} style={{ marginRight: 8 }}  type="primary">
                       Save
                     </Button>
-                    <Button icon="right-circle" onClick={this.onClose}>
+                    <Button icon="right-circle" onClick={this.handleGoTo}>
                       Go To!
                     </Button>
                   </div>
