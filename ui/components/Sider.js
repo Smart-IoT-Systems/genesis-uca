@@ -268,8 +268,8 @@ class SiderDemo extends React.Component {
               </SubMenu>
               
               <SubMenu key="subLinks" title="Links">
-                <Menu.Item onClick={this.showAddLinkodal} key="Link1">Add Communication</Menu.Item>
-                <Menu.Item onClick={this.showAddContainmentModal} key="Link2">Add Containment</Menu.Item>
+                <Menu.Item onClick={() => this.showAddLinkodal()} key="Link1">Add Communication</Menu.Item>
+                <Menu.Item onClick={() => this.showAddContainmentModal()} key="Link2">Add Containment</Menu.Item>
               </SubMenu>
             </SubMenu>
             <Menu.Item key="9">

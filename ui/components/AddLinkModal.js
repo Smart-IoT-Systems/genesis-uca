@@ -21,7 +21,7 @@ class AddLinkModal extends React.Component {
         window.AddLinkModal=this;
     }
 
-    showModal = (e) => {
+    showModal = () => {
         this.setState({
           visible: true,
         });
@@ -118,6 +118,7 @@ class AddLinkModal extends React.Component {
                 visible={this.state.visible}
                 onCancel={this.onClose}
                 onOk={this.handleOk}
+                destroyOnClose={true}
             >
                 <Form>
                     <Form.Item label="Name:" key="1">

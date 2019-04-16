@@ -1,6 +1,6 @@
 import React from "react";
 import 'antd/dist/antd.css';
-import { Modal, Form, Checkbox, Input, Icon, Tooltip, Cascader } from 'antd';
+import { Modal, Form, Input, Icon, Tooltip, Cascader } from 'antd';
 
 class AddContainmentModal extends React.Component {
 
@@ -15,7 +15,7 @@ class AddContainmentModal extends React.Component {
         window.AddContainmentModal=this;
     }
 
-    showModal = (e) => {
+    showModal = () => {
         this.setState({
           visible: true,
         });
@@ -89,6 +89,7 @@ class AddContainmentModal extends React.Component {
                 visible={this.state.visible}
                 onCancel={this.onClose}
                 onOk={this.handleOk}
+                destroyOnClose={true}
             >
                 <Form>
                     <Form.Item label="Name:" key="1">
