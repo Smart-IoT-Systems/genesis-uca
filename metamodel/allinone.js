@@ -3,6 +3,8 @@
 /*Contain all nodes and links*/
 /*****************************/
 
+var uuidv4 = require('uuid/v4');
+
 var deployment_model = function (spec) {
     var that = {};
     that.name = spec.name || 'a _deployment_name';
@@ -277,7 +279,7 @@ var component = function (spec) {
     that.name = spec.name || 'a_component';
     that.properties = [];
 
-    that.id = spec.id || 'a_unique_id';
+    that.id = spec.id || uuidv4();
 
     that.add_property = function (prop) {
         that.properties.push(prop);

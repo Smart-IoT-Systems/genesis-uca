@@ -1,5 +1,3 @@
-var webSocketServer = require('ws').Server;
-var http = require('http');
 var mm = require('../metamodel/allinone.js');
 var dc = require('./connectors/docker-connector.js');
 var sshc = require('./connectors/ssh-connector.js');
@@ -13,6 +11,7 @@ var ac = require('./connectors/ansible-connector.js');
 var thingmlcli = require('./thingml-compiler.js');
 var mvn_builder = require('maven');
 var notifier = require('./notifier');
+var mqtt = require('mqtt');
 var nodered_connector = require('./connectors/nodered_connector.js');
 var fs = require('fs');
 
@@ -25,11 +24,11 @@ var engine = (function () {
     that.dep_model = mm.deployment_model({});
     that.diff = {};
 
-    that.webSocketServerObject = new webSocketServer({
-        port: 9060
-    });
+    that.MQTTClient = {};
 
-    that.socketObject = {};
+    that.getDM = function(req, res){
+        res.end(JSON.stringify(that.dep_model));
+    }
 
     that.getTypes = function (req, res) {
         res.end(JSON.stringify(that.available_types));
@@ -91,11 +90,10 @@ var engine = (function () {
             (function (comp, i) {
                 //if not to be deployed by a deployment agent
                 if (!that.dep_model.need_deployment_agent(comp[i])) {
-
                     var host_id = comp[i].id_host;
                     var host = that.dep_model.find_node_named(host_id);
                     if (host !== undefined) {
-                        if (comp[i]._type === "thingml") {
+                        if (comp[i]._type === "/internal/thingml") {
                             //we should generate the plantuml
                             var tcli = thingmlcli(comp[i]);
                             tcli.build("./generated_uml_" + comp[i].name, "uml").catch(function (err) {
@@ -143,10 +141,11 @@ var engine = (function () {
                                 logger.log("error", err);
                             });
                         } else {
-                            if (host._type === "docker_host") {
+                            if (host._type === "/infra/docker_host") {
+                                console.log("Ready to go: "+ JSON.stringify(comp));
                                 var connector = dc();
                                 nb++;
-                                if (comp[i]._type === "node_red") {
+                                if (comp[i]._type === "/internal/node_red") {
                                     //then we deploy node red
                                     //TODO: what if port_bindings is empty?
                                     var docker_image_nr = "nicolasferry/multiarch-node-red-thingml:latest";
@@ -341,7 +340,9 @@ var engine = (function () {
         var data = req.body;
         dm.name = data.name;
         dm.revive_components(data.components);
+        logger.log("info", "Revive Comp");
         dm.revive_links(data.links);
+        logger.log("info", "Revive Link");
         if (dm.is_valid()) {
 
             logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));
@@ -370,7 +371,11 @@ var engine = (function () {
 
     that.start = function () {
 
-        //We use websocket for the notifications
+        //We use MQTT for the notifications
+        that.MQTTClient = mqtt.connect('ws://127.0.0.1:9001');
+        var nfier = notifier(that.MQTTClient);
+        nfier.start();
+
         /*that.webSocketServerObject.on('connection', function (socketObject) {
             that.socketObject = socketObject;
 

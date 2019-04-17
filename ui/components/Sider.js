@@ -9,6 +9,7 @@ import DrawerEdit from './DrawerEdit.js'
 import AddModal from './AddModal.js'
 import AddLinkModal from './AddLinkModal.js'
 import AddContainmentModal from './AddContainmentModal.js'
+import Notification from './Notification'
 
 //We load it here to avoid sync between server and client
 var mm = require('../../metamodel/allinone.js');
@@ -292,6 +293,7 @@ class SiderDemo extends React.Component {
                 </TabPane>
               </Tabs>
             </div>
+            <Notification/>
           </Content>
           <Footer style={{ textAlign: 'center' }}>
             ENACT ©2018

@@ -123,7 +123,7 @@ class DrawerEdit extends React.Component {
     render() {
       return (
         <div>
-          <Drawer title="Edit" width={720} onClose={this.onClose} visible={this.state.visible}>
+          <Drawer title="Edit" width={720} onClose={this.onClose} visible={this.state.visible} destroyOnClose={true}>
             <EditionForm />
             <div style={{ position: 'absolute', left: 0, bottom: 0, width: '100%', borderTop: '1px solid #e9e9e9', padding: '10px 16px', background: '#fff', }} > 
               <Row>

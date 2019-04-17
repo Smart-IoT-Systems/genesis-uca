@@ -30,6 +30,8 @@ app.get("/genesis/types", runtime.getTypes);
 app.post("/genesis/deploy", runtime.deploy);
 //Send back the server logs
 app.get("/genesis/logs", getLogs);
+//Send back the current deployment model
+app.get("/genesis/model", runtime.getDM);
 
 
 
