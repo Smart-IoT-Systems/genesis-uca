@@ -1,4 +1,4 @@
-![alt text](img/GeneSISLogo.png "GeneSIS")
+![alt text](public/img/GeneSISLogo.png "GeneSIS")
 
 
 # GeneSIS
