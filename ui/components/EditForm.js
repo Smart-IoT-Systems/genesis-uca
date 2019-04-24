@@ -1,8 +1,10 @@
 import React from "react";
 import 'antd/dist/antd.css';
 import {
-    Checkbox, Form, Icon, Input, Tooltip, Row, Col
+    Checkbox, Form, Icon, Input, Tooltip, Row, Col, Collapse
 } from 'antd';
+
+const Panel = Collapse.Panel;
 
 const { TextArea } = Input;
 

@@ -424,7 +424,7 @@ var link = function (spec) {
 /*****************************/
 var docker_resource = function (spec) {
     var that = {};
-    that.name = spec.name || "a resource";
+    that.name = spec.name || uuidv4();
     that.image = spec.image || "ubuntu";
     that.command = spec.command || "";
     that.port_bindings = spec.port_bindings || {
@@ -444,7 +444,7 @@ var docker_resource = function (spec) {
 /*****************************/
 var ssh_resource = function (spec) {
     var that = {};
-    that.name = spec.name || "a resource";
+    that.name = spec.name || uuidv4();
     that.startCommand = spec.startCommand || "";
     that.downloadCommand = spec.downloadCommand || "";
     that.installCommand = spec.installCommand || "";
@@ -459,7 +459,7 @@ var ssh_resource = function (spec) {
 /*****************************/
 var ansible_resource = function (spec) {
     var that = {};
-    that.name = spec.name || "a resource";
+    that.name = spec.name || uuidv4();
     that.playbook_path = spec.playbook_path || "";
     that.playbook_host = spec.playbook_path || "";
     that.credentials = spec.credentials || credentials({});
@@ -468,6 +468,62 @@ var ansible_resource = function (spec) {
 }
 
 
+/*****************************/
+/*Port                       */
+/*****************************/
+var port = function(spec){
+    var that = {};
+    that.name = spec.name || 'a port';
+    that.properties = [];
+    that.port_number = that.port_number || '80';
+
+    return that;
+}
+
+
+/*****************************/
+/*ProvidedExecutionPort      */
+/*****************************/
+//These are for all components
+var provided_execution_port = function(spec){
+    var that = port(spec);
+    that.isLocal = spec.isLocal || false;
+
+    return that;
+}
+
+
+/*****************************/
+/*RequiredExecutionPort      */
+/*****************************/
+//These are only for Software components
+var required_execution_port = function(spec){
+    var that = port(spec);
+    that.needDeployer= spec.needDeployer || false;
+
+    return that;
+}
+
+/*****************************/
+/*ProvidedCommunicationPort  */
+/*****************************/
+//These are only for Software components
+var required_communication_port = function(spec){
+    var that = port(spec);
+
+    return that;
+}
+
+/*****************************/
+/*RequiredCommunicationPort  */
+/*****************************/
+//These are only for Software components
+var provided_communication_port = function(spec){
+    var that = port(spec);
+    that.isMandatory = spec.isMandatory || false;
+
+    return that;
+}
 
 ////////////////////////////////////////////////
 module.exports = {
@@ -484,5 +540,10 @@ module.exports = {
     docker_host: docker_host,
     flow: flow,
     infrastructure_component: infrastructure_component,
-    component: component
+    component: component,
+    port: port,
+    provided_communication_port: provided_communication_port,
+    required_communication_port: required_communication_port,
+    required_execution_port: required_execution_port,
+    provided_execution_port: provided_execution_port
 }

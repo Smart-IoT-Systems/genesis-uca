@@ -149,6 +149,16 @@ class SiderDemo extends React.Component {
     });
   }
 
+  loadFromServer = () => {
+    fetch("/genesis/model")
+      .then(response => response.json())
+      .then(data => {
+        dm = mm.deployment_model(data);
+        dm.components = data.components;
+        dm.revive_links(data.links);
+      });
+  }
+
   onCollapse = (collapsed) => {
     this.setState({ collapsed });
   }
@@ -222,6 +232,7 @@ class SiderDemo extends React.Component {
                 title={<span><Icon type="file" /><span>File</span></span>}
               >
                 <Menu.Item key="File1" onClick={this.showLoadModal} >Load Deployment model</Menu.Item>
+                <Menu.Item key="File3" onClick={this.loadFromServer}>Load deployment model from server</Menu.Item>
                 <Menu.Item key="File2" onClick={this.saveModel}>Store Deployment model</Menu.Item>
               </SubMenu>
               <SubMenu
