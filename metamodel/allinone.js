@@ -281,6 +281,10 @@ var component = function (spec) {
 
     that.id = spec.id || uuidv4();
 
+    var tab_pep = [];
+    tab_pep.push(provided_execution_port({owner: that.name}));
+    that.provided_execution_port = spec.provided_execution_port || tab_pep;
+
     that.add_property = function (prop) {
         that.properties.push(prop);
     };
@@ -373,7 +377,18 @@ var software_node = function (spec) {
     that.ssh_resource = spec.ssh_resource || ssh_resource({});
     that.ansible_resource = spec.ansible_resource || ansible_resource({});
     that._type += "/internal";
-    that.port = spec.port || '1880';
+    
+    var tab_rep= [];
+    tab_rep.push(required_execution_port({}));
+    that.required_execution_port = spec.required_execution_port || tab_rep;
+
+    var tab_pcp = [];
+    tab_pcp.push(provided_communication_port({}));
+    that.provided_communication_port = spec.provided_communication_port || tab_pcp;
+
+    var tab_rcp = [];
+    tab_rcp  .push(required_communication_port({}));
+    that.required_communication_port = spec.required_communication_port || tab_rcp;
 
     return that;
 };
@@ -413,8 +428,17 @@ var link = function (spec) {
     that.src = spec.src || null;
     that.target = spec.target || null;
     that.isControl = spec.isControl || false;
-    that.isMandatory = spec.isMandatory || false;
-    that.isDeployer = spec.isDeployer || false;
+
+    return that;
+}
+
+/*****************************/
+/*Hosting                    */
+/*****************************/
+var hosting = function (spec) {
+    var that = component(spec);
+    that.src = spec.src || null;
+    that.target = spec.target || null;
 
     return that;
 }
@@ -473,9 +497,7 @@ var ansible_resource = function (spec) {
 /*****************************/
 var port = function(spec){
     var that = {};
-    that.name = spec.name || 'a port';
-    that.properties = [];
-    that.port_number = that.port_number || '80';
+    that.name = spec.name || uuidv4();
 
     return that;
 }
@@ -487,7 +509,6 @@ var port = function(spec){
 //These are for all components
 var provided_execution_port = function(spec){
     var that = port(spec);
-    that.isLocal = spec.isLocal || false;
 
     return that;
 }
@@ -510,6 +531,7 @@ var required_execution_port = function(spec){
 //These are only for Software components
 var required_communication_port = function(spec){
     var that = port(spec);
+    that.port_number = spec.port_number || '80';
 
     return that;
 }
@@ -520,6 +542,7 @@ var required_communication_port = function(spec){
 //These are only for Software components
 var provided_communication_port = function(spec){
     var that = port(spec);
+    that.port_number = spec.port_number || '80';
     that.isMandatory = spec.isMandatory || false;
 
     return that;
@@ -545,5 +568,6 @@ module.exports = {
     provided_communication_port: provided_communication_port,
     required_communication_port: required_communication_port,
     required_execution_port: required_execution_port,
-    provided_execution_port: provided_execution_port
+    provided_execution_port: provided_execution_port,
+    hosting: hosting
 }

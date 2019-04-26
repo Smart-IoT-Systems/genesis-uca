@@ -89,7 +89,7 @@ class FormEdit extends React.Component {
     render() {  
       return (
           <Form>
-            {this.state.result}
+                {this.state.result}
             <br/>
           </Form>
       );
