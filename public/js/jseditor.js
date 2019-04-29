@@ -18,6 +18,7 @@ document.getElementById('saveJSON').onclick = function () {
     var dm=window.SiderDemo.getDM();
     edited.components = tmp_edited.components;
     edited.revive_links(tmp_edited.links);
+    edited.revive_containments(tmp_edited.containments);
     var r=edited.is_valid_with_errors();
     if (r.length <= 0) {
         var r = compare(dm, edited);

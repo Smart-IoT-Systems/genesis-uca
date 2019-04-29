@@ -65,8 +65,8 @@ class AddContainmentModal extends React.Component {
             var m_m=window.SiderDemo.getMM();
             var h = m_m.hosting({});
             h.name = this.state.name;
-            h.src = '/'+selectedSrcComp+'/'+selectedSrcPort;
-            h.target = '/'+selectedTargetComp+'/'+selectedTargetPort;
+            h.target = '/'+selectedSrcComp+'/'+selectedSrcPort;
+            h.src = '/'+selectedTargetComp+'/'+selectedTargetPort;
 
             window.SiderDemo.getDM().containments.push(h);
         }
@@ -83,22 +83,23 @@ class AddContainmentModal extends React.Component {
         d_m.get_all_internals().forEach(element => {
             var opt={ value: element.name, label: element.name};
             opt.children = [];
-            element.required_execution_port.forEach(port => {
-                var c = {value: port.name, label: port.name};
-                opt.children.push(c);
-            });
+            var port = element.required_execution_port;
+            var c = {value: port.name, label: port.name};
+            opt.children.push(c);
             optionsComponents.push(opt);
         });
 
         var optionsHosts=[];
-        d_m.get_all_internals().forEach(elt => {
-            var o={ value: elt.name, label: elt.name};
-            o.children = [];
-            elt.provided_execution_port.forEach(port => {
-                var cp = {value: port.name, label: port.name};
-                o.children.push(cp);
-            });
-            optionsHosts.push(o);
+        d_m.components.forEach(elt => {
+            if(elt.provided_execution_port.length > 0){
+                var o={ value: elt.name, label: elt.name};
+                o.children = [];
+                elt.provided_execution_port.forEach(port => {
+                    var cp = {value: port.name, label: port.name};
+                    o.children.push(cp);
+                });
+                optionsHosts.push(o);
+            }
         });
 
         return (

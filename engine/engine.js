@@ -399,7 +399,7 @@ var engine = (function () {
                 var tmp_ = {};
                 tmp_.id = modules[j].id.replace('.js', '');
                 var comp = modules[j].module({});
-                (comp.id_host === undefined) ? tmp_.isExternal = true: tmp_.isExternal = false;
+                (comp._type.indexOf('external') > -1) ? tmp_.isExternal = true: tmp_.isExternal = false;
                 tmp_.module = comp;
                 tab.push(tmp_);
             }
