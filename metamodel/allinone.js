@@ -10,6 +10,7 @@ var deployment_model = function (spec) {
     that.name = spec.name || 'a _deployment_name';
     that.components = [];
     that.links = [];
+    that.containments = [];
     that.type_registry = [];
 
     that.node_factory = function () {
@@ -61,6 +62,19 @@ var deployment_model = function (spec) {
 
     };
 
+    that.add_containment = function (containment) {
+        //A node can only be contained once.
+        for(var i in that.containments){
+            if(that.containments[i].target === containment.target){
+                console.log("Cannot create this containment, target node is already contained");
+                return;
+            }
+        }
+
+        that.containments.push(containment);
+    }
+
+
     that.remove_component = function (component) {
         var i = that.components.indexOf(component); // This could be factorized in the array.prototype
         if (i > -1) {
@@ -88,6 +102,13 @@ var deployment_model = function (spec) {
         }
     };
 
+    that.remove_containment = function (containment) {
+        var i = that.containments.indexOf(containment);
+        if (i > -1) {
+            that.containments.splice(i, 1);
+        }
+    };
+
     that.revive_components = function (comps) {
         that.components = [];
         for (var i in comps) {
@@ -105,8 +126,27 @@ var deployment_model = function (spec) {
         }
     };
 
+    that.revive_containments = function (containments) {
+        that.containments = [];
+        for (var i in containments) {
+            var l = hosting(containments[i]);
+            that.containments.push(l);
+        }
+    };
+
     that.find_node_named = function (name) {
         var tab = that.components.filter(function (elem) {
+            if (elem.name === name) {
+                return elem;
+            }
+        });
+        if (tab.length > 0) {
+            return tab[0];
+        }
+    };
+
+    that.find_containment_named = function (name) {
+        var tab = that.containments.filter(function (elem) {
             if (elem.name === name) {
                 return elem;
             }
@@ -127,18 +167,9 @@ var deployment_model = function (spec) {
         }
     };
 
-    that.get_all_hosts = function () {
-        var tab = that.components.filter(function (elem) {
-            if (!elem.hasOwnProperty('id_host')) {
-                return elem;
-            }
-        });
-        return tab;
-    };
-
     that.get_hosted = function (name) {
-        var tab = that.components.filter(function (elem) {
-            if (elem.id_host === name) {
+        var tab = that.containments.filter(function (elem) {
+            if (elem.target === name) {
                 return elem;
             }
         });
@@ -146,8 +177,17 @@ var deployment_model = function (spec) {
     };
 
     that.get_all_hosted = function () {
-        var tab = that.components.filter(function (elem) {
-            if (elem.hasOwnProperty('id_host')) {
+        var tab = that.containments.filter(function (elem) {
+            if (elem.target !== null) {
+                return elem;
+            }
+        });
+        return tab;
+    };
+
+    that.get_all_internals = function(){
+        var tab = that.add_component.filter(function (elem){
+            if(elem._type.indexOf('internal') >= 0){
                 return elem;
             }
         });
@@ -190,6 +230,42 @@ var deployment_model = function (spec) {
         return false;
     };
 
+    that.find_link_of_required_port = function (rp){
+        that.links.forEach(function(elem){
+            if(elem.target === rp.get_id()){
+                return elem;
+            }
+        });
+        return null;
+    }
+
+    that.find_containment_of_required_port = function (rp){
+        that.containments.forEach(function(elem){
+            if(elem.target === rp.get_id()){
+                return elem;
+            }
+        });
+        return null;
+    }
+
+    that.find_link_of_provided_port = function (pp){
+        that.links.forEach(function(elem){
+            if(elem.src === pp.get_id()){
+                return elem;
+            }
+        });
+        return null;
+    }
+
+    that.find_containment_of_provided_port = function (pp){
+        that.containments.forEach(function(elem){
+            if(elem.src === pp.get_id()){
+                return elem;
+            }
+        });
+        return null;
+    }
+
     that.is_valid_name = function (name) {
         var valid_name = true;
         that.components.forEach(function (elem) {
@@ -222,9 +298,18 @@ var deployment_model = function (spec) {
                     errors.push("Ids are not uniq! " + that.components[i].id);
                 }
             }
+
+            that.components[i].required_communication_port.forEach(function (elem){
+                if(elem.isMandatory){
+                    if(that.find_link_of_required_port(elem) === null){
+                        errors.push("Required port with Mandatory " + elem.name + " not linked!");
+                    }
+                }
+            });
         }
 
-        //Make sure all links relate to existing components
+
+        //Make sure all links relate to existing components 
         that.links.forEach(function (elem) {
             if ((that.find_node_named(elem.src) === undefined) ||
                 (that.find_node_named(elem.target) === undefined)) {
@@ -233,10 +318,14 @@ var deployment_model = function (spec) {
         });
 
         //Make sure all hosted comps are on existing hosts.
-        that.get_all_hosted().forEach(function (elem) {
-            if(elem._type.indexOf('external') === -1){ //External does not have host
-                if (that.find_node_named(elem.id_host) === undefined) {
-                    errors.push("Host " + elem.id_host + " of " + elem.name + " does not exist!");
+        that.get_all_internals().forEach(function (elem) {
+            var r = that.find_containment_of_required_port(elem.required_execution_port);
+            if (r === null) {
+                errors.push(elem.name + " has no host!");
+            }else{
+                var h_name = r.src;
+                if(that.find_node_named(h_name) === undefined){
+                    errors.push("Host " + elem.required_execution_port.name + " of " + elem.name + " does not exist!");
                 }
             }
         });
@@ -282,7 +371,9 @@ var component = function (spec) {
     that.id = spec.id || uuidv4();
 
     var tab_pep = [];
-    tab_pep.push(provided_execution_port({owner: that.name}));
+    tab_pep.push(provided_execution_port({
+        _owner: that.name
+    }));
     that.provided_execution_port = spec.provided_execution_port || tab_pep;
 
     that.add_property = function (prop) {
@@ -372,22 +463,20 @@ var device = function (spec) {
 /******************************************/
 var software_node = function (spec) {
     var that = component(spec);
-    that.id_host = spec.id_host || null;
+
     that.docker_resource = spec.docker_resource || docker_resource({});
     that.ssh_resource = spec.ssh_resource || ssh_resource({});
     that.ansible_resource = spec.ansible_resource || ansible_resource({});
     that._type += "/internal";
-    
-    var tab_rep= [];
-    tab_rep.push(required_execution_port({}));
-    that.required_execution_port = spec.required_execution_port || tab_rep;
+
+    that.required_execution_port = spec.required_execution_port || required_execution_port({_owner: that.name});
 
     var tab_pcp = [];
-    tab_pcp.push(provided_communication_port({}));
+    tab_pcp.push(provided_communication_port({_owner: that.name}));
     that.provided_communication_port = spec.provided_communication_port || tab_pcp;
 
     var tab_rcp = [];
-    tab_rcp  .push(required_communication_port({}));
+    tab_rcp.push(required_communication_port({_owner: that.name}));
     that.required_communication_port = spec.required_communication_port || tab_rcp;
 
     return that;
@@ -424,10 +513,13 @@ var external_node = function (spec) {
 /*Link                       */
 /*****************************/
 var link = function (spec) {
-    var that = component(spec);
+    var that = {};
+    that.name = spec.name || 'a_link';
+    that.properties = [];
     that.src = spec.src || null;
     that.target = spec.target || null;
     that.isControl = spec.isControl || false;
+    that.isDeployer = spec.isDeployer || false;
 
     return that;
 }
@@ -436,7 +528,9 @@ var link = function (spec) {
 /*Hosting                    */
 /*****************************/
 var hosting = function (spec) {
-    var that = component(spec);
+    var that = {};
+    that.name = spec.name || 'a_containment';
+    that.properties = [];
     that.src = spec.src || null;
     that.target = spec.target || null;
 
@@ -485,7 +579,7 @@ var ansible_resource = function (spec) {
     var that = {};
     that.name = spec.name || uuidv4();
     that.playbook_path = spec.playbook_path || "";
-    that.playbook_host = spec.playbook_path || "";
+    that.playbook_host = spec.playbook_host || "";
     that.credentials = spec.credentials || credentials({});
 
     return that;
@@ -495,9 +589,14 @@ var ansible_resource = function (spec) {
 /*****************************/
 /*Port                       */
 /*****************************/
-var port = function(spec){
+var port = function (spec) {
     var that = {};
     that.name = spec.name || uuidv4();
+    that._owner = spec._owner || "";
+
+    that.get_id = function(){
+        return '/'+that._owner+'/'+that.name;
+    }
 
     return that;
 }
@@ -507,7 +606,7 @@ var port = function(spec){
 /*ProvidedExecutionPort      */
 /*****************************/
 //These are for all components
-var provided_execution_port = function(spec){
+var provided_execution_port = function (spec) {
     var that = port(spec);
 
     return that;
@@ -518,9 +617,9 @@ var provided_execution_port = function(spec){
 /*RequiredExecutionPort      */
 /*****************************/
 //These are only for Software components
-var required_execution_port = function(spec){
+var required_execution_port = function (spec) {
     var that = port(spec);
-    that.needDeployer= spec.needDeployer || false;
+    that.needDeployer = spec.needDeployer || false;
 
     return that;
 }
@@ -529,7 +628,7 @@ var required_execution_port = function(spec){
 /*ProvidedCommunicationPort  */
 /*****************************/
 //These are only for Software components
-var required_communication_port = function(spec){
+var required_communication_port = function (spec) {
     var that = port(spec);
     that.port_number = spec.port_number || '80';
 
@@ -540,7 +639,7 @@ var required_communication_port = function(spec){
 /*RequiredCommunicationPort  */
 /*****************************/
 //These are only for Software components
-var provided_communication_port = function(spec){
+var provided_communication_port = function (spec) {
     var that = port(spec);
     that.port_number = spec.port_number || '80';
     that.isMandatory = spec.isMandatory || false;

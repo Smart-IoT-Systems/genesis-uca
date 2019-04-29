@@ -62,22 +62,28 @@ class AddLinkModal extends React.Component {
         if(this.state.src !== null && this.state.tgt !== null){
             var selectedSrc=this.state.src+"";
             var selectedTarget=this.state.tgt+"";
+            var selectedSrcComp = selectedSrc.split(',')[0];
+            var selectedSrcPort = selectedSrc.split(',')[1];
+            var selectedTargetComp = selectedTarget.split(',')[0];
+            var selectedTargetPort = selectedTarget.split(',')[1];
+
+            console.log(">>> "+selectedSrc);
 
             //add to graph
             var edge = {
                 group: "edges",
                 data: {
                     id: this.state.name,
-                    source: selectedSrc,
-                    target: selectedTarget
+                    source: selectedSrcComp,
+                    target: selectedTargetComp
                 }
             };
 
             var m_m=window.SiderDemo.getMM();
             var l = m_m.link({});
-            l.name = name;
-            l.src = selectedSrc;
-            l.target = selectedTarget;
+            l.name = this.state.name;
+            l.src = '/'+selectedSrcComp+'/'+selectedSrcPort;
+            l.target = '/'+selectedTargetComp+'/'+selectedTargetPort;
 
             this.state.checkedList.forEach(e => {
                 if (e === '#isDeployer') {
@@ -104,11 +110,25 @@ class AddLinkModal extends React.Component {
 
     render() {
 
-        var options=[];
+        var optionsTgt=[];
+        var optionsSrc=[];
         var d_m=window.SiderDemo.getDM();
         d_m.get_all_hosted().forEach(element => {
-            var opt={ value: element.name, label: element.name};
-            options.push(opt);
+            var optSrc={ value: element.name, label: element.name};
+            optSrc.children = [];
+            element.provided_communication_port.forEach(port => {
+                var c = {value: port.name, label: port.name};
+                optSrc.children.push(c);
+            });
+            optionsSrc.push(optSrc);
+
+            var optTgt={ value: element.name, label: element.name};
+            optTgt.children = [];
+            element.required_communication_port.forEach(port => {
+                var ct = {value: port.name, label: port.name};
+                optTgt.children.push(ct);
+            });
+            optionsTgt.push(optTgt);
         });
 
         return (
@@ -125,10 +145,10 @@ class AddLinkModal extends React.Component {
                         <Input name="name" onChange={this.handleChangeName} prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} suffix={<Tooltip title="Must be uniq"><Icon type="info-circle" style={{ color: 'rgba(0,0,0,.45)' }} /></Tooltip>} placeholder="Name" />
                     </Form.Item>
                     <Form.Item label="Source:" key="2">
-                        <Cascader options={options} onChange={this.onChangeSource} placeholder="Please select" />
+                        <Cascader expandTrigger="hover" options={optionsSrc} onChange={this.onChangeSource} placeholder="Please select" />
                     </Form.Item>
                     <Form.Item label="Target:" key="3">
-                        <Cascader options={options} onChange={this.onChangeTarget} placeholder="Please select" />
+                        <Cascader expandTrigger="hover" options={optionsTgt} onChange={this.onChangeTarget} placeholder="Please select" />
                     </Form.Item>
                     <Form.Item label="Properties:" key="4">
                         <CheckboxGroup options={plainOptions} value={this.state.checkedList} onChange={this.onChangeCheckList} />

@@ -50,16 +50,25 @@ class AddContainmentModal extends React.Component {
         if(this.state.src !== null && this.state.tgt !== null){
             var selectedSrc=this.state.src+"";
             var selectedTarget=this.state.tgt+"";
+            var selectedSrcComp = selectedSrc.split(',')[0];
+            var selectedSrcPort = selectedSrc.split(',')[1];
+            var selectedTargetComp = selectedTarget.split(',')[0];
+            var selectedTargetPort = selectedTarget.split(',')[1];
         
             //update graph
-            var node = cy.getElementById(selectedSrc);
+            var node = cy.getElementById(selectedSrcComp);
             node.move({
-                parent: selectedTarget
+                parent: selectedTargetComp
             });
         
             //update model
-            var comp = window.SiderDemo.getDM().find_node_named(selectedSrc);
-            comp.id_host = selectedTarget;
+            var m_m=window.SiderDemo.getMM();
+            var h = m_m.hosting({});
+            h.name = this.state.name;
+            h.src = '/'+selectedSrcComp+'/'+selectedSrcPort;
+            h.target = '/'+selectedTargetComp+'/'+selectedTargetPort;
+
+            window.SiderDemo.getDM().containments.push(h);
         }
 
         this.setState({
@@ -73,12 +82,22 @@ class AddContainmentModal extends React.Component {
         var d_m=window.SiderDemo.getDM();
         d_m.get_all_hosted().forEach(element => {
             var opt={ value: element.name, label: element.name};
+            opt.children = [];
+            element.required_execution_port.forEach(port => {
+                var c = {value: port.name, label: port.name};
+                opt.children.push(c);
+            });
             optionsComponents.push(opt);
         });
 
         var optionsHosts=[];
         d_m.get_all_hosts().forEach(elt => {
             var o={ value: elt.name, label: elt.name};
+            o.children = [];
+            elt.provided_execution_port.forEach(port => {
+                var cp = {value: port.name, label: port.name};
+                o.children.push(cp);
+            });
             optionsHosts.push(o);
         });
 
