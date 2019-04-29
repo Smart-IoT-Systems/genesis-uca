@@ -345,7 +345,7 @@ var engine = (function () {
         logger.log("info", "Revive Comp");
         dm.revive_links(data.links);
         logger.log("info", "Revive Link");
-        dm.remove_containment(data.containments);
+        dm.revive_containments(data.containments);
         logger.log("info", "Revive Containment");
         if (dm.is_valid()) {
 
@@ -367,7 +367,8 @@ var engine = (function () {
             res.end(JSON.stringify({ success: that.dep_model }));
 
         } else {
-            logger.log("info", "Model not loaded since not valid: " + JSON.stringify(dm.components));
+            logger.log("info", "Model not loaded since not valid: " + JSON.stringify(dm));
+            logger.log("error", "List of errors: " + JSON.stringify(dm.is_valid_with_errors()));
             res.end(JSON.stringify({ error: "Model not loaded since not valid" }));
         }
     }

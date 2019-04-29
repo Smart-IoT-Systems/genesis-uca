@@ -129,6 +129,7 @@ class SiderDemo extends React.Component {
       dm = mm.deployment_model(data.dm);
       dm.components = data.dm.components;
       dm.revive_links(data.dm.links);
+      dm.revive_containments(data.dm.containments);
       cy.json(data.graph);
     }
 
@@ -156,6 +157,7 @@ class SiderDemo extends React.Component {
         dm = mm.deployment_model(data);
         dm.components = data.components;
         dm.revive_links(data.links);
+        dm.revive_containments(data.containments);
       });
   }
 
