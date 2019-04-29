@@ -186,7 +186,7 @@ var deployment_model = function (spec) {
     };
 
     that.get_all_internals = function(){
-        var tab = that.add_component.filter(function (elem){
+        var tab = that.components.filter(function (elem){
             if(elem._type.indexOf('internal') >= 0){
                 return elem;
             }

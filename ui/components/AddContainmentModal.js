@@ -80,7 +80,7 @@ class AddContainmentModal extends React.Component {
 
         var optionsComponents=[];
         var d_m=window.SiderDemo.getDM();
-        d_m.get_all_hosted().forEach(element => {
+        d_m.get_all_internals().forEach(element => {
             var opt={ value: element.name, label: element.name};
             opt.children = [];
             element.required_execution_port.forEach(port => {
@@ -91,7 +91,7 @@ class AddContainmentModal extends React.Component {
         });
 
         var optionsHosts=[];
-        d_m.get_all_hosts().forEach(elt => {
+        d_m.get_all_internals().forEach(elt => {
             var o={ value: elt.name, label: elt.name};
             o.children = [];
             elt.provided_execution_port.forEach(port => {
