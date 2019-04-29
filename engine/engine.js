@@ -345,6 +345,8 @@ var engine = (function () {
         logger.log("info", "Revive Comp");
         dm.revive_links(data.links);
         logger.log("info", "Revive Link");
+        dm.remove_containment(data.containments);
+        logger.log("info", "Revive Containment");
         if (dm.is_valid()) {
 
             logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));
