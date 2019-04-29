@@ -64,8 +64,8 @@ var deployment_model = function (spec) {
 
     that.add_containment = function (containment) {
         //A node can only be contained once.
-        for(var i in that.containments){
-            if(that.containments[i].target === containment.target){
+        for (var i in that.containments) {
+            if (that.containments[i].target === containment.target) {
                 console.log("Cannot create this containment, target node is already contained");
                 return;
             }
@@ -185,7 +185,7 @@ var deployment_model = function (spec) {
         return tab;
     };
 
-    that.get_all_can_be_hosted = function(){
+    that.get_all_can_be_hosted = function () {
         var tab = that.components.filter(function (elem) {
             if (elem._type.split('/')[1].indexOf("infra") < 0) {
                 return elem;
@@ -194,9 +194,9 @@ var deployment_model = function (spec) {
         return tab;
     }
 
-    that.get_all_internals = function(){
-        var tab = that.components.filter(function (elem){
-            if(elem._type.indexOf('internal') >= 0){
+    that.get_all_internals = function () {
+        var tab = that.components.filter(function (elem) {
+            if (elem._type.indexOf('internal') >= 0) {
                 return elem;
             }
         });
@@ -239,45 +239,61 @@ var deployment_model = function (spec) {
         return false;
     };
 
-    that.find_link_of_required_port = function (id){
+    that.find_link_of_required_port = function (id) {
         var result = null;
-        that.links.forEach(function(elem){
-            if(elem.target === id){
+        that.links.forEach(function (elem) {
+            if (elem.target === id) {
                 result = elem;
             }
         });
         return result;
     }
 
-    that.find_containment_of_required_port = function (id){
+    that.find_containment_of_required_port = function (id) {
         var result = null;
-        that.containments.forEach(function(elem){
-            if(elem.target === id){
-                result=elem;
-            }
-        });
-        return result;
-    }
-
-    that.find_link_of_provided_port = function (id){
-        var result = null
-        that.links.forEach(function(elem){
-            if(elem.src === id){
-                result=elem;
-            }
-        });
-        return result;
-    }
-
-    that.find_containment_of_provided_port = function (id){
-        var result = null
-        that.containments.forEach(function(elem){
-            if(elem.src === id){
+        that.containments.forEach(function (elem) {
+            if (elem.target === id) {
                 result = elem;
             }
         });
         return result;
     }
+
+    that.find_link_of_provided_port = function (id) {
+        var result = null
+        that.links.forEach(function (elem) {
+            if (elem.src === id) {
+                result = elem;
+            }
+        });
+        return result;
+    }
+
+    that.find_containment_of_provided_port = function (id) {
+        var result = null
+        that.containments.forEach(function (elem) {
+            if (elem.src === id) {
+                result = elem;
+            }
+        });
+        return result;
+    }
+
+    that.generate_port_id = function(comp, port){
+        return '/'+comp.name+'/'+port.name;
+    }
+
+    that.get_comp_name_from_port_id = function(id){
+        return id.split('/')[1];
+    };
+
+    that.find_host = function (comp) {
+        var id = that.generate_port_id(comp, comp.required_execution_port);
+        var containment = that.find_containment_of_required_port(id);
+        var port_host = containment.src;
+        var host_name = that.get_comp_name_from_port_id(port_host);
+        return that.find_node_named(host_name);
+    };
 
     that.is_valid_name = function (name) {
         var valid_name = true;
@@ -311,10 +327,10 @@ var deployment_model = function (spec) {
                     errors.push("Ids are not uniq! " + that.components[i].id);
                 }
             }
-            if(that.components[i].required_communication_port !== undefined){
-                that.components[i].required_communication_port.forEach(function (elem){
-                    if(elem.isMandatory){
-                        if(that.find_link_of_required_port('/'+that.components[i].name+'/'+elem.name) === null){
+            if (that.components[i].required_communication_port !== undefined) {
+                that.components[i].required_communication_port.forEach(function (elem) {
+                    if (elem.isMandatory) {
+                        if (that.find_link_of_required_port('/' + that.components[i].name + '/' + elem.name) === null) {
                             errors.push("Required port with Mandatory " + elem.name + " not linked!");
                         }
                     }
@@ -335,13 +351,13 @@ var deployment_model = function (spec) {
 
         //Make sure all hosted comps are on existing hosts.
         that.get_all_internals().forEach(function (elem) {
-            var p_id = '/'+elem.name+'/'+elem.required_execution_port.name;
+            var p_id = '/' + elem.name + '/' + elem.required_execution_port.name;
             var r = that.find_containment_of_required_port(p_id);
             if (r === null) {
                 errors.push(elem.name + " has no host!");
-            }else{
+            } else {
                 var h_name = r.src.split('/')[1];
-                if(that.find_node_named(h_name) === undefined){
+                if (that.find_node_named(h_name) === undefined) {
                     errors.push("Host " + r.src + " of " + elem.name + " does not exist!");
                 }
             }
@@ -642,6 +658,7 @@ var required_execution_port = function (spec) {
 var required_communication_port = function (spec) {
     var that = port(spec);
     that.port_number = spec.port_number || '80';
+    that.isMandatory = spec.isMandatory || false;
 
     return that;
 }
@@ -653,7 +670,6 @@ var required_communication_port = function (spec) {
 var provided_communication_port = function (spec) {
     var that = port(spec);
     that.port_number = spec.port_number || '80';
-    that.isMandatory = spec.isMandatory || false;
 
     return that;
 }

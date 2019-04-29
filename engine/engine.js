@@ -41,8 +41,10 @@ var engine = (function () {
             return;
         }
         for (var i in removed) {
-            var host_id = removed[i].id_host;
-            var host = that.dep_model.find_node_named(host_id); //This cannot be done!
+            
+            var host = that.dep_model.find_host(removed[i]); //This cannot be done!
+            var host_id = host.name;
+
             if (host === undefined) {
                 //Need to find the host in the old model
                 var rem_hosts = diff.list_removed_hosts;
@@ -375,19 +377,6 @@ var engine = (function () {
         that.MQTTClient = mqtt.connect('ws://127.0.0.1:9001');
         var nfier = notifier(that.MQTTClient);
         nfier.start();
-
-        /*that.webSocketServerObject.on('connection', function (socketObject) {
-            that.socketObject = socketObject;
-
-            //Send status info to the UI
-            var nfier = notifier(that.socketObject);
-            nfier.start();
-
-            socketObject.on('close', function (c, d) {
-                logger.log('info', 'Disconnect ' + c + ' -- ' + d);
-            });
-
-        });*/
 
         //Load component types from the repository
         var cl = class_loader();
