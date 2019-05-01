@@ -92,8 +92,9 @@ var engine = (function () {
             (function (comp, i) {
                 //if not to be deployed by a deployment agent
                 if (!that.dep_model.need_deployment_agent(comp[i])) {
-                    var host_id = comp[i].id_host;
-                    var host = that.dep_model.find_node_named(host_id);
+
+                    var host = that.dep_model.find_host(comp[i]); //This cannot be done!
+
                     if (host !== undefined) {
                         if (comp[i]._type === "/internal/thingml") {
                             //we should generate the plantuml
@@ -347,6 +348,7 @@ var engine = (function () {
         logger.log("info", "Revive Link");
         dm.revive_containments(data.containments);
         logger.log("info", "Revive Containment");
+
         if (dm.is_valid()) {
 
             logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));

@@ -22,8 +22,8 @@ var comparator = function (dm) {
         for (var i in target_comps) {
             var tmp_node = dm.find_node_named(target_comps[i].name);
             if (tmp_node === undefined) {
-                if (target_comps[i].hasOwnProperty('id_host')) {
-                    if (target_dm.find_node_named(target_comps[i].id_host) !== undefined) {
+                if (target_comps[i]._type.indexOf('internal') > -1) {
+                    if (target_dm.find_host(target_comps[i]) !== null) {
                         result.list_of_added_hosted_components.push(target_comps[i]);
                     }
                     result.list_of_added_components.push(target_comps[i]);
@@ -39,7 +39,7 @@ var comparator = function (dm) {
             var tmp_host = target_dm.find_node_named(comps[i].name);
             console.log(tmp_host);
             if (tmp_host === undefined) {
-                if (comps[i].hasOwnProperty('id_host')) {
+                if (comps[i]._type.indexOf('internal')) {
                     result.list_of_removed_components.push(comps[i]);
                 } else {
                     result.list_removed_hosts.push(comps[i]);

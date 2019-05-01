@@ -42,9 +42,11 @@ function compare(src_dm, target_dm) {
             var node = fac.create_node(target_comps[i]._type);
             cy.add(node);
             
-            if(target_comps[i].id_host){
+            //If the new node has a host we move it
+            var hst = target_dm.find_host(target_comps[i]);
+            if(hst !== null || hst !== undefined){
                 cy.getElementById(target_comps[i].name).move({
-                    parent: target_comps[i].id_host
+                    parent: hst.name
                 });
             }
             console.log("added: " + JSON.stringify(node));

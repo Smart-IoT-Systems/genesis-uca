@@ -214,8 +214,12 @@ var deployment_model = function (spec) {
 
     that.get_all_inputs_of_component = function (comp) {
         var tab = that.links.filter(function (elem) {
-            if (elem.target === comp.name) {
-                return elem;
+            if (that.get_comp_name_from_port_id(elem.target) === comp.name) {
+                for (var e of comp.required_communication_port) {
+                    if(that.get_port_name_from_port_id(elem.target) === e.name){
+                        return elem;
+                    }
+                }
             }
         });
         return tab;
@@ -223,8 +227,12 @@ var deployment_model = function (spec) {
 
     that.get_all_outputs_of_component = function (comp) {
         var tab = that.links.filter(function (elem) {
-            if (elem.src === comp.name) {
-                return elem;
+            if (that.get_comp_name_from_port_id(elem.src) === comp.name) {
+                for (var e of comp.provided_communication_port) {
+                    if(that.get_port_name_from_port_id(elem.src) === e.name){
+                        return elem;
+                    }
+                }
             }
         });
         return tab;
@@ -279,20 +287,28 @@ var deployment_model = function (spec) {
         return result;
     }
 
-    that.generate_port_id = function(comp, port){
-        return '/'+comp.name+'/'+port.name;
+    that.generate_port_id = function (comp, port) {
+        return '/' + comp.name + '/' + port.name;
     }
 
-    that.get_comp_name_from_port_id = function(id){
+    that.get_comp_name_from_port_id = function (id) {
         return id.split('/')[1];
+    };
+
+    that.get_port_name_from_port_id = function (id){
+        return id.split('/')[2];
     };
 
     that.find_host = function (comp) {
         var id = that.generate_port_id(comp, comp.required_execution_port);
         var containment = that.find_containment_of_required_port(id);
-        var port_host = containment.src;
-        var host_name = that.get_comp_name_from_port_id(port_host);
-        return that.find_node_named(host_name);
+        if (containment) {
+            var port_host = containment.src;
+            var host_name = that.get_comp_name_from_port_id(port_host);
+            return that.find_node_named(host_name);
+        } else {
+            return null
+        }
     };
 
     that.is_valid_name = function (name) {
