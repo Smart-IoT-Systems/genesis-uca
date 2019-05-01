@@ -67,8 +67,6 @@ class AddLinkModal extends React.Component {
             var selectedTargetComp = selectedTarget.split(',')[0];
             var selectedTargetPort = selectedTarget.split(',')[1];
 
-            console.log(">>> "+selectedSrc);
-
             //add to graph
             var edge = {
                 group: "edges",

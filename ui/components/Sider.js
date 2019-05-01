@@ -10,6 +10,8 @@ import AddModal from './AddModal.js'
 import AddLinkModal from './AddLinkModal.js'
 import AddContainmentModal from './AddContainmentModal.js'
 import Notification from './Notification'
+import EditContainment from './EditContainment.js'
+import EditLink from './EditLink.js'
 
 //We load it here to avoid sync between server and client
 var mm = require('../../metamodel/allinone.js');
@@ -295,6 +297,8 @@ class SiderDemo extends React.Component {
         <Layout>
           <Content style={{ margin: '0 16px' }}>
             <DrawerEdit />
+            <EditContainment />
+            <EditLink />
             <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
               <Tabs onChange={this.handleChangeTab} tabPosition='right'>
                 <TabPane tab="Graph View" key="1"><div style={{minHeight: 600, minWidth: '100px'}} id="cy"/></TabPane>

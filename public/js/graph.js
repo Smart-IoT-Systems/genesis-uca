@@ -136,8 +136,7 @@ cy.on('cxttap', 'edge', function (evt) {
     var target_link = evt.target;
     d_m=window.SiderDemo.getDM();
     var elem = d_m.find_link_named(target_link.id());
-    window.DrawerEdit.showDrawer(target_link, elem);
-    window.FormEdit.build_form(elem);
+    window.EditLink.showDrawer(target_link, elem);
 });
 
 

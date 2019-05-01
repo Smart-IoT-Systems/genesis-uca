@@ -39,14 +39,16 @@ class DrawerEdit extends React.Component {
       });
     };
 
+    onEditContainment = () => {
+      this.setState({
+        visible: false,
+      });
+      window.EditContainment.showDrawer(this.state.elem, this.state.elem_model);
+    }
+
     onDelete = () => {
-      if (this.state.elem.src) {//Check if it is a link
-        cy.remove(this.state.elem); //remove from the display
-        window.SiderDemo.getDM().remove_link(this.state.elem_model); //remove from the model
-      } else {
-        cy.remove(this.state.elem); //remove from the display
-        window.SiderDemo.getDM().remove_component(this.state.elem_model); //remove from the model together with associated links
-      }
+      cy.remove(this.state.elem); //remove from the display
+      window.SiderDemo.getDM().remove_component(this.state.elem_model); //remove from the model together with associated links
       this.setState({
         visible: false,
       });
@@ -61,12 +63,7 @@ class DrawerEdit extends React.Component {
     }
   
     onSave = (e) => {
-      if (this.state.elem.src) {//Check if it is a link
-          var target_link=this.state.elem;
-          if (!target_link.isControl) {
-            cy.$('#' + target_link.id()).removeClass('control');
-          }
-        } else {
+  
           var target_node=this.state.elem;
 
           //First, we update the display (in the graph and its style to update the label display)
@@ -102,17 +99,10 @@ class DrawerEdit extends React.Component {
                   });
                 }
               });
-              //Finally we remove the all component
+              //Finally we remove the old component
               cy.remove("#" + target_node.id());
-          }else{
-            //If the node was hosted and host has changed
-            if(target_node.parent() !== window.FormEdit.state.element.id_host){
-              target_node.move({
-                parent: window.FormEdit.state.element.id_host
-              });
-            }
           }
-        }
+          
       //Finally, we update the model
       for (var prop in this.state.elem) {
         if(window.FormEdit.state.element[prop]){
@@ -128,6 +118,14 @@ class DrawerEdit extends React.Component {
     }
 
     render() {
+
+      var c=[];
+      if(this.state.elem_model !== null){
+        if(this.state.elem_model._type.indexOf('internal') > -1){
+          c.push(<Button key="uniq" icon="environment" onClick={this.onEditContainment} style={{ marginRight: 8 }}>Edit Containment</Button>);
+        }
+      }
+
       return (
         <div>
           <Drawer title="Edit" width={720} onClose={this.onClose} visible={this.state.visible} destroyOnClose={true}>
@@ -137,8 +135,9 @@ class DrawerEdit extends React.Component {
                 <Col span={8}><Button icon="delete" onClick={this.onDelete} type="danger">
                     Delete
                   </Button></Col>
-                <Col span={8} offset={8}>
+                <Col span={16}>
                   <div style={{ textAlign: 'right', }}>
+                    {c}
                     <Button icon="save" onClick={this.onSave} style={{ marginRight: 8 }}  type="primary">
                       Save
                     </Button>
