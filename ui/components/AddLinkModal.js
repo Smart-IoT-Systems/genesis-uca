@@ -83,14 +83,16 @@ class AddLinkModal extends React.Component {
             l.src = '/'+selectedSrcComp+'/'+selectedSrcPort;
             l.target = '/'+selectedTargetComp+'/'+selectedTargetPort;
 
+            console.log(this.state.checkedList);
+
             this.state.checkedList.forEach(e => {
-                if (e === '#isDeployer') {
+                if (e === 'isDeployer') {
                     l.isDeployer = true;
                 }
-                if (e === '#isMandatory') {
+                if (e === 'isMandatory') {
                     l.isMandatory = true;
                 }
-                if (e === '#isController') {
+                if (e === 'isControl') {
                     edge.classes = 'control';
                     l.isControl = true;
                 } else {

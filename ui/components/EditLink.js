@@ -33,13 +33,13 @@ class EditLink extends React.Component {
 
         var check=[]
         if (em.isDeployer) {
-            check.push('#isDeployer');
+            check.push('isDeployer');
         }
         if (em.isMandatory) {
-            check.push('#isMandatory');
+            check.push('isMandatory');
         }
         if (em.isControl) {
-            check.push('#isControl');
+            check.push('isControl');
         }
 
         this.setState({
