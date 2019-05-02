@@ -169,7 +169,7 @@ var deployment_model = function (spec) {
 
     that.get_hosted = function (name) {
         var tab = that.containments.filter(function (elem) {
-            if (elem.target === name) {
+            if (that.get_comp_name_from_port_id(elem.target) === name) {
                 return elem;
             }
         });

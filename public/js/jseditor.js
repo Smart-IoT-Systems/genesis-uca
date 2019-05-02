@@ -63,14 +63,16 @@ function compare(src_dm, target_dm) {
             tmp_h.forEach(function(e){
                 var _tmp=target_dm.find_node_named(e.name);
                 if(_tmp !== undefined){
-                    cy.$('#' + e.name).move({
-                        parent: _tmp.id_host
-                    });
-                }
-                if(e.id_host === null){
-                    cy.$('#' + e.name).move({
-                        parent: null
-                    });
+                    var tgt_h = target_dm.find_host(tmp_h);
+                    if(tgt_h !== null){
+                        cy.$('#' + e.name).move({
+                            parent: tgt_h.name//to be updated
+                        });
+                    }else{
+                        cy.$('#' + e.name).move({
+                            parent: null
+                        });
+                    }
                 }
             });
 
@@ -86,12 +88,14 @@ function compare(src_dm, target_dm) {
         if (tmp_link === undefined) {
             tmp_link.forEach(function (elem) {
                 //add to graph
+                var s = src_dm.get_comp_name_from_port_id(elem.src);
+                var t = src_dm.get_comp_name_from_port_id(elem.target);
                 var edge = {
                     group: "edges",
                     data: {
                         id: elem.name,
-                        source: elem.src,
-                        target: elem.target
+                        source: s, 
+                        target: t
                     }
                 };
                 if (elem.isControl = true) {
@@ -120,12 +124,14 @@ function compare(src_dm, target_dm) {
             //and (2) src and targets
             if (tmp_link.src !== links[i].src || tmp_link.target !== links[i].target) {
                 cy.remove('#' + links[i].name);
+                var sc = src_dm.get_comp_name_from_port_id(tmp_link.src);
+                var tt = src_dm.get_comp_name_from_port_id(tmp_link.target);
                 var edge_modified = {
                     group: "edges",
                     data: {
                         id: tmp_link.name,
-                        source: tmp_link.src,
-                        target: tmp_link.target
+                        source: sc,
+                        target: tt
                     }
                 };
                 cy.add(edge_modified);
