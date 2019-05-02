@@ -165,8 +165,8 @@ var engine = (function () {
                                             } else {
                                                 _data = JSON.stringify(comp[i].nr_flow);
                                             }
-                                            noderedconnector.installAllNodeTypes(host.ip, comp[i].port, comp[i].packages).then(function () {
-                                                noderedconnector.setFlow(host.ip, comp[i].port, _data, [], [], that.dep_model);
+                                            noderedconnector.installAllNodeTypes(host.ip, comp[i].provided_communication_port[0].port_number, comp[i].packages).then(function () {
+                                                noderedconnector.setFlow(host.ip, comp[i].provided_communication_port[0].port_number, _data, [], [], that.dep_model);
                                                 bus.emit('node-started', id, comp[i].name);
                                             });
                                         }
@@ -238,8 +238,8 @@ var engine = (function () {
 
                             if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
                                 var noderedconnector = nodered_connector();
-                                noderedconnector.getCurrentFlow(host.ip, ct_elem.port).then(function (the_flow) {
-                                    that.generate_components(host.ip, ct_elem.port, src_tab, tgt_tab, that.dep_model, the_flow);
+                                noderedconnector.getCurrentFlow(host.ip, ct_elem.provided_communication_port[0].port_number).then(function (the_flow) {
+                                    that.generate_components(host.ip, ct_elem.provided_communication_port[0].port_number, src_tab, tgt_tab, that.dep_model, the_flow);
                                 });
                             }
                         }
@@ -281,7 +281,7 @@ var engine = (function () {
 
             if (tgt_component._type === 'node_red' && source_component._type === 'node_red') {
                 var client = uuidv4();
-                flow += '{"id":"' + uuidv4() + '","type":"websocket out","z": "dac41de7.a03038","name":"to_' + tgt_component.name + '","server":"","client":"' + client + '","x":331.5,"y":237,"wires":[]},{"id":"' + client + '","type":"websocket-client","path":"ws://' + tgt_host.ip + ':' + tgt_component.port + '/ws/' + source_component.name + '","wholemsg":"false"},';
+                flow += '{"id":"' + uuidv4() + '","type":"websocket out","z": "dac41de7.a03038","name":"to_' + tgt_component.name + '","server":"","client":"' + client + '","x":331.5,"y":237,"wires":[]},{"id":"' + client + '","type":"websocket-client","path":"ws://' + tgt_host.ip + ':' + tgt_component.provided_communication_port[0].port_number + '/ws/' + source_component.name + '","wholemsg":"false"},';
             } else {
                 if (source_component._type === 'node_red') { //Check if we have a plugin for this type of component
                     if (tgt_component.nr_description !== undefined && tgt_component.nr_description !== "") {

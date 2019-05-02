@@ -55,9 +55,9 @@ class DrawerEdit extends React.Component {
     }
 
     handleGoTo = () => {
-      var port = window.FormEdit.state.element.port;
-      var host_id = window.FormEdit.state.element.id_host;
-      var h = window.SiderDemo.getDM().find_node_named(host_id);
+      var port = window.FormEdit.state.element.provided_communication_port[0].port_number; //Not good need a better way to do taht
+      var h = window.SiderDemo.getDM().find_host(window.FormEdit.state.element);
+      console.log(JSON.stringify(h));
       var win = window.open('http://' + h.ip + ':' + port, '_blank');
       win.focus();
     }

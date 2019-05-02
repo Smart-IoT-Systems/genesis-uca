@@ -26,9 +26,7 @@ var MQTTBroker = (function () {
         });
 
         aedes.on('publish', function (packet, client) {
-            if (client) {
-                logger.log("info",'message from client: '+client.id);
-            }
+
         });
 
         aedes.on('subscribe', function (subscriptions, client) {
