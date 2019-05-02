@@ -28,8 +28,8 @@ class EditLink extends React.Component {
         var port_target=d_m.get_port_name_from_port_id(em.target);
         var comp_src=d_m.get_comp_name_from_port_id(em.src);
         var port_src=d_m.get_port_name_from_port_id(em.src);
-        var source = comp_src+','+port_src;
-        var t=comp_target+','+port_target;
+        var source = [comp_src,port_src];
+        var t=[comp_target,port_target];
 
         var check=[]
         if (em.isDeployer) {
@@ -78,9 +78,9 @@ class EditLink extends React.Component {
         });
     }
 
-    onChangeCheckList = (checkedList) => {
+    onChangeCheckList = (check) => {
         this.setState({
-            checkedList,
+            checkedList: check,
         });
     }
 
@@ -93,7 +93,7 @@ class EditLink extends React.Component {
     }
 
     onSave = () => {
-        //First we update the model
+        
         var selectedSrc=this.state.src+"";
         var selectedTarget=this.state.tgt+"";
         var selectedSrcComp = selectedSrc.split(',')[0];
@@ -101,41 +101,21 @@ class EditLink extends React.Component {
         var selectedTargetComp = selectedTarget.split(',')[0];
         var selectedTargetPort = selectedTarget.split(',')[1];
 
-        this.state.elem_model.src='/'+selectedSrcComp+'/'+selectedSrcPort;
-        this.state.elem_model.target='/'+selectedTargetComp+'/'+selectedTargetPort;
-        this.state.elem_model.name=this.state.name;
 
-        this.state.checkedList.forEach(e => {
-            if (e === '#isDeployer') {
-                this.state.elem_model.isDeployer = true;
-            }else{
-                this.state.elem_model.isDeployer = false;
-            }
-            if (e === '#isMandatory') {
-                this.state.elem_model.isMandatory = true;
-            }else{
-                this.state.elem_model.isMandatory = false;
-            }
-            if (e === '#isController') {
-                this.state.elem_model.isControl = true;
-            } else {
-                this.state.elem_model.isControl = false;
-            }
-        });
-
-        //Then we update the graph
+        //First we update the graph
         var target_link=this.state.elem;
         if (!this.state.elem_model.isControl) {
             cy.$('#' + target_link.id()).removeClass('control');
         }else{
             cy.$('#' + target_link.name).classes = 'control';
         }
-        if (target_link.src !== selectedSrcComp || target_link.target !== selectedTargetComp) {
-            cy.remove('#' + target_link.name);
+
+        if (target_link.data().source !== selectedSrcComp || target_link.data().target !== selectedTargetComp) {
+            cy.remove('#' + target_link.data().name);
             var edge_modified = {
                 group: "edges",
                 data: {
-                    id: tmp_link.name,
+                    id: target_link.data().name,
                     source: selectedSrcComp,
                     target: selectedTargetComp,
                 }
@@ -147,6 +127,33 @@ class EditLink extends React.Component {
 
             cy.add(edge_modified);
         }
+
+        //Then we update the model
+        this.state.elem_model.src='/'+selectedSrcComp+'/'+selectedSrcPort;
+        this.state.elem_model.target='/'+selectedTargetComp+'/'+selectedTargetPort;
+        this.state.elem_model.name=this.state.name;
+
+        this.state.elem_model.isDeployer = false;
+        this.state.elem_model.isMandatory = false;
+        this.state.elem_model.isControl = false;
+
+        this.state.checkedList.forEach(e => {
+            if (e === 'isDeployer') {
+                this.state.elem_model.isDeployer = true;
+            }
+            if (e === 'isMandatory') {
+                this.state.elem_model.isMandatory = true;
+            }
+            if (e === 'isControl') {
+                this.state.elem_model.isControl = true;
+            }
+        });
+
+        console.log(JSON.stringify(this.state.elem_model));
+
+        this.setState({
+            visible: false,
+        });
     }
 
     render() {
@@ -178,10 +185,10 @@ class EditLink extends React.Component {
                             <Input name="name" defaultValue={this.state.name} onChange={this.handleChangeName} prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} suffix={<Tooltip title="Must be uniq"><Icon type="info-circle" style={{ color: 'rgba(0,0,0,.45)' }} /></Tooltip>} placeholder="Name" />
                     </Form.Item>
                     <Form.Item label="Source:" key="2">
-                        <Cascader expandTrigger="hover" options={optionsSrc} onChange={this.onChangeSource} placeholder="Please select" />
+                        <Cascader expandTrigger="hover" defaultValue={this.state.src} options={optionsSrc} onChange={this.onChangeSource} placeholder="Please select" />
                     </Form.Item>
                     <Form.Item label="Target:" key="3">
-                        <Cascader expandTrigger="hover" options={optionsTgt} onChange={this.onChangeTarget} placeholder="Please select" />
+                        <Cascader expandTrigger="hover" defaultValue={this.state.tgt} options={optionsTgt} onChange={this.onChangeTarget} placeholder="Please select" />
                     </Form.Item>
                     <Form.Item label="Properties:" key="4">
                         <CheckboxGroup options={plainOptions} value={this.state.checkedList} onChange={this.onChangeCheckList} />
