@@ -44,7 +44,7 @@ class EditContainment extends React.Component {
     onDelete = () => {
         //First we update the model
         var d_m=window.SiderDemo.getDM();
-        var id = d_m.generate_port_id(em, em.required_execution_port);
+        var id = d_m.generate_port_id(this.state.elem_model, this.state.elem_model.required_execution_port);
         var c=d_m.find_containment_of_required_port(id);
         d_m.remove_containment(c);
 
@@ -59,20 +59,27 @@ class EditContainment extends React.Component {
     }
 
     onSave = (e) => {
-        //First we update the model
+        var selectedTarget=this.state.tgt+"";
+        var selectedTargetComp = selectedTarget.split(',')[0];
+        var selectedTargetPort = selectedTarget.split(',')[1];
+
         var target_node=this.state.elem;
         var d_m=window.SiderDemo.getDM();
-        var id = d_m.generate_port_id(em, em.required_execution_port);
-        var c=d_m.find_containment_of_required_port(id);
-        c.target = this.state.tgt;
 
-        //Then we update the graph
-        var host_id=d_m.get_comp_name_from_port_id(this.state.tgt);
-        if(target_node.parent() !== host_id){
+        //First we update the graph
+        var h = d_m.find_host(this.state.elem_model);
+        if(target_node.parent() !== h.name){
             target_node.move({
-                parent: host_id
+                parent: selectedTargetComp
             });
         }
+
+        //Then we update the model
+        var id = d_m.generate_port_id(this.state.elem_model, this.state.elem_model.required_execution_port);
+        var c=d_m.find_containment_of_required_port(id);
+        c.target = '/'+selectedTargetComp+'/'+selectedTargetPort;
+
+        
     }
 
     onClose = () => {

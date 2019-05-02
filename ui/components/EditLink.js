@@ -149,8 +149,6 @@ class EditLink extends React.Component {
             }
         });
 
-        console.log(JSON.stringify(this.state.elem_model));
-
         this.setState({
             visible: false,
         });
