@@ -215,7 +215,7 @@ var engine = (function () {
         //We collect all the started events, once they are all received we generate the flow skeleton based on the links
         bus.on('node-started', function (container_id, comp_name) {
             tmp++;
-            //console.log(tmp + ' :: ' + nb);
+
             //Add container id to the component
             var comp = that.dep_model.find_node_named(comp_name);
             comp.container_id = container_id;
@@ -224,12 +224,12 @@ var engine = (function () {
                 tmp = 0;
 
                 var comp_tab = that.dep_model.get_all_hosted();
+
                 //For all Node-Red hosted components we generate the websocket proxies
                 for (var ct_elem of comp_tab) {
                     (function (comp_tab, ct_elem) {
-                        if (ct_elem._type === 'node_red') {
-                            var host_id = ct_elem.id_host;
-                            var host = that.dep_model.find_node_named(host_id);
+                        if (ct_elem._type === '/internal/node_red') {
+                            var host = that.dep_model.find_host(ct_elem);
 
                             //Get all links that start from the component
                             var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
@@ -272,14 +272,14 @@ var engine = (function () {
 
         //For each link starting from the component we add a websocket out component
         for (var j in src_tab) {
-            var tgt_component = dm.find_node_named(src_tab[j].target);
-            var source_component = dm.find_node_named(src_tab[j].src);
-            var tgt_host_id = tgt_component.id_host;
-            var tgt_host = dm.find_node_named(tgt_host_id);
-            var src_host_id = source_component.id_host;
-            var src_host = dm.find_node_named(src_host_id);
+            var a_name = dm.get_comp_name_from_port_id(src_tab[j].target);
+            var b_name = dm.get_comp_name_from_port_id(src_tab[j].src);
+            var tgt_component = dm.find_node_named(a_name);
+            var source_component = dm.find_node_named(b_name);
+            var tgt_host = dm.find_host(tgt_component);
+            var src_host = dm.find_host(source_component);
 
-            if (tgt_component._type === 'node_red' && source_component._type === 'node_red') {
+            if (tgt_component._type === '/internal/node_red' && source_component._type === '/internal/node_red') {
                 var client = uuidv4();
                 flow += '{"id":"' + uuidv4() + '","type":"websocket out","z": "dac41de7.a03038","name":"to_' + tgt_component.name + '","server":"","client":"' + client + '","x":331.5,"y":237,"wires":[]},{"id":"' + client + '","type":"websocket-client","path":"ws://' + tgt_host.ip + ':' + tgt_component.provided_communication_port[0].port_number + '/ws/' + source_component.name + '","wholemsg":"false"},';
             } else {
@@ -304,9 +304,11 @@ var engine = (function () {
         //For each link ending in the component we add a websocket in component
         for (var z in tgt_tab) {
             var server = uuidv4();
-            var target_component = dm.find_node_named(tgt_tab[z].target);
-            var src_component = dm.find_node_named(tgt_tab[z].src);
-            if (src_component._type === 'node_red' && target_component._type === 'node_red') {
+            var a = dm.get_comp_name_from_port_id(tgt_tab[z].target);
+            var b = dm.get_comp_name_from_port_id(tgt_tab[z].src);
+            var target_component = dm.find_node_named(a);
+            var src_component = dm.find_node_named(b);
+            if (src_component._type === '/internal/node_red' && target_component._type === '/internal/node_red') {
                 flow += '{"id":"' + uuidv4() + '","type":"websocket in","z": "dac41de7.a03038","name":"from_' + src_component.name + '","server":"' + server + '","client":"","x":143.5,"y":99,"wires":[]},{"id":"' + server + '","type":"websocket-listener","path":"/ws/' + src_component.name + '","wholemsg":"false"},';
             }
         }

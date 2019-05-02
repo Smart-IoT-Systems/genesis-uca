@@ -177,9 +177,11 @@ var deployment_model = function (spec) {
     };
 
     that.get_all_hosted = function () {
-        var tab = that.containments.filter(function (elem) {
+        var tab = [];
+        that.containments.forEach(function (elem) {
             if (elem.target !== null) {
-                return elem;
+                var comp_name=that.get_comp_name_from_port_id(elem.target);
+                tab.push(that.find_node_named(comp_name));
             }
         });
         return tab;
@@ -187,7 +189,7 @@ var deployment_model = function (spec) {
 
     that.get_all_can_be_hosted = function () {
         var tab = that.components.filter(function (elem) {
-            if (elem._type.split('/')[1].indexOf("infra") < 0) {
+            if (elem._type.split('/')[1].indexOf("internal") > -1) {
                 return elem;
             }
         });
