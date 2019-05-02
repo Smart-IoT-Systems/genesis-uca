@@ -31,7 +31,7 @@ var deployment_model = function (spec) {
                 component = software_node(spec);
             } else {
                 for (var i = 0; i < that.type_registry.length; i++) {
-                    if (that.type_registry[i].id.indexOf(type) >= 0) { //To be updated
+                    if (type.indexOf(that.type_registry[i].id.split('.')[0]) >= 0) { //To be updated
                         component = that.type_registry[i].module(spec);
                         return component;
                     }

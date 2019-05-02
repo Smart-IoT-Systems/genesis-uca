@@ -172,7 +172,7 @@ class SiderDemo extends React.Component {
   }
 
   removeAll = () =>{
-    var model = deployment_model({});
+    var model = mm.deployment_model({});
     fetch('/genesis/deploy', {
 			method: 'POST',
 			headers: {

@@ -71,7 +71,7 @@ class DrawerEdit extends React.Component {
               //In cytoscape ids are immutable so if name has changed we need to create a new node
               var tmp = target_node.json();
               tmp.data.id = window.FormEdit.state.element.name;
-              tmp.data.parent = window.FormEdit.state.element.id_host;// We also update the host in case we also changed it
+
               cy.add(tmp);
               //If the node is hosting other nodes
               var tmp_hosted = target_node.children();
@@ -102,14 +102,15 @@ class DrawerEdit extends React.Component {
               //Finally we remove the old component
               cy.remove("#" + target_node.id());
           }
-          
+
       //Finally, we update the model
-      for (var prop in this.state.elem) {
+      for (var prop in this.state.elem_model) {
+        console.log(JSON.stringify(window.FormEdit.state.element));
         if(window.FormEdit.state.element[prop]){
-            if(typeof this.state.elem[prop] === 'object' && typeof window.FormEdit.state.element[prop] !== 'object'){
-                this.state.elem[prop]=JSON.parse(window.FormEdit.state.element[prop]);
+            if(typeof this.state.elem_model[prop] === 'object' && typeof window.FormEdit.state.element[prop] !== 'object'){
+                this.state.elem_model[prop]=JSON.parse(window.FormEdit.state.element[prop]);
             }else{
-                this.state.elem[prop]=window.FormEdit.state.element[prop];
+                this.state.elem_model[prop]=window.FormEdit.state.element[prop];
             }
         }
       }

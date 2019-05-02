@@ -12,7 +12,7 @@ var thingml = function (spec) {
     that.file= spec.file || "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/docker-node-red-thingml/doc/examples/LightSensorApp/LightSensorApp.thingml",
     that.src = spec.src || "",
     that.libraries = spec.libraries || ["Adafruit GFX Library","Adafruit ST7735 Library"]
-    that.target_language = spec.target_language || "Java"
+    that.target_language = spec.target_language || "java"
 
     return that;
 };
