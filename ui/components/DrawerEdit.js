@@ -114,7 +114,8 @@ class DrawerEdit extends React.Component {
             }
         }
       }
-
+      
+      window.SiderDemo.openNotificationWithIcon('success', 'Model updated!', 'The deployment model has been successfully updated!');
       this.onClose();
     }
 

@@ -79,7 +79,10 @@ class EditContainment extends React.Component {
         var c=d_m.find_containment_of_required_port(id);
         c.target = '/'+selectedTargetComp+'/'+selectedTargetPort;
 
-        
+        window.SiderDemo.openNotificationWithIcon('success', 'Model updated!', 'The deployment model has been successfully updated!');
+        this.setState({
+            visible: false,
+        });
     }
 
     onClose = () => {

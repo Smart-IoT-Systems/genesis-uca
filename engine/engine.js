@@ -75,12 +75,12 @@ var engine = (function () {
         //Deployment agent
         logger.log("info", "Starting deployment of deployment agents");
         for (var l in links_deployer_tab) {
-            var tgt_agent = that.dep_model.find_node_named(links_deployer_tab[l].target);
-            var host_agent = that.dep_model.find_node_named(links_deployer_tab[l].src);
-            var tgt_agent_host_id = tgt_agent.id_host;
-            var tgt_agent_host = that.dep_model.find_node_named(tgt_agent_host_id);
-            var src__agent_host_id = host_agent.id_host;
-            var src_agent_host = that.dep_model.find_node_named(src__agent_host_id);
+            var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
+            var tgt_agent = that.dep_model.find_node_named(tgt_agent_name);
+            var host_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].src);
+            var host_agent = that.dep_model.find_node_named(host_agent_name);
+            var tgt_agent_host = that.dep_model.find_host(tgt_agent);
+            var src_agent_host = that.dep_model.find_host(host_agent);
 
             var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
             await d_agent.prepare();
