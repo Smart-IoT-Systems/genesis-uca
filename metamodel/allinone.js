@@ -544,6 +544,8 @@ var node_red = function (spec) {
     that.path_flow = spec.path_flow || "";
     that.packages = spec.packages || [];
 
+    that.provided_communication_port[0].port_number = '1880';
+
     return that;
 };
 
