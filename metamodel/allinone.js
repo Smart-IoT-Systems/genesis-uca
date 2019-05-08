@@ -555,6 +555,14 @@ var external_node = function (spec) {
     var that = component(spec); //the inheritance
     that._type += "/external";
 
+    var tab_pcp = [];
+    tab_pcp.push(provided_communication_port({}));
+    that.provided_communication_port = spec.provided_communication_port || tab_pcp;
+
+    var tab_rcp = [];
+    tab_rcp.push(required_communication_port({}));
+    that.required_communication_port = spec.required_communication_port || tab_rcp;
+
     return that;
 };
 

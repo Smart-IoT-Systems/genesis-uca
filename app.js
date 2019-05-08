@@ -28,11 +28,12 @@ var server = app.listen(app.get('port'), function () {
 app.get("/genesis/types", runtime.getTypes);
 //Initiate deployment
 app.post("/genesis/deploy", runtime.deploy);
-//Send back the server logs
+//Send the server logs
 app.get("/genesis/logs", getLogs);
-//Send back the current deployment model
+//Send the current deployment model
 app.get("/genesis/model", runtime.getDM);
-
+//Send the current deployment model with graph
+app.get("/genesis/model_ui", runtime.getDM_UI);
 
 
 function getLogs(req, res){

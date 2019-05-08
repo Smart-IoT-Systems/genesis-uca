@@ -26,6 +26,16 @@ var engine = (function () {
 
     that.MQTTClient = {};
 
+    that.graph={};
+
+    that.getDM_UI = function(req, res){
+        var all_in_one = {
+            dm: that.dep_model,
+            graph: that.graph
+          };
+        res.end(JSON.stringify(all_in_one));
+    }
+
     that.getDM = function(req, res){
         res.end(JSON.stringify(that.dep_model));
     }
@@ -342,7 +352,14 @@ var engine = (function () {
 
         //Load the model
         logger.log("info", "Received model from the editor "+JSON.stringify(req.body));
-        var data = req.body;
+        var d = req.body;
+        var data;
+        if(d.dm !== undefined){
+            data = d.dm;
+            that.graph = d.graph;
+        }else{
+            data=d;
+        }
         dm.name = data.name;
         dm.revive_components(data.components);
         logger.log("info", "Revive Comp");
@@ -367,7 +384,6 @@ var engine = (function () {
             //Deploy only the added stuff
             logger.log("info", "Starting deployment");
             await that.run(that.diff);
-            //logger.log("info", "Deployment Completed");
             res.end(JSON.stringify({ success: that.dep_model }));
 
         } else {

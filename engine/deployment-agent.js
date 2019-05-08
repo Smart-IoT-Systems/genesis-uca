@@ -30,7 +30,6 @@ var deployment_agent = function (host, host_target, deployment_target) {
                     var ino_content=fs.readFileSync(deployment_target.sketch, "utf8");
                     var ino_stringified=JSON.stringify(ino_content);
                     var lib_strigified=JSON.stringify(that.deployment_target.libraries);
-                    console.log(":::::=>"+JSON.stringify(lib_strigified));
                     that.flow+=',{"id":"'+uuidv4()+'","type":"inject","z":"dac41de7.a03033","name":"","topic":"","payload":"","payloadType":"str","repeat":"","crontab":"","once":true,"onceDelay":30,"x":230,"y":140,"wires":[["e23ea497.5b6678"]]}, {"id":"e23ea497.5b6678","type":"function","z":"dac41de7.a03033","name":"","func":'+JSON.stringify('msg.payload='+ ino_stringified +';\nreturn msg;')+',"outputs":1,"noerr":0,"x":410,"y":260,"wires":[["812a8df2.aa502"]]},{"id":"812a8df2.aa502","type":"file","z":"dac41de7.a03033","name":"","filename":"/data/tmp/tmp.ino","appendNewline":true,"createDir":true,"overwriteFile":"true","x":420,"y":140,"wires":[["e22ea497.5b6678"]]},{"id":"e22ea497.5b6678","type":"function","z":"dac41de7.a03033","name":"","func":'+JSON.stringify('msg.payload={};\nmsg.payload.name= "tmp";\nmsg.payload.output="/data";\nreturn msg;')+',"outputs":1,"noerr":0,"x":410,"y":260,"wires":[["'+id_deployer_node_in_agent+'"]]}';
                 }
                 that.flow+=',{"id": "'+id_deployer_node_in_agent+'","type": "arduino","z": "dac41de7.a03033","name": "'+that.host_target.name+'","serial": "7d118b53.12e99c","ardtype": "uno","cpu": "'+that.host_target.cpu+'","libraries": '+JSON.stringify(lib_strigified)+',"x": 590,"y": 260, "wires": []},{"id": "7d118b53.12e99c","type": "serial-port","z": "","serialport": "'+that.host_target.physical_port+'","serialbaud": "9600","databits": "8","parity": "none","stopbits": "1","newline": "\\n","bin": "false","out": "char","addchar": false}';
@@ -127,7 +126,6 @@ var deployment_agent = function (host, host_target, deployment_target) {
         }, "", "nicolasferry/multiarch-node-red-thingml:latest", "", that.deployment_target.name);
 
         var readyToGo = await that.untilConnect(host.ip, 1889);
-        console.log("><><>"+ that.flow);
         if (readyToGo) {
             that.setFlow(host.ip, 1889, that.flow);
         }

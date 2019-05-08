@@ -153,13 +153,19 @@ class SiderDemo extends React.Component {
   }
 
   loadFromServer = () => {
-    fetch("/genesis/model")
+    fetch("/genesis/model_ui")
       .then(response => response.json())
       .then(data => {
-        dm = mm.deployment_model(data);
-        dm.components = data.components;
-        dm.revive_links(data.links);
-        dm.revive_containments(data.containments);
+        //First we load the model
+        console.log(JSON.stringify(data))
+        dm = mm.deployment_model(data.dm);
+        dm.components = data.dm.components;
+        dm.revive_links(data.dm.links);
+        dm.revive_containments(data.dm.containments);
+        //Then we update the graph
+        cy.json(data.graph);
+        //Including runtime status
+        
       });
   }
 
@@ -188,13 +194,19 @@ class SiderDemo extends React.Component {
   }
 
   deployModel = () =>{
+
+    var all_in_one = {
+      dm: dm,
+      graph: cy.json()
+    };
+
     fetch('/genesis/deploy', {
 			method: 'POST',
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify(dm)
+			body: JSON.stringify(all_in_one)
 		}).then(response => response.json())
 			.then(response => { 
         if (response.success) {
