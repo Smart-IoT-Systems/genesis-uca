@@ -44,23 +44,27 @@ In this example, our deployment model will be composed of two components:
 * a _SoftwareComponent_ (i.e., the Node-RED container that will be deployed by GeneSIS) and more precisely an InternalComponent as its deployment life-cycle will be managed by GeneSIS.
 * an _InfrastructureComponent_ (i.e., the host on top of which we will deploy our SoftwareComponent, in our case a DockerEngine).
 
-First, we start by creating the InternalComponent by clicking on 'SoftwareComponent > InternalComponent > Nodered' as depicted in the Figure below.
+First, we start by creating the InternalComponent by clicking on 'Edit > Software Component > Internal Component > Node-RED' as depicted in the Figure below.
 
 ![alt text](docs/tutorial/1.nodered_localhost/images/create_component.png "Create Component")
 
-At the current moment we just specify its 'name' and 'id' and click on the 'add' button to actually add the component to our deployment model.
+At the current moment we just specify its 'name' and click on the 'OK' button to actually add the component to our deployment model.
 A circle should appear in the editor! Please note that you can (i) zoom in/out but using the mouse wheel, (ii) you can move a component by drag and drop, and (iii) you can edit the properties of a component with a right click on it.
 
-We can now create the InfrastructureComponent by clicking on 'InfrastructureComponent > Docker Engine'
-At the current moment just specify it 'name' and 'id' and click on 'add'. A rectangle should appear!
+We can now create the InfrastructureComponent by clicking on 'Edit > InfrastructureComponent > Docker Host'
+At the current moment just specify it 'name' and click on 'OK'. A rectangle should appear!
 
-We will now specify that our InternalComponent will be deployed on our InfrastructureComponent (i.e., Node-RED on Docker). To do so, we need to create a containement relationship between the two components by clicking on 'Add Link > Containment'.
+We will now specify that our InternalComponent will be deployed on our InfrastructureComponent (i.e., Node-RED on Docker). To do so, we need (i) to specify the execution ports of our components and (ii) to create a containement relationship between the two components.
+We first specify the provided execution port of the docker host (i.e., my_machine). Right-click on the Docker Host and change the name of the 'provided execution port' property (e.g., offerDocker).
+Similarly right-click on the Software component (i.e., nodered) and change the name of the required execution port (e.g., demandDocker).
+
+Then we can add the containment relationship by clicking on 'Edit > Link > Add Containment'.
 Select the proper nodes and click on 'add'. The circle should now be contained by the rectangle as depicted in the Figure below.
 
 ![alt text](docs/tutorial/1.nodered_localhost/images/containment.png "Containment")
 
 We are now going to configure our two components. 
-For our InfrastructureComponent (aka., Docker Engine), we need to make sure that the 'IP' property of the component is set to '127.0.0.1'.
+For our InfrastructureComponent (aka., Docker Host), we need to make sure that the 'IP' property of the component is set to '127.0.0.1'.
 We can edit this property of the component by right-clicking on it and modifying the 'IP' field as depicted in the Figure below.
 
 ![alt text](docs/tutorial/1.nodered_localhost/images/port_container.png "Set port of the Docker engine")
