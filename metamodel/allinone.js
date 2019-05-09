@@ -323,6 +323,40 @@ var deployment_model = function (spec) {
         return valid_name;
     };
 
+    that.change_name = function (name, comp){
+        if(that.is_valid_name(name)){
+            var oldname=comp.name;
+            comp.name = name;
+            
+            //then we change name of all port_id
+            comp.provided_communication_port.forEach(pc => {
+                var l = that.find_link_of_provided_port('/'+oldname+'/'+pc.name);
+                if(l !== null){
+                    l.src=that.generate_port_id(comp, pc);
+                }
+            });
+            
+            comp.required_communication_port.forEach(rc => {
+                var l = that.find_link_of_required_port('/'+oldname+'/'+rc.name);
+                if(l !== null){
+                    l.target=that.generate_port_id(comp, rc);
+                }
+            });
+            
+            var ch = that.find_containment_of_required_port('/'+oldname+'/'+comp.required_execution_port.name);
+            if(ch !== null){
+                ch.target=that.generate_port_id(comp, comp.required_execution_port);
+            }
+            
+            comp.provided_execution_port.forEach(pe => {
+                var c = that.find_containment_of_provided_port('/'+oldname+'/'+pe.name);
+                if(c !== null){
+                    c.src=that.generate_port_id(comp, pe);
+                }
+            });
+        }
+    };
+
     that.is_valid_id = function (id) {
         var valid_id = true;
         that.components.forEach(function (elem) {

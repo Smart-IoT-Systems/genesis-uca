@@ -51,22 +51,12 @@ var engine = (function () {
             return;
         }
         for (var i in removed) {
-            
-            var host = that.dep_model.find_host(removed[i]); //This cannot be done!
-            var host_id = host.name;
 
-            if (host === undefined) {
+            var host = diff.old_dm.find_host(removed[i]);
+
+            if (host !== null) {
                 //Need to find the host in the old model
-                var rem_hosts = diff.list_removed_hosts;
-                for (var z in rem_hosts) {
-                    if (rem_hosts[z].name === host_id) {
-                        if (rem_hosts[z]._type === "docker_host") {
-                            await connector.stopAndRemove(removed[i].container_id, rem_hosts[z].ip, rem_hosts[z].port);
-                        }
-                    }
-                }
-            } else {
-                if (host._type === "docker_host") {
+                if (host._type === "/infra/docker_host") {
                     await connector.stopAndRemove(removed[i].container_id, host.ip, host.port);
                 }
             }

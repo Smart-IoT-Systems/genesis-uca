@@ -105,13 +105,17 @@ class DrawerEdit extends React.Component {
 
       //Finally, we update the model
       for (var prop in this.state.elem_model) {
-        console.log(JSON.stringify(window.FormEdit.state.element));
         if(window.FormEdit.state.element[prop]){
+          if(prop === 'name'){
+            var tmp=window.SiderDemo.getDM();
+            tmp.change_name(window.FormEdit.state.element[prop], this.state.elem_model);
+          }else{
             if(typeof this.state.elem_model[prop] === 'object' && typeof window.FormEdit.state.element[prop] !== 'object'){
-                this.state.elem_model[prop]=JSON.parse(window.FormEdit.state.element[prop]);
+              this.state.elem_model[prop]=JSON.parse(window.FormEdit.state.element[prop]);
             }else{
-                this.state.elem_model[prop]=window.FormEdit.state.element[prop];
+              this.state.elem_model[prop]=window.FormEdit.state.element[prop];
             }
+          }
         }
       }
       

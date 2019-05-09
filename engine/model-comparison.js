@@ -15,7 +15,12 @@ var comparator = function (dm) {
         result.list_of_removed_links = [];
         result.list_of_added_links = [];
 
+        result.list_of_removed_containments = [];
+        result.list_of_added_containments = [];
+
         result.list_of_added_links_deployer = [];
+
+        result.old_dm = that.dm;
 
         //Added Hosts and components
         var target_comps = target_dm.components;
@@ -39,7 +44,7 @@ var comparator = function (dm) {
             var tmp_host = target_dm.find_node_named(comps[i].name);
             console.log(tmp_host);
             if (tmp_host === undefined) {
-                if (comps[i]._type.indexOf('internal')) {
+                if (comps[i]._type.indexOf('internal') > -1) {
                     result.list_of_removed_components.push(comps[i]);
                 } else {
                     result.list_removed_hosts.push(comps[i]);
@@ -68,6 +73,25 @@ var comparator = function (dm) {
                 result.list_of_removed_links.push(links[i]);
             }
         }
+
+        //Added containments
+        var conts = target_dm.containments;
+        for (var i in conts){
+            var tmp_cont = dm.find_containment_named(conts[i].name);
+            if(tmp_cont === undefined){
+                result.list_of_added_containments.push(conts[i])
+            }
+        }
+
+        //Removed containments
+        var re_conts = dm.containments;
+        for (var i in re_conts){
+            var tmp_cont = target_dm.find_containment_named(re_conts[i].name);
+            if(tmp_cont === undefined){
+                result.list_of_removed_containments.push(re_conts[i])
+            }
+        }
+
 
         return result;
     };

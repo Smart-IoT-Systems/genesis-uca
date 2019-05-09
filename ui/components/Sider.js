@@ -189,6 +189,7 @@ class SiderDemo extends React.Component {
 		}).then(response => response.json())
 			.then(response => { 
         if (response.success) {
+          cy.elements().remove();
           this.openNotificationWithIcon('success', 'Deployment Started', 'Empty Model sent!')
         }});
   }
