@@ -84,7 +84,6 @@ You can observe the installation of CouchDB as the Ansible outputs are displayed
                 [0] TASK [ensure couchdb is at the latest version] *********************************
 
 Once the deployment started, you can observe deployment logs in the console where you started GeneSIS. In particular, you will see: 
-Once the deployment completed, you should see the logs depicted in the figure below.
 
 That's all folks!
 
