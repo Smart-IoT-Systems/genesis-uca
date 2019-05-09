@@ -5,7 +5,7 @@ var mm = require('../metamodel/allinone.js');
 /******************************/
 var rfxcom = function (spec) {
     var that = mm.external_node(spec); //the inheritance
-    that._type = "rfxcom";
+    that._type += "/rfxcom";
     that.nr_description = {
         package: "node-red-contrib-rfxcom",
         "version": "2.6.1",
