@@ -150,7 +150,8 @@ var nodered_connector = function () {
                     bus.emit('link-ok', tgt_tab[w].name);
                 }
                 for (var p in src_tab) { //if success, send feedback
-                    if (dm.find_node_named(src_tab[p].target).nr_description !== undefined) {
+                    var a = dm.get_comp_name_from_port_id(src_tab[p].target);
+                    if (dm.find_node_named(a).nr_description !== undefined) {
                         bus.emit('link-ok', src_tab[p].name);
                     }
                 }

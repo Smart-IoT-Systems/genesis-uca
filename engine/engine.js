@@ -1,5 +1,3 @@
-var webSocketServer = require('ws').Server;
-var http = require('http');
 var mm = require('../metamodel/allinone.js');
 var dc = require('./connectors/docker-connector.js');
 var sshc = require('./connectors/ssh-connector.js');
@@ -13,21 +11,38 @@ var ac = require('./connectors/ansible-connector.js');
 var thingmlcli = require('./thingml-compiler.js');
 var mvn_builder = require('maven');
 var notifier = require('./notifier');
+var mqtt = require('mqtt');
 var nodered_connector = require('./connectors/nodered_connector.js');
 var fs = require('fs');
 
 var engine = (function () {
     var that = {};
-    //that.dep_model = 'undefined';
+
+    that.available_types = [];
+    that.modules=[];
+
     that.dep_model = mm.deployment_model({});
     that.diff = {};
 
-    that.webSocketServerObject = new webSocketServer({
-        port: 9060
-    });
+    that.MQTTClient = {};
 
-    that.socketObject = {};
+    that.graph={};
 
+    that.getDM_UI = function(req, res){
+        var all_in_one = {
+            dm: that.dep_model,
+            graph: that.graph
+          };
+        res.end(JSON.stringify(all_in_one));
+    }
+
+    that.getDM = function(req, res){
+        res.end(JSON.stringify(that.dep_model));
+    }
+
+    that.getTypes = function (req, res) {
+        res.end(JSON.stringify(that.available_types));
+    };
 
     that.remove_containers = async function (diff) {
         var removed = diff.list_of_removed_components;
@@ -36,20 +51,12 @@ var engine = (function () {
             return;
         }
         for (var i in removed) {
-            var host_id = removed[i].id_host;
-            var host = that.dep_model.find_node_named(host_id); //This cannot be done!
-            if (host === undefined) {
+
+            var host = diff.old_dm.find_host(removed[i]);
+
+            if (host !== null) {
                 //Need to find the host in the old model
-                var rem_hosts = diff.list_removed_hosts;
-                for (var z in rem_hosts) {
-                    if (rem_hosts[z].name === host_id) {
-                        if (rem_hosts[z]._type === "docker_host") {
-                            await connector.stopAndRemove(removed[i].container_id, rem_hosts[z].ip, rem_hosts[z].port);
-                        }
-                    }
-                }
-            } else {
-                if (host._type === "docker_host") {
+                if (host._type === "/infra/docker_host") {
                     await connector.stopAndRemove(removed[i].container_id, host.ip, host.port);
                 }
             }
@@ -68,12 +75,12 @@ var engine = (function () {
         //Deployment agent
         logger.log("info", "Starting deployment of deployment agents");
         for (var l in links_deployer_tab) {
-            var tgt_agent = that.dep_model.find_node_named(links_deployer_tab[l].target);
-            var host_agent = that.dep_model.find_node_named(links_deployer_tab[l].src);
-            var tgt_agent_host_id = tgt_agent.id_host;
-            var tgt_agent_host = that.dep_model.find_node_named(tgt_agent_host_id);
-            var src__agent_host_id = host_agent.id_host;
-            var src_agent_host = that.dep_model.find_node_named(src__agent_host_id);
+            var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
+            var tgt_agent = that.dep_model.find_node_named(tgt_agent_name);
+            var host_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].src);
+            var host_agent = that.dep_model.find_node_named(host_agent_name);
+            var tgt_agent_host = that.dep_model.find_host(tgt_agent);
+            var src_agent_host = that.dep_model.find_host(host_agent);
 
             var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
             await d_agent.prepare();
@@ -86,10 +93,10 @@ var engine = (function () {
                 //if not to be deployed by a deployment agent
                 if (!that.dep_model.need_deployment_agent(comp[i])) {
 
-                    var host_id = comp[i].id_host;
-                    var host = that.dep_model.find_node_named(host_id);
+                    var host = that.dep_model.find_host(comp[i]); //This cannot be done!
+
                     if (host !== undefined) {
-                        if (comp[i]._type === "thingml") {
+                        if (comp[i]._type === "/internal/thingml") {
                             //we should generate the plantuml
                             var tcli = thingmlcli(comp[i]);
                             tcli.build("./generated_uml_" + comp[i].name, "uml").catch(function (err) {
@@ -137,15 +144,16 @@ var engine = (function () {
                                 logger.log("error", err);
                             });
                         } else {
-                            if (host._type === "docker_host") {
+                            if (host._type === "/infra/docker_host") {
+                                console.log("Ready to go: "+ JSON.stringify(comp));
                                 var connector = dc();
                                 nb++;
-                                if (comp[i]._type === "node_red") {
+                                if (comp[i]._type === "/internal/node_red") {
                                     //then we deploy node red
                                     //TODO: what if port_bindings is empty?
-                                    var docker_image_nr="nicolasferry/multiarch-node-red-thingml:latest";
-                                    if(comp[i].docker_resource.image !== docker_image_nr && comp[i].docker_resource.image !== ""){
-                                        docker_image_nr=comp[i].docker_resource.image;
+                                    var docker_image_nr = "nicolasferry/multiarch-node-red-thingml:latest";
+                                    if (comp[i].docker_resource.image !== docker_image_nr && comp[i].docker_resource.image !== "") {
+                                        docker_image_nr = comp[i].docker_resource.image;
                                     }
                                     connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", docker_image_nr, comp[i].docker_resource.mounts, comp[i].name, host.name).then(function (id) {
                                         if ((comp[i].nr_flow !== undefined && comp[i].nr_flow !== "") ||
@@ -157,8 +165,8 @@ var engine = (function () {
                                             } else {
                                                 _data = JSON.stringify(comp[i].nr_flow);
                                             }
-                                            noderedconnector.installAllNodeTypes(host.ip, comp[i].port, comp[i].packages).then(function () {
-                                                noderedconnector.setFlow(host.ip, comp[i].port, _data, [], [], that.dep_model);
+                                            noderedconnector.installAllNodeTypes(host.ip, comp[i].provided_communication_port[0].port_number, comp[i].packages).then(function () {
+                                                noderedconnector.setFlow(host.ip, comp[i].provided_communication_port[0].port_number, _data, [], [], that.dep_model);
                                                 bus.emit('node-started', id, comp[i].name);
                                             });
                                         }
@@ -207,7 +215,7 @@ var engine = (function () {
         //We collect all the started events, once they are all received we generate the flow skeleton based on the links
         bus.on('node-started', function (container_id, comp_name) {
             tmp++;
-            //console.log(tmp + ' :: ' + nb);
+
             //Add container id to the component
             var comp = that.dep_model.find_node_named(comp_name);
             comp.container_id = container_id;
@@ -216,12 +224,12 @@ var engine = (function () {
                 tmp = 0;
 
                 var comp_tab = that.dep_model.get_all_hosted();
+
                 //For all Node-Red hosted components we generate the websocket proxies
                 for (var ct_elem of comp_tab) {
                     (function (comp_tab, ct_elem) {
-                        if (ct_elem._type === 'node_red') {
-                            var host_id = ct_elem.id_host;
-                            var host = that.dep_model.find_node_named(host_id);
+                        if (ct_elem._type === '/internal/node_red') {
+                            var host = that.dep_model.find_host(ct_elem);
 
                             //Get all links that start from the component
                             var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
@@ -230,8 +238,8 @@ var engine = (function () {
 
                             if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
                                 var noderedconnector = nodered_connector();
-                                noderedconnector.getCurrentFlow(host.ip, ct_elem.port).then(function (the_flow) {
-                                    that.generate_components(host.ip, ct_elem.port, src_tab, tgt_tab, that.dep_model, the_flow);
+                                noderedconnector.getCurrentFlow(host.ip, ct_elem.provided_communication_port[0].port_number).then(function (the_flow) {
+                                    that.generate_components(host.ip, ct_elem.provided_communication_port[0].port_number, src_tab, tgt_tab, that.dep_model, the_flow);
                                 });
                             }
                         }
@@ -251,8 +259,8 @@ var engine = (function () {
                 if (!elem.name.startsWith("to_") && !elem.name.startsWith("from_")) {
                     return elem;
                 }
-            }else{
-                if(elem.id !== undefined) {
+            } else {
+                if (elem.id !== undefined) {
                     return elem;
                 }
             }
@@ -264,16 +272,16 @@ var engine = (function () {
 
         //For each link starting from the component we add a websocket out component
         for (var j in src_tab) {
-            var tgt_component = dm.find_node_named(src_tab[j].target);
-            var source_component = dm.find_node_named(src_tab[j].src);
-            var tgt_host_id = tgt_component.id_host;
-            var tgt_host = dm.find_node_named(tgt_host_id);
-            var src_host_id = source_component.id_host;
-            var src_host = dm.find_node_named(src_host_id);
+            var a_name = dm.get_comp_name_from_port_id(src_tab[j].target);
+            var b_name = dm.get_comp_name_from_port_id(src_tab[j].src);
+            var tgt_component = dm.find_node_named(a_name);
+            var source_component = dm.find_node_named(b_name);
+            var tgt_host = dm.find_host(tgt_component);
+            var src_host = dm.find_host(source_component);
 
-            if (tgt_component._type === 'node_red' && source_component._type === 'node_red') {
+            if (tgt_component._type === '/internal/node_red' && source_component._type === '/internal/node_red') {
                 var client = uuidv4();
-                flow += '{"id":"' + uuidv4() + '","type":"websocket out","z": "dac41de7.a03038","name":"to_' + tgt_component.name + '","server":"","client":"' + client + '","x":331.5,"y":237,"wires":[]},{"id":"' + client + '","type":"websocket-client","path":"ws://' + tgt_host.ip + ':' + tgt_component.port + '/ws/' + source_component.name + '","wholemsg":"false"},';
+                flow += '{"id":"' + uuidv4() + '","type":"websocket out","z": "dac41de7.a03038","name":"to_' + tgt_component.name + '","server":"","client":"' + client + '","x":331.5,"y":237,"wires":[]},{"id":"' + client + '","type":"websocket-client","path":"ws://' + tgt_host.ip + ':' + tgt_component.provided_communication_port[0].port_number + '/ws/' + source_component.name + '","wholemsg":"false"},';
             } else {
                 if (source_component._type === 'node_red') { //Check if we have a plugin for this type of component
                     if (tgt_component.nr_description !== undefined && tgt_component.nr_description !== "") {
@@ -296,9 +304,11 @@ var engine = (function () {
         //For each link ending in the component we add a websocket in component
         for (var z in tgt_tab) {
             var server = uuidv4();
-            var target_component = dm.find_node_named(tgt_tab[z].target);
-            var src_component = dm.find_node_named(tgt_tab[z].src);
-            if (src_component._type === 'node_red' && target_component._type === 'node_red') {
+            var a = dm.get_comp_name_from_port_id(tgt_tab[z].target);
+            var b = dm.get_comp_name_from_port_id(tgt_tab[z].src);
+            var target_component = dm.find_node_named(a);
+            var src_component = dm.find_node_named(b);
+            if (src_component._type === '/internal/node_red' && target_component._type === '/internal/node_red') {
                 flow += '{"id":"' + uuidv4() + '","type":"websocket in","z": "dac41de7.a03038","name":"from_' + src_component.name + '","server":"' + server + '","client":"","x":143.5,"y":99,"wires":[]},{"id":"' + server + '","type":"websocket-listener","path":"/ws/' + src_component.name + '","wholemsg":"false"},';
             }
         }
@@ -324,78 +334,79 @@ var engine = (function () {
         }
     }
 
+    that.deploy = async function (req, res) {
+        //Create a deployment model
+        var dm = mm.deployment_model({});
+        //Add types to the registry before we create the instances
+        dm.type_registry = that.modules; //can be used as follows modules[i].module({})
+
+        //Load the model
+        logger.log("info", "Received model from the editor "+JSON.stringify(req.body));
+        var d = req.body;
+        var data;
+        if(d.dm !== undefined){
+            data = d.dm;
+            that.graph = d.graph;
+        }else{
+            data=d;
+        }
+        dm.name = data.name;
+        dm.revive_components(data.components);
+        logger.log("info", "Revive Comp");
+        dm.revive_links(data.links);
+        logger.log("info", "Revive Link");
+        dm.revive_containments(data.containments);
+        logger.log("info", "Revive Containment");
+
+        if (dm.is_valid()) {
+
+            logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));
+
+            //Compare model
+            var comparator = comparison_engine(that.dep_model);
+            that.diff = comparator.compare(dm);
+            that.dep_model = dm; //target model becomes current
+
+            //First do all the removal stuff - TODO refactor
+            logger.log("info", "Stopping removed containers");
+            await that.remove_containers(that.diff);
+
+            //Deploy only the added stuff
+            logger.log("info", "Starting deployment");
+            await that.run(that.diff);
+            res.end(JSON.stringify({ success: that.dep_model }));
+
+        } else {
+            logger.log("info", "Model not loaded since not valid: " + JSON.stringify(dm));
+            logger.log("error", "List of errors: " + JSON.stringify(dm.is_valid_with_errors()));
+            res.end(JSON.stringify({ error: "Model not loaded since not valid" }));
+        }
+    }
+
 
     that.start = function () {
 
-        that.webSocketServerObject.on('connection', function (socketObject) {
-            that.socketObject = socketObject;
+        //We use MQTT for the notifications
+        that.MQTTClient = mqtt.connect('ws://127.0.0.1:9001');
+        var nfier = notifier(that.MQTTClient);
+        nfier.start();
 
-            //Send status info to the UI
-            var nfier = notifier(that.socketObject);
-            nfier.start();
-
-            //Load component types from the repository
-            var cl = class_loader();
-            cl.findModules({
-                folder: './repository'
-            }, function (modules) {
-                var tab = [];
-                var mmodel = "";
-                for (var j = 0; j < modules.length; j++) {
-                    var tmp_ = {};
-                    tmp_.id = modules[j].id.replace('.js', '');
-                    var comp = modules[j].module({});
-                    (comp.id_host === undefined) ? tmp_.isExternal = true: tmp_.isExternal = false;
-                    tmp_.module = comp;
-                    tab.push(tmp_);
-                }
-                that.socketObject.send("@" + JSON.stringify(tab));
-
-
-                //Wait for a model from the editor
-                socketObject.on('message', async function (message) {
-
-                    //Create a deployment model
-                    var dm = mm.deployment_model({});
-                    //Add types to the registry before we create the instances
-                    dm.type_registry = modules; //can be used as follows modules[i].module({})
-
-                    //Load the model
-                    logger.log("info", "Received model from the editor");
-                    var data = JSON.parse(message);
-                    dm.name = data.name;
-                    dm.revive_components(data.components);
-                    dm.revive_links(data.links);
-                    if (dm.is_valid()) {
-
-                        logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));
-
-                        //Compare model
-                        var comparator = comparison_engine(that.dep_model);
-                        that.diff = comparator.compare(dm);
-                        that.dep_model = dm; //target model becomes current
-
-                        //First do all the removal stuff - TODO refactor
-                        logger.log("info", "Stopping removed containers");
-                        await that.remove_containers(that.diff);
-
-                        //Deploy only the added stuff
-                        logger.log("info", "Starting deployment");
-                        await that.run(that.diff);
-                        //logger.log("info", "Deployment Completed");
-
-                        //}
-                    } else {
-                        logger.log("info", "Model not loaded since not valid: " + JSON.stringify(dm.components));
-                    }
-
-                });
-            });
-
-            socketObject.on('close', function (c, d) {
-                logger.log('info', 'Disconnect ' + c + ' -- ' + d);
-            });
-
+        //Load component types from the repository
+        var cl = class_loader();
+        cl.findModules({
+            folder: './repository'
+        }, function (modules) {
+            var tab = [];
+            for (var j = 0; j < modules.length; j++) {
+                var tmp_ = {};
+                tmp_.id = modules[j].id.replace('.js', '');
+                var comp = modules[j].module({});
+                (comp._type.indexOf('external') > -1) ? tmp_.isExternal = true: tmp_.isExternal = false;
+                tmp_.module = comp;
+                tab.push(tmp_);
+            }
+            that.available_types = tab;
+            that.modules=modules;
         });
     };
 

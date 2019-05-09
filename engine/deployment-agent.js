@@ -23,10 +23,10 @@ var deployment_agent = function (host, host_target, deployment_target) {
     //We need to identify what should be in the deployment agent
     that.prepare= async function(){
         that.flow='[{"id":"dac41de7.a03033","type":"tab","label":"Deployment Flow"}';
-        if(host_target._type === "device"){
+        if(host_target._type === "/infra/device"){
             var id_deployer_node_in_agent=uuidv4();
             if(host_target.device_type.indexOf("ardui") !== -1){
-                if(deployment_target._type === "arduino"){
+                if(deployment_target._type === "/internal/arduino"){
                     var ino_content=fs.readFileSync(deployment_target.sketch, "utf8");
                     var ino_stringified=JSON.stringify(ino_content);
                     var lib_strigified=JSON.stringify(that.deployment_target.libraries);
