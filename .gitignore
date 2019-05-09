@@ -10,3 +10,4 @@ lib/
 .jar
 package-lock.json
 generate_*/
+hosts
