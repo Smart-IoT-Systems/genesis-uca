@@ -2,7 +2,7 @@ import React from "react";
 import 'antd/dist/antd.css';
 import { Modal, Form, Input, Icon, Tooltip, Cascader } from 'antd';
 
-class AddContainmentModal extends React.Component {
+class CAddContainmentModal extends React.Component {
 
     constructor(){
         super();
@@ -47,36 +47,42 @@ class AddContainmentModal extends React.Component {
     }
 
     handleOk = (e) => {
-        if(this.state.src !== null && this.state.tgt !== null){
-            var selectedSrc=this.state.src+"";
-            var selectedTarget=this.state.tgt+"";
-            var selectedSrcComp = selectedSrc.split(',')[0];
-            var selectedSrcPort = selectedSrc.split(',')[1];
-            var selectedTargetComp = selectedTarget.split(',')[0];
-            var selectedTargetPort = selectedTarget.split(',')[1];
-        
-            //update graph
-            var node = cy.getElementById(selectedSrcComp);
-            node.move({
-                parent: selectedTargetComp
-            });
-        
-            //update model
-            var m_m=window.SiderDemo.getMM();
-            var h = m_m.hosting({});
-            h.name = this.state.name;
-            h.target = '/'+selectedSrcComp+'/'+selectedSrcPort;
-            h.src = '/'+selectedTargetComp+'/'+selectedTargetPort;
+        this.props.form.validateFields((err) => {
+            if (!err) {
+                if(this.state.src !== null && this.state.tgt !== null){
+                    var selectedSrc=this.state.src+"";
+                    var selectedTarget=this.state.tgt+"";
+                    var selectedSrcComp = selectedSrc.split(',')[0];
+                    var selectedSrcPort = selectedSrc.split(',')[1];
+                    var selectedTargetComp = selectedTarget.split(',')[0];
+                    var selectedTargetPort = selectedTarget.split(',')[1];
+                
+                    //update graph
+                    var node = cy.getElementById(selectedSrcComp);
+                    node.move({
+                        parent: selectedTargetComp
+                    });
+                
+                    //update model
+                    var m_m=window.SiderDemo.getMM();
+                    var h = m_m.hosting({});
+                    h.name = this.state.name;
+                    h.target = '/'+selectedSrcComp+'/'+selectedSrcPort;
+                    h.src = '/'+selectedTargetComp+'/'+selectedTargetPort;
 
-            window.SiderDemo.getDM().containments.push(h);
-        }
+                    window.SiderDemo.getDM().containments.push(h);
+                }
 
-        this.setState({
-            visible: false,
+                this.setState({
+                    visible: false,
+                });
+            }
         });
     }
 
     render() {
+
+        const { getFieldDecorator } = this.props.form;
 
         var optionsComponents=[];
         var d_m=window.SiderDemo.getDM();
@@ -113,7 +119,15 @@ class AddContainmentModal extends React.Component {
             >
                 <Form>
                     <Form.Item label="Name:" key="1">
-                        <Input name="name" onChange={this.handleChangeName} prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} suffix={<Tooltip title="Must be uniq"><Icon type="info-circle" style={{ color: 'rgba(0,0,0,.45)' }} /></Tooltip>} placeholder="Name" />
+
+                    {getFieldDecorator('Name', {
+                        rules: [{
+                        required: true,
+                        message: 'Please input a name',
+                        }],
+                    })(
+                        <Input onChange={this.handleChangeName} prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} suffix={<Tooltip title="Must be uniq"><Icon type="info-circle" style={{ color: 'rgba(0,0,0,.45)' }} /></Tooltip>} placeholder="Name" />
+                    )}
                     </Form.Item>
                     <Form.Item label="Component:" key="2">
                         <Cascader options={optionsComponents} onChange={this.onChangeSource} placeholder="Please select" />
@@ -127,4 +141,7 @@ class AddContainmentModal extends React.Component {
         );
     }
 }
+
+const AddContainmentModal = Form.create()(CAddContainmentModal);
+
 export default AddContainmentModal;

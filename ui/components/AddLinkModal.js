@@ -7,7 +7,7 @@ const CheckboxGroup = Checkbox.Group;
 const plainOptions = ['isControl', 'isMandatory', 'isDeployer'];
 const defaultCheckedList = [];
 
-class AddLinkModal extends React.Component {
+class CAddLinkModal extends React.Component {
 
     constructor(){
         super();
@@ -59,56 +59,60 @@ class AddLinkModal extends React.Component {
     }
 
     handleOk = (e) => {
-        if(this.state.src !== null && this.state.tgt !== null){
-            var selectedSrc=this.state.src+"";
-            var selectedTarget=this.state.tgt+"";
-            var selectedSrcComp = selectedSrc.split(',')[0];
-            var selectedSrcPort = selectedSrc.split(',')[1];
-            var selectedTargetComp = selectedTarget.split(',')[0];
-            var selectedTargetPort = selectedTarget.split(',')[1];
-
-            //add to graph
-            var edge = {
-                group: "edges",
-                data: {
-                    id: this.state.name,
-                    source: selectedSrcComp,
-                    target: selectedTargetComp
+        this.props.form.validateFields((err) => {
+            if (!err) {
+                if(this.state.src !== null && this.state.tgt !== null){
+                    var selectedSrc=this.state.src+"";
+                    var selectedTarget=this.state.tgt+"";
+                    var selectedSrcComp = selectedSrc.split(',')[0];
+                    var selectedSrcPort = selectedSrc.split(',')[1];
+                    var selectedTargetComp = selectedTarget.split(',')[0];
+                    var selectedTargetPort = selectedTarget.split(',')[1];
+        
+                    //add to graph
+                    var edge = {
+                        group: "edges",
+                        data: {
+                            id: this.state.name,
+                            source: selectedSrcComp,
+                            target: selectedTargetComp
+                        }
+                    };
+        
+                    var m_m=window.SiderDemo.getMM();
+                    var l = m_m.link({});
+                    l.name = this.state.name;
+                    l.src = '/'+selectedSrcComp+'/'+selectedSrcPort;
+                    l.target = '/'+selectedTargetComp+'/'+selectedTargetPort;
+        
+                    this.state.checkedList.forEach(e => {
+                        if (e === 'isDeployer') {
+                            l.isDeployer = true;
+                        }
+                        if (e === 'isMandatory') {
+                            l.isMandatory = true;
+                        }
+                        if (e === 'isControl') {
+                            edge.classes = 'control';
+                            l.isControl = true;
+                        } else {
+                            l.isControl = false;
+                        }
+                    });
+        
+                    cy.add(edge);
+                    window.SiderDemo.getDM().links.push(l);
                 }
-            };
-
-            var m_m=window.SiderDemo.getMM();
-            var l = m_m.link({});
-            l.name = this.state.name;
-            l.src = '/'+selectedSrcComp+'/'+selectedSrcPort;
-            l.target = '/'+selectedTargetComp+'/'+selectedTargetPort;
-
-            console.log(this.state.checkedList);
-
-            this.state.checkedList.forEach(e => {
-                if (e === 'isDeployer') {
-                    l.isDeployer = true;
-                }
-                if (e === 'isMandatory') {
-                    l.isMandatory = true;
-                }
-                if (e === 'isControl') {
-                    edge.classes = 'control';
-                    l.isControl = true;
-                } else {
-                    l.isControl = false;
-                }
-            });
-
-            cy.add(edge);
-            window.SiderDemo.getDM().links.push(l);
-        }
-        this.setState({
-            visible: false,
-        });
+                this.setState({
+                    visible: false,
+                });
+            }
+        });        
     }
 
     render() {
+
+        const { getFieldDecorator } = this.props.form;
 
         var optionsTgt=[];
         var optionsSrc=[];
@@ -142,7 +146,16 @@ class AddLinkModal extends React.Component {
             >
                 <Form>
                     <Form.Item label="Name:" key="1">
-                        <Input name="name" onChange={this.handleChangeName} prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} suffix={<Tooltip title="Must be uniq"><Icon type="info-circle" style={{ color: 'rgba(0,0,0,.45)' }} /></Tooltip>} placeholder="Name" />
+
+                    {getFieldDecorator('Name', {
+                        rules: [{
+                        required: true,
+                        message: 'Please input a name',
+                        }],
+                    })(
+                        <Input onChange={this.handleChangeName} prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />} suffix={<Tooltip title="Must be uniq"><Icon type="info-circle" style={{ color: 'rgba(0,0,0,.45)' }} /></Tooltip>} placeholder="Name" />
+                    )}
+                        
                     </Form.Item>
                     <Form.Item label="Source:" key="2">
                         <Cascader expandTrigger="hover" options={optionsSrc} onChange={this.onChangeSource} placeholder="Please select" />
@@ -161,5 +174,7 @@ class AddLinkModal extends React.Component {
 
 
 }
+
+const AddLinkModal = Form.create()(CAddLinkModal);
 
 export default AddLinkModal;
