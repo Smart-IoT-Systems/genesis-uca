@@ -15,7 +15,7 @@ class FormEdit extends React.Component {
     constructor(props){
       super();
       this.state = { 
-        element: props.elem,
+        element: JSON.parse(JSON.stringify(props.elem)),
       };
       window.FormEdit=this;
       this.handleChange = this.handleChange.bind(this);
