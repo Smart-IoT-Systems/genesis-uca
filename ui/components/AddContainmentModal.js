@@ -91,7 +91,6 @@ class AddContainmentModal extends React.Component {
 
         var optionsHosts=[];
         d_m.components.forEach(elt => {
-            console.log("wwwwx>"+JSON.stringify(elt));
             if(elt.provided_execution_port.length > 0){
                 var o={ value: elt.name, label: elt.name};
                 o.children = [];

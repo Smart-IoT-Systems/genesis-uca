@@ -129,7 +129,7 @@ cy.on('cxttap', 'node', function (evt) {
     d_m=window.SiderDemo.getDM();
     var elem = d_m.find_node_named(target_node.id());
     window.DrawerEdit.showDrawer(target_node, elem);
-    window.FormEdit.build_form(elem);
+    //window.FormEdit.build_form(elem);
 });
 
 cy.on('cxttap', 'edge', function (evt) {

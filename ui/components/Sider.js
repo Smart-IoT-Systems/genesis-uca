@@ -114,7 +114,7 @@ class SiderDemo extends React.Component {
             }
         }
     }
-    dm.components.push(elem);
+    
     window.AddModal.showModal(elem);
     //window.FormEdit.build_form(elem);
   }

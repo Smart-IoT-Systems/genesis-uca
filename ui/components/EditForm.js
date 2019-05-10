@@ -36,11 +36,6 @@ class FormEdit extends React.Component {
         var newElem=this.state.element;
         newElem[event.target.name]=event.target.value;
     }
-
-    build_form(el){
-        
-    }
-  
   
     render() {  
 

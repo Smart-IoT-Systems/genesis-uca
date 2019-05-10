@@ -35,7 +35,8 @@ class AddModal extends React.Component {
                 }
             }
         }
-        
+
+        window.SiderDemo.getDM().components.push(this.state.elem);
         window.SiderDemo.openNotificationWithIcon("success",'Model updated!', 'The deployment model has been successfully updated!');
         this.setState({
           visible: false,
