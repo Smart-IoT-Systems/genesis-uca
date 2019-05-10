@@ -57,9 +57,9 @@ class AddModal extends React.Component {
                 visible={this.state.visible}
                 onCancel={this.onClose}
                 onOk={this.handleOk}
-                forceRender={true}
+                destroyOnClose={true}
             >
-                <EditForm name="Addition" />
+                <EditForm name="Addition" elem={this.state.elem} />
             </Modal>
             </div>
         );

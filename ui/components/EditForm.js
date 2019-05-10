@@ -12,11 +12,10 @@ let id=0;
 
 class FormEdit extends React.Component {
     
-    constructor(){
+    constructor(props){
       super();
       this.state = { 
-        result:[],
-        element: {},
+        element: props.elem,
       };
       window.FormEdit=this;
       this.handleChange = this.handleChange.bind(this);
@@ -39,11 +38,13 @@ class FormEdit extends React.Component {
     }
 
     build_form(el){
-        var elem=JSON.parse(JSON.stringify(el))
-        this.setState({
-            element: elem,
-        });
+        
+    }
+  
+  
+    render() {  
 
+        var elem=this.state.element;
         var result=[];
         var props = this.get_all_properties(elem);
 
@@ -80,16 +81,10 @@ class FormEdit extends React.Component {
                 }
             }
         }
-        this.setState({
-            result: result,
-        });
-    }
-  
-  
-    render() {  
+
       return (
           <Form>
-                {this.state.result}
+                {result}
             <br/>
           </Form>
       );

@@ -76,15 +76,15 @@ var deployment_model = function (spec) {
 
 
     that.remove_component = function (component) {
-        var i = that.components.indexOf(component); // This could be factorized in the array.prototype
+        var i = that.components.indexOf(component); 
         if (i > -1) {
             that.components.splice(i, 1); //The second parameter of splice is the number of elements to remove. Note that splice modifies the array in place and returns a new array containing the elements that have been removed. 
         }
         //we also need to remove the associated links
         var tab_indexes = [];
         for (var i in that.links) {
-            if (that.links[i].target === component.name ||
-                that.links[i].src === component.name) {
+            if (that.links[i].target.indexOf(component.name) > -1 ||
+                that.links[i].src.indexOf(component.name) > -1) {
                 tab_indexes.push(i);
             }
         }
@@ -93,6 +93,20 @@ var deployment_model = function (spec) {
                 that.links.splice(elem, 1);
             });
         }
+        //we also need to remove the associated containments
+        var tabc_indexes = [];
+        for (var i in that.containments) {
+            if (that.containments[i].target.indexOf(component.name) > -1 ||
+                that.containments[i].src.indexOf(component.name) > -1) {
+                    tabc_indexes.push(i);
+            }
+        }
+        if (tabc_indexes.length > 0) {
+            tabc_indexes.forEach(function (elem) {
+                that.containments.splice(elem, 1);
+            });
+        }
+
     };
 
     that.remove_link = function (link) {
