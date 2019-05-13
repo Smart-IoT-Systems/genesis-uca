@@ -36,11 +36,8 @@ class Notification extends React.Component {
 
       client.on('message', function (topic, message) {
         if (topic === '/Notifications') { // This is a notification
-          if(message[1] === "-"){
-              cy.elements().remove();
-              openNotification("success", "Remove all completed!", "");
-          }else{
-            openNotification("success", "Notification", msg);
+          if(JSON.parse(message) !== "Remove all completed!"){
+            openNotification("success", "Notification", message);
           }
         }else{
           var json = JSON.parse(message);
@@ -61,7 +58,7 @@ class Notification extends React.Component {
                 });
                 break;
             case "error":
-                openNotification("error", "Error in starting", "Could not start" + node.id());
+                openNotification("error", "Error in starting", "Could not start or reach " + node.id());
                 cy.$('#' + node.id()).css({
                     'border-width': 1,
                     'border-color': '#A33'

@@ -1,7 +1,7 @@
 import React from "react";
 import 'antd/dist/antd.css';
 import {
-  Layout, Menu, notification, Icon, Tabs,
+  Layout, Menu, notification, Icon, Tabs, message,
 } from 'antd';
 
 import LoadModal from './LoadModal.js'
@@ -26,6 +26,8 @@ const {
 
 
 const SubMenu = Menu.SubMenu;
+
+const load = message;
 
 class SiderDemo extends React.Component {
   
@@ -173,11 +175,13 @@ class SiderDemo extends React.Component {
     this.setState({ collapsed });
   }
 
-  openLogs=()=>{
+  openLogs = () => {
     window.open('/genesis/logs');
   }
 
-  removeAll = () =>{
+  removeAll = () => {
+    this.openNotificationWithIcon('success', 'Deployment Started', 'Empty Model sent!');
+    load.loading('Deployment in progress..', 0);
     var model = mm.deployment_model({});
     fetch('/genesis/deploy', {
 			method: 'POST',
@@ -190,11 +194,18 @@ class SiderDemo extends React.Component {
 			.then(response => { 
         if (response.success) {
           cy.elements().remove();
-          this.openNotificationWithIcon('success', 'Deployment Started', 'Empty Model sent!')
+          this.openNotificationWithIcon('success', 'Remove All', 'All component were removed!');
+          load.destroy();
+          load.success('Deployment finished', 5).then(()=>{
+            load.destroy();
+          });
         }});
   }
 
-  deployModel = () =>{
+  deployModel = () => {
+
+    load.loading('Deployment in progress..', 0);
+    this.openNotificationWithIcon('success', 'Deployment Started', 'Model sent!');
 
     var all_in_one = {
       dm: dm,
@@ -211,7 +222,11 @@ class SiderDemo extends React.Component {
 		}).then(response => response.json())
 			.then(response => { 
         if (response.success) {
-          this.openNotificationWithIcon('success', 'Deployment Started', 'Model sent!')
+          this.openNotificationWithIcon('success', 'Deployment completed', 'All components are deployed!');
+          load.destroy();
+          load.success('Deployment finished', 5).then(()=>{
+            load.destroy();
+          });
         }});
   }
 

@@ -19,24 +19,24 @@ var engine = (function () {
     var that = {};
 
     that.available_types = [];
-    that.modules=[];
+    that.modules = [];
 
     that.dep_model = mm.deployment_model({});
     that.diff = {};
 
     that.MQTTClient = {};
 
-    that.graph={};
+    that.graph = {};
 
-    that.getDM_UI = function(req, res){
+    that.getDM_UI = function (req, res) {
         var all_in_one = {
             dm: that.dep_model,
             graph: that.graph
-          };
+        };
         res.end(JSON.stringify(all_in_one));
     }
 
-    that.getDM = function(req, res){
+    that.getDM = function (req, res) {
         res.end(JSON.stringify(that.dep_model));
     }
 
@@ -64,15 +64,7 @@ var engine = (function () {
         bus.emit('remove-all');
     };
 
-    that.run = async function (diff) { //TODO: factorize
-        //var comp = dm.get_all_hosted();
-        var comp = diff.list_of_added_hosted_components;
-        var nb = 0;
-        var tmp = 0;
-        //var links_deployer_tab = dm.get_all_deployer_links();
-        var links_deployer_tab = diff.list_of_added_links_deployer;
-
-        //Deployment agent
+    that.deploy_agents = async function (links_deployer_tab) {
         logger.log("info", "Starting deployment of deployment agents");
         for (var l in links_deployer_tab) {
             var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
@@ -87,166 +79,221 @@ var engine = (function () {
             await d_agent.install();
         }
         logger.log("info", "Deployment agents deployed");
+    };
 
-        for (var i in comp) {
-            (function (comp, i) {
-                //if not to be deployed by a deployment agent
-                if (!that.dep_model.need_deployment_agent(comp[i])) {
+    that.deploy_thingml = async function (comp, host) {
+        //we should generate the plantuml
+        var tcli = thingmlcli(comp);
+        tcli.build("./generated_uml_" + comp.name, "uml").catch(function (err) {
+            logger.log("error", err);
+        });
 
-                    var host = that.dep_model.find_host(comp[i]); //This cannot be done!
+        //Then we generate for the target
+        tcli.build("./generated_" + comp.name, comp.target_language).then(function (elem) {
+            //if java we need to build and deploy
+            if (comp.target_language === 'java') {
 
-                    if (host !== undefined) {
-                        if (comp[i]._type === "/internal/thingml") {
-                            //we should generate the plantuml
-                            var tcli = thingmlcli(comp[i]);
-                            tcli.build("./generated_uml_" + comp[i].name, "uml").catch(function (err) {
-                                logger.log("error", err);
-                            });
+                logger.log("info", process.cwd() + "/generated_" + comp.name);
+                var mb = mvn_builder.create({
+                    cwd: process.cwd() + "/generated_" + comp.name
+                });
+                mb.execute(['clean', 'install'], {
+                    'skipTests': true
+                }).then(function () {
+                    //TODO: make it more generic
+                    //as a start we connect and deploy via SSH
+                    var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey);
+                    sc.upload_file("./generated_" + comp.name + '/target/' + comp.name + '-1.0.0-jar-with-dependencies.jar', '/home/' + comp.ssh_resource.credentials.username + '/' + comp.name + '-1.0.0-jar-with-dependencies.jar').then(function (file_path_tgt) {
+                        sc.execute_command(comp.ssh_resource.startCommand);
+                        bus.emit('ssh-started', host.name);
+                        bus.emit('ssh-started', comp.name);
+                    }).catch(function (err) {
+                        logger.log("error", err);
+                    });
+                }).catch(function (err) {
+                    logger.log("error", "mvn clean install failed: " + err);
+                });
+            }
+            if (comp[i].target_language === 'nodejs') {
+                logger.log("info", process.cwd() + "/generated_" + comp.name);
+                var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey);
+                sc.upload_directory("./generated_" + comp[i].name, '/home/' + comp.ssh_resource.credentials.username + '/generated_' + comp.name).then(function (file_path_tgt) {
+                    sc.execute_command(comp.ssh_resource.startCommand);
+                    bus.emit('ssh-started', host.name);
+                    bus.emit('ssh-started', comp.name);
+                }).catch(function (err) {
+                    logger.log("error", err);
+                });;
+            }
+        }).catch(function (err) {
+            logger.log("error", err);
+        });
+    };
 
-                            //Then we generate for the target
-                            tcli.build("./generated_" + comp[i].name, comp[i].target_language).then(function (elem) {
-                                //if java we need to build and deploy
-                                if (comp[i].target_language === 'java') {
+    that.deploy_nodered = async function (comp, host) {
+        var connector = dc();
+        var docker_image_nr = "nicolasferry/multiarch-node-red-thingml:latest";
+        if (comp.docker_resource.image !== docker_image_nr && comp.docker_resource.image !== "") {
+            docker_image_nr = comp.docker_resource.image;
+        }
+        connector.buildAndDeploy(host.ip, host.port, comp.docker_resource.port_bindings, comp.docker_resource.devices, "", docker_image_nr, comp.docker_resource.mounts, comp.name, host.name).then(function (id) {
+            if ((comp.nr_flow !== undefined && comp.nr_flow !== "") ||
+                (comp.path_flow !== "" && comp.path_flow !== undefined)) { //if there is a flow to load with the nodered node
+                let noderedconnector = nodered_connector();
+                var _data = "";
+                if (comp.path_flow !== "" && comp.path_flow !== undefined) {
+                    _data = fs.readFileSync(comp.path_flow);
+                } else {
+                    _data = JSON.stringify(comp.nr_flow);
+                }
+                noderedconnector.installAllNodeTypes(host.ip, comp.provided_communication_port[0].port_number, comp.packages).then(function () {
+                    noderedconnector.setFlow(host.ip, comp.provided_communication_port[0].port_number, _data, [], [], that.dep_model);
+                    bus.emit('node-started', id, comp.name);
+                });
+            }
+        }).catch(function (err) {
+            logger.log('info', "Could not deploy node: " + comp.name + " => " + err);
+        });
+    };
 
-                                    logger.log("info", process.cwd() + "/generated_" + comp[i].name);
-                                    var mb = mvn_builder.create({
-                                        cwd: process.cwd() + "/generated_" + comp[i].name
-                                    });
-                                    mb.execute(['clean', 'install'], {
-                                        'skipTests': true
-                                    }).then(function () {
-                                        //TODO: make it more generic
-                                        //as a start we connect and deploy via SSH
-                                        var sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.password, comp[i].ssh_resource.credentials.sshkey);
-                                        sc.upload_file("./generated_" + comp[i].name + '/target/' + comp[i].name + '-1.0.0-jar-with-dependencies.jar', '/home/' + comp[i].ssh_resource.credentials.username + '/' + comp[i].name + '-1.0.0-jar-with-dependencies.jar').then(function (file_path_tgt) {
-                                            sc.execute_command(comp[i].ssh_resource.startCommand);
-                                            bus.emit('ssh-started', host.name);
-                                            bus.emit('ssh-started', comp[i].name);
-                                        }).catch(function (err) {
-                                            logger.log("error", err);
+    that.deploy_ssh = async function (comp, host) {
+        var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.sshkey);
+        //just for fun 0o' let's try the most crappy code ever!
+        sc.execute_command(comp[i].ssh_resource.downloadCommand).then(function () {
+            logger.log("info", "Download command executed");
+            sc.execute_command(comp[i].ssh_resource.installCommand).then(function () {
+                logger.log("info", "Install command executed");
+                sc.execute_command(comp[i].ssh_resource.configureCommand).then(function () {
+                    logger.log("info", "Configure command executed");
+                    sc.execute_command(comp[i].ssh_resource.startCommand).then(function () {
+                        logger.log("info", "Start command executed");
+                    }).catch(function (err) {
+                        logger.log("error", "Start command error " + err);
+                    });
+                }).catch(function (err) {
+                    logger.log("error", "Configure command error " + err);
+                });
+            }).catch(function (err) {
+                logger.log("error", "Install command error " + err);
+            });
+        }).catch(function (err) {
+            logger.log("error", "Download command error " + err);
+        });
+    };
+
+
+    that.run = function (diff) { //TODO: factorize
+        return new Promise(async function (resolve, reject) {
+            var comp = diff.list_of_added_hosted_components;
+            var nb = 0;
+            var tmp = 0;
+            var nb_link = that.dep_model.get_all_hosted().length;
+            var tmp_link = 0;
+
+            //Deployment agent
+            var links_deployer_tab = diff.list_of_added_links_deployer;
+            await that.deploy_agents(links_deployer_tab);
+
+
+            console.log(comp.length);
+            if(comp.length === 0 && diff.list_of_added_links.length === 0){//No new component then and no new links, we are done
+                resolve(0);
+            }
+
+            //Other nodes
+            for (var i in comp) {
+                (async function (compo) { //We wrap in a closure so that each comp deployment comes with its own context
+                    //if not to be deployed by a deployment agent
+                    if (!that.dep_model.need_deployment_agent(compo)) {
+                        var host = that.dep_model.find_host(compo);
+                        //And if there is an host to deploy on
+                        if (host !== undefined) {
+                            //Manage ThingML nodes
+                            if (compo._type === "/internal/thingml") {
+                                await that.deploy_thingml(compo, host);
+                            } else {
+                                //Manage component on docker
+                                if (host._type === "/infra/docker_host") {
+                                    nb++;
+
+                                    //Manage Node-red on Docker
+                                    if (compo._type === "/internal/node_red") {
+                                        await that.deploy_nodered(compo, host);
+                                    } else {
+                                        //Manage simple docker
+                                        var connector = dc();
+                                        connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.name, host.name).then(function () {
+                                            bus.emit('node-started', id, compo.name);
                                         });
-                                    }).catch(function (err) {
-                                        logger.log("error", "mvn clean install failed: " + err);
-                                    });
-                                }
-                                if (comp[i].target_language === 'nodejs') {
-                                    logger.log("info", process.cwd() + "/generated_" + comp[i].name);
-                                    var sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.password, comp[i].ssh_resource.credentials.sshkey);
-                                    sc.upload_directory("./generated_" + comp[i].name, '/home/' + comp[i].ssh_resource.credentials.username + '/generated_' + comp[i].name).then(function (file_path_tgt) {
-                                        sc.execute_command(comp[i].ssh_resource.startCommand);
-                                        bus.emit('ssh-started', host.name);
-                                        bus.emit('ssh-started', comp[i].name);
-                                    }).catch(function (err) {
-                                        logger.log("error", err);
-                                    });;
-                                }
-                            }).catch(function (err) {
-                                logger.log("error", err);
-                            });
-                        } else {
-                            if (host._type === "/infra/docker_host") {
-                                console.log("Ready to go: "+ JSON.stringify(comp));
-                                var connector = dc();
-                                nb++;
-                                if (comp[i]._type === "/internal/node_red") {
-                                    //then we deploy node red
-                                    //TODO: what if port_bindings is empty?
-                                    var docker_image_nr = "nicolasferry/multiarch-node-red-thingml:latest";
-                                    if (comp[i].docker_resource.image !== docker_image_nr && comp[i].docker_resource.image !== "") {
-                                        docker_image_nr = comp[i].docker_resource.image;
                                     }
-                                    connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, "", docker_image_nr, comp[i].docker_resource.mounts, comp[i].name, host.name).then(function (id) {
-                                        if ((comp[i].nr_flow !== undefined && comp[i].nr_flow !== "") ||
-                                            (comp[i].path_flow !== "" && comp[i].path_flow !== undefined)) { //if there is a flow to load with the nodered node
-                                            let noderedconnector = nodered_connector();
-                                            var _data = "";
-                                            if (comp[i].path_flow !== "" && comp[i].path_flow !== undefined) {
-                                                _data = fs.readFileSync(comp[i].path_flow);
-                                            } else {
-                                                _data = JSON.stringify(comp[i].nr_flow);
-                                            }
-                                            noderedconnector.installAllNodeTypes(host.ip, comp[i].provided_communication_port[0].port_number, comp[i].packages).then(function () {
-                                                noderedconnector.setFlow(host.ip, comp[i].provided_communication_port[0].port_number, _data, [], [], that.dep_model);
-                                                bus.emit('node-started', id, comp[i].name);
-                                            });
-                                        }
-                                    });
-                                } else {
-                                    connector.buildAndDeploy(host.ip, host.port, comp[i].docker_resource.port_bindings, comp[i].docker_resource.devices, comp[i].docker_resource.command, comp[i].docker_resource.image, comp[i].docker_resource.mounts, comp[i].name, host.name).then(function () {
-                                        bus.emit('node-started', id, comp[i].name);
-                                    });
                                 }
-                            }
-                            if (comp[i].ansible_resource.playbook_path !== "" && comp[i].ansible_resource.playbook_path !== undefined) {
-                                var connector = ac(host, comp[i]);
-                                connector.executePlaybook();
-                            }
-                            if (comp[i].ssh_resource.credentials.sshkey !== "") {
-                                var sc = sshc(host.ip, host.port, comp[i].ssh_resource.credentials.username, comp[i].ssh_resource.credentials.sshkey, comp[i].ssh_resource.credentials.sshkey);
-                                //just for fun 0o' let's try the most crappy code ever!
-                                sc.execute_command(comp[i].ssh_resource.downloadCommand).then(function () {
-                                    logger.log("info", "Download command executed");
-                                    sc.execute_command(comp[i].ssh_resource.installCommand).then(function () {
-                                        logger.log("info", "Install command executed");
-                                        sc.execute_command(comp[i].ssh_resource.configureCommand).then(function () {
-                                            logger.log("info", "Configure command executed");
-                                            sc.execute_command(comp[i].ssh_resource.startCommand).then(function () {
-                                                logger.log("info", "Start command executed");
-                                            }).catch(function (err) {
-                                                logger.log("error", "Start command error " + err);
-                                            });
-                                        }).catch(function (err) {
-                                            logger.log("error", "Configure command error " + err);
-                                        });
-                                    }).catch(function (err) {
-                                        logger.log("error", "Install command error " + err);
-                                    });
-                                }).catch(function (err) {
-                                    logger.log("error", "Download command error " + err);
-                                });
+                                //Manage component via Ansible
+                                if (compo.ansible_resource.playbook_path !== "" && compo.ansible_resource.playbook_path !== undefined) {
+                                    var connector = ac(host, ccompo);
+                                    connector.executePlaybook();
+                                }
+
+                                //Manage component via ssh
+                                if (compo.ssh_resource.credentials.sshkey !== "") {
+                                    await that.deploy_ssh(compo, host);
+                                }
                             }
                         }
                     }
-                }
-            }(comp, i));
-        }
-
-
-        //We collect all the started events, once they are all received we generate the flow skeleton based on the links
-        bus.on('node-started', function (container_id, comp_name) {
-            tmp++;
-
-            //Add container id to the component
-            var comp = that.dep_model.find_node_named(comp_name);
-            comp.container_id = container_id;
-
-            if (tmp >= nb) {
-                tmp = 0;
-
-                var comp_tab = that.dep_model.get_all_hosted();
-
-                //For all Node-Red hosted components we generate the websocket proxies
-                for (var ct_elem of comp_tab) {
-                    (function (comp_tab, ct_elem) {
-                        if (ct_elem._type === '/internal/node_red') {
-                            var host = that.dep_model.find_host(ct_elem);
-
-                            //Get all links that start from the component
-                            var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
-                            //Get all links that end in the component
-                            var tgt_tab = that.dep_model.get_all_inputs_of_component(ct_elem);
-
-                            if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
-                                var noderedconnector = nodered_connector();
-                                noderedconnector.getCurrentFlow(host.ip, ct_elem.provided_communication_port[0].port_number).then(function (the_flow) {
-                                    that.generate_components(host.ip, ct_elem.provided_communication_port[0].port_number, src_tab, tgt_tab, that.dep_model, the_flow);
-                                });
-                            }
-                        }
-                    }(comp_tab, ct_elem));
-                }
-                return;
+                }(comp[i]));
             }
+
+
+            //We collect all the started events, once they are all received we generate the flow skeleton based on the links
+            bus.on('node-started', function (container_id, comp_name) {
+                tmp++;
+
+                //Add container id to the component
+                var comp = that.dep_model.find_node_named(comp_name);
+                comp.container_id = container_id;
+
+                if (tmp >= nb) {
+                    tmp = 0;
+
+                    var comp_tab = that.dep_model.get_all_hosted();
+
+                    //For all Node-Red hosted components we generate the websocket proxies
+                    for (var ct_elem of comp_tab) {
+                        (function (comp_tab, ct_elem) {
+                            if (ct_elem._type === '/internal/node_red') {
+                                var host = that.dep_model.find_host(ct_elem);
+
+                                //Get all links that start from the component
+                                var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
+                                //Get all links that end in the component
+                                var tgt_tab = that.dep_model.get_all_inputs_of_component(ct_elem);
+
+                                if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
+                                    var noderedconnector = nodered_connector();
+                                    noderedconnector.getCurrentFlow(host.ip, ct_elem.provided_communication_port[0].port_number).then(function (the_flow) {
+                                        that.generate_components(host.ip, ct_elem.provided_communication_port[0].port_number, src_tab, tgt_tab, that.dep_model, the_flow);
+                                        bus.emit('link-done');
+                                    });
+                                } else {
+                                    bus.emit('link-done');
+                                }
+                            } else {
+                                bus.emit('link-done');
+                            }
+                        }(comp_tab, ct_elem));
+                    }
+                }
+            });
+
+            bus.on('link-done', function () {
+                tmp_link++;
+
+                if (tmp_link >= nb_link) {
+                    tmp_link = 0;
+
+                    resolve(tmp_link);
+                }
+            });
         });
     };
 
@@ -341,14 +388,14 @@ var engine = (function () {
         dm.type_registry = that.modules; //can be used as follows modules[i].module({})
 
         //Load the model
-        logger.log("info", "Received model from the editor "+JSON.stringify(req.body));
+        logger.log("info", "Received model from the editor " + JSON.stringify(req.body));
         var d = req.body;
         var data;
-        if(d.dm !== undefined){
+        if (d.dm !== undefined) {
             data = d.dm;
             that.graph = d.graph;
-        }else{
-            data=d;
+        } else {
+            data = d;
         }
         dm.name = data.name;
         dm.revive_components(data.components);
@@ -373,13 +420,18 @@ var engine = (function () {
 
             //Deploy only the added stuff
             logger.log("info", "Starting deployment");
-            await that.run(that.diff);
-            res.end(JSON.stringify({ success: that.dep_model }));
-
+            that.run(that.diff).then(function(){
+                res.end(JSON.stringify({
+                    success: that.dep_model
+                }));
+                logger.log("info", "Deployment completed!");
+            });
         } else {
             logger.log("info", "Model not loaded since not valid: " + JSON.stringify(dm));
             logger.log("error", "List of errors: " + JSON.stringify(dm.is_valid_with_errors()));
-            res.end(JSON.stringify({ error: "Model not loaded since not valid" }));
+            res.end(JSON.stringify({
+                error: "Model not loaded since not valid"
+            }));
         }
     }
 
@@ -406,7 +458,7 @@ var engine = (function () {
                 tab.push(tmp_);
             }
             that.available_types = tab;
-            that.modules=modules;
+            that.modules = modules;
         });
     };
 

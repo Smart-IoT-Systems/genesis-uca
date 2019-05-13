@@ -28,28 +28,37 @@ var docker_connector = function () {
                 host: endpoint,
                 port: port
             });
-            that.comp_name = compo_name;
-            that.docker.pull(image, function (err, stream) {
-                bus.emit('host-config', host_id);
-                if (stream !== null) {
-                    stream.pipe(process.stdout, {
-                        end: true
-                    });
-                    stream.on('end', function () {
+
+            that.docker.ping().then(function(data){
+                logger.log("info", "Docker Host is reachable "+endpoint);
+                that.comp_name = compo_name;
+                that.docker.pull(image, function (err, stream) {
+                    bus.emit('host-config', host_id);
+                    if (stream !== null) {
+                        stream.pipe(process.stdout, {
+                            end: true
+                        });
+                        stream.on('end', function () {
+                            that.createContainerAndStart(port_bindings, command, image, devices, mounts).then(function (id) {
+                                resolve(id);
+                            }).catch(function (err) {
+                                reject(err);
+                            });
+                        });
+                    } else {
                         that.createContainerAndStart(port_bindings, command, image, devices, mounts).then(function (id) {
                             resolve(id);
                         }).catch(function (err) {
                             reject(err);
                         });
-                    });
-                } else {
-                    that.createContainerAndStart(port_bindings, command, image, devices, mounts).then(function (id) {
-                        resolve(id);
-                    }).catch(function (err) {
-                        reject(err);
-                    });
-                }
+                    }
+                });
+            }).catch(function(err){
+                logger.log("info", "Docker Host is not reachable "+err);
+                bus.emit('container-error', host_id);
+                return;
             });
+
         });
     }
 
@@ -121,9 +130,7 @@ var docker_connector = function () {
             }
 
             that.docker.createContainer(options).then(function (container) {
-                //return container.start();
                 container.start(function () {
-                    bus.emit('container-started', container.id, that.comp_name);
                     logger.log('info', 'Container started: ' + container.id + ' (' + that.comp_name + ')');
                     resolve(container.id, that.comp_name);
                 });

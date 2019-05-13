@@ -7,7 +7,7 @@ var notifier = (function (client, dm) {
     that.start = function () {
 
         bus.on('remove-all', function(){
-            that.MQTTClient.publish("/Notifications", "Remove all completed!");
+            that.MQTTClient.publish("/Notifications", JSON.stringify("Remove all completed!"));
         });
 
         bus.on('container-error', function (comp_name) {
@@ -71,6 +71,14 @@ var notifier = (function (client, dm) {
         });
 
         bus.on('container-started', function (container_id, comp_name) {
+            var s = {
+                node: comp_name,
+                status: 'running'
+            };
+            that.MQTTClient.publish("/Status", JSON.stringify(s));
+        });
+
+        bus.on('node-started', function (container_id, comp_name) {
             var s = {
                 node: comp_name,
                 status: 'running'
