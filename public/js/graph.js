@@ -149,8 +149,8 @@ var graph_factory = function (name) {
             id: name
         },
         position: {
-            x: 100,
-            y: 100
+            x: 200,
+            y: 200
         }
     };
 
