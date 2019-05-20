@@ -30,7 +30,7 @@ You should see the following message:
         [1] ℹ ｢wds｣: Content not from webpack is served from /Users/ferrynico/Documents/Code/GeneSIS-gitlab/GeneSIS-v2/GeneSIS/public/
         [1] ℹ ｢wdm｣: Hash: 6cedc4f9ed78f33b2677
 
-Once GeneSIS started, you can access the GeneSIS editor at the following address:
+GeneSIS is started once you can see the following line 'Compilation completed' or when you can access the GeneSIS editor at the following address:
 
         http://127.0.0.1:8880
 
@@ -64,7 +64,7 @@ Select the proper nodes and click on 'add'. The circle should now be contained b
 ![alt text](docs/tutorial/1.nodered_localhost/images/containment.png "Containment")
 
 We are now going to configure our two components. 
-For our InfrastructureComponent (aka., Docker Host), we need to make sure that the 'IP' property of the component is set to '127.0.0.1'.
+For our InfrastructureComponent (aka., Docker Host), we need to make sure that (i) the 'IP' property of the component is set to '127.0.0.1' and (i) that the 'port' property is set to "['2376']".
 We can edit this property of the component by right-clicking on it and modifying the 'IP' field as depicted in the Figure below.
 
 ![alt text](docs/tutorial/1.nodered_localhost/images/port_container.png "Set port of the Docker engine")
