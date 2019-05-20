@@ -333,7 +333,10 @@ class SiderDemo extends React.Component {
                 <TabPane forceRender={true} tab="JSON View" key="2">
                   <div>
                     <button id="saveJSON">Save</button>
-                    <div id="jsoneditor"></div>
+                    <div id="jsoneditor" style={{
+                      width: '100%',
+                      height: '500px'
+                    }}></div>
                   </div>
                 </TabPane>
               </Tabs>
