@@ -69,21 +69,6 @@
             "nr_flow": [],
             "path_flow": "",
             "packages": []
-        }, {
-            "_type": "/infra/docker_host",
-            "name": "a_component",
-            "properties": [],
-            "id": "4d61177b-3528-4960-8ec8-b66ce800451f",
-            "provided_execution_port": [{
-                "name": "3971512f-f46d-4a2b-b9c0-b7b6f714c41d"
-            }],
-            "ip": "127.0.0.1",
-            "port": ["80", "22"],
-            "credentials": {
-                "username": "ubuntu",
-                "password": "ubuntu",
-                "sshkey": ""
-            }
         }],
         "links": [],
         "containments": [{

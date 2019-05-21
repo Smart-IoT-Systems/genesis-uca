@@ -11,7 +11,6 @@ options = {
 };
 
 var editor = new JSONEditor(container, options);
-editor.editor.setOptions({maxLines: 100});
 
 document.getElementById('saveJSON').onclick = function () {
     var tmp_edited = editor.get();

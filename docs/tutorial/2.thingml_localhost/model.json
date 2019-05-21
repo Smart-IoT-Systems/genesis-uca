@@ -2,32 +2,35 @@
     "dm": {
         "name": "demo",
         "components": [{
-            "name": "my_machine",
+            "_type": "/infra/device",
+            "name": "a_component",
             "properties": [],
-            "id": "a_unique_id",
+            "id": "18621912-414c-4c6d-b08f-c7fbbe2b8da8",
+            "provided_execution_port": [{
+                "name": "offerJava"
+            }],
             "ip": "192.168.1.16",
             "port": ["22"],
             "credentials": {
-                "username": "pi",
-                "password": "",
-                "sshkey": "/Users/ferrynico/Documents/Code/TestCloudMLasLibrary/cloudml.pem"
+                "username": "ubuntu",
+                "password": "ubuntu",
+                "sshkey": ""
             },
-            "_type": "device",
             "physical_port": "",
             "device_type": "",
             "isLocal": false
         }, {
-            "name": "hello",
+            "_type": "/internal/thingml",
+            "name": "Hello",
             "properties": [],
-            "id": "hello",
-            "id_host": "my_machine",
+            "id": "656b3492-fb5c-4270-9f7b-45842edc15ae",
+            "provided_execution_port": [],
             "docker_resource": {
-                "name": "a resource",
+                "name": "7d91b6dc-74ef-4c3a-ab90-61717a91f328",
                 "image": "ubuntu",
                 "command": "",
                 "port_bindings": {
-                    "22": "22",
-                    "80": "80"
+                    "1880": "1880"
                 },
                 "devices": {
                     "PathOnHost": "",
@@ -36,9 +39,10 @@
                 }
             },
             "ssh_resource": {
-                "name": "a resource",
+                "name": "a3e2cb2d-0f17-4346-971c-d8a5ea18f9dc",
                 "startCommand": "java -jar hello-1.0.0-jar-with-dependencies.jar",
                 "downloadCommand": "",
+                "installCommand": "",
                 "configureCommand": "",
                 "credentials": {
                     "username": "pi",
@@ -47,7 +51,7 @@
                 }
             },
             "ansible_resource": {
-                "name": "a resource",
+                "name": "1853ecc1-139e-491c-889b-bd223afb5ee1",
                 "playbook_path": "",
                 "playbook_host": "",
                 "credentials": {
@@ -56,8 +60,19 @@
                     "sshkey": ""
                 }
             },
-            "_type": "thingml",
-            "port": "1880",
+            "required_execution_port": {
+                "name": "requiresJava",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "e35eddf4-db75-4b1f-9749-97f711d6ea15",
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "a08bbb84-176c-4303-b113-13f10735ffbb",
+                "port_number": "80",
+                "isMandatory": false
+            }],
             "nr_description": "",
             "file": "/Users/ferrynico/Downloads/hello.thingml",
             "src": "",
@@ -65,17 +80,23 @@
             "target_language": "java"
         }],
         "links": [],
+        "containments": [{
+            "name": "a",
+            "properties": [],
+            "src": "/a_component/offerJava",
+            "target": "/Hello/requiresJava"
+        }],
         "type_registry": []
     },
     "graph": {
         "elements": {
             "nodes": [{
                 "data": {
-                    "id": "my_machine"
+                    "id": "a_component"
                 },
                 "position": {
-                    "x": 387.08644480078095,
-                    "y": 161.31938170448365
+                    "x": 480.127613265857,
+                    "y": 100.2120519267548
                 },
                 "group": "nodes",
                 "removed": false,
@@ -86,12 +107,12 @@
                 "classes": "device"
             }, {
                 "data": {
-                    "id": "hello",
-                    "parent": "my_machine"
+                    "id": "Hello",
+                    "parent": "a_component"
                 },
                 "position": {
-                    "x": 387.08644480078095,
-                    "y": 161.31938170448365
+                    "x": 480.127613265857,
+                    "y": 100.2120519267548
                 },
                 "group": "nodes",
                 "removed": false,
@@ -189,14 +210,14 @@
         }],
         "zoomingEnabled": true,
         "userZoomingEnabled": true,
-        "zoom": 3.133285724315588,
-        "minZoom": 1e-50,
-        "maxZoom": 1e+50,
+        "zoom": 2.488857318282395,
+        "minZoom": 0.4,
+        "maxZoom": 6,
         "panningEnabled": true,
         "userPanningEnabled": true,
         "pan": {
-            "x": -646.3855744676231,
-            "y": -307.1931443014447
+            "x": -784.7193918290973,
+            "y": -101.06157957094291
         },
         "boxSelectionEnabled": false,
         "renderer": {

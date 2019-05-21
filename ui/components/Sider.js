@@ -12,6 +12,7 @@ import AddContainmentModal from './AddContainmentModal.js'
 import Notification from './Notification'
 import EditContainment from './EditContainment.js'
 import EditLink from './EditLink.js'
+import ListView from './ListView.js'
 
 //We load it here to avoid sync between server and client
 var mm = require('../../metamodel/allinone.js');
@@ -339,6 +340,7 @@ class SiderDemo extends React.Component {
                     }}></div>
                   </div>
                 </TabPane>
+                <TabPane  tab="List View" key="3"><ListView /></TabPane>
               </Tabs>
             </div>
             <Notification/>
