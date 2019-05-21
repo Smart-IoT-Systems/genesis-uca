@@ -340,14 +340,14 @@ class SiderDemo extends React.Component {
           </Menu>
         </Sider>
         <Layout>
-          <Content style={{ margin: '0 16px' }}>
+          <Content >
             <DrawerEdit />
             <EditContainment />
             <EditLink />
             <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
               <Tabs onChange={this.handleChangeTab} tabPosition='right'>
-                <TabPane tab="Graph View" key="1"><div style={{minHeight: 600, minWidth: '100px'}} id="cy"/></TabPane>
-                <TabPane forceRender={true} tab="JSON View" key="2">
+                <TabPane tab={<span><Icon type="share-alt" />Graph View</span>} key="1"><div style={{minHeight: 600, minWidth: '100px'}} id="cy"/></TabPane>
+                <TabPane forceRender={true} tab={<span><Icon type="codepen" />JSON View</span>} key="2">
                   <div>
                     <button id="saveJSON">Save</button>
                     <div id="jsoneditor" style={{
@@ -356,7 +356,7 @@ class SiderDemo extends React.Component {
                     }}></div>
                   </div>
                 </TabPane>
-                <TabPane tab="List View" key="3">
+                <TabPane tab={<span><Icon type="unordered-list" />List View</span>} key="3">
                   <ListView />
                 </TabPane>
               </Tabs>
