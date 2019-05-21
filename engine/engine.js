@@ -107,6 +107,7 @@ var engine = (function () {
                         sc.execute_command(comp.ssh_resource.startCommand);
                         bus.emit('ssh-started', host.name);
                         bus.emit('ssh-started', comp.name);
+                        bus.emit('node-started', "", comp.name);
                     }).catch(function (err) {
                         logger.log("error", err);
                     });
@@ -121,6 +122,7 @@ var engine = (function () {
                     sc.execute_command(comp.ssh_resource.startCommand);
                     bus.emit('ssh-started', host.name);
                     bus.emit('ssh-started', comp.name);
+                    bus.emit('node-started', "", comp.name);
                 }).catch(function (err) {
                     logger.log("error", err);
                 });;
