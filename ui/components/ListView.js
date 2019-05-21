@@ -9,7 +9,14 @@ class ListView extends React.Component {
 
     constructor(){
         super();
+        this.state={
+          data:[],
+        };
         window.ListView=this;
+    }
+
+    componentDidMount(){
+      this.refresh();
     }
 
     onEdit = function(){
@@ -24,10 +31,8 @@ class ListView extends React.Component {
 
     };
 
-
-    render() {
-        
-        const listData = [];
+    refresh = function(){
+      const listData = [];
         var d_m=window.SiderDemo.getDM();
 
         d_m.components.forEach(elt => {
@@ -71,12 +76,18 @@ class ListView extends React.Component {
 
             listData.push(d);
         });
+        this.setState({
+          data:listData,
+        });
+    };
 
+    render() {
+        
         return (
             <List
                 itemLayout="vertical"
                 size="large"
-                dataSource={listData}
+                dataSource={this.state.data}
                 renderItem={item => (
                 <List.Item
                     key={item.title}

@@ -40,6 +40,7 @@ class SiderDemo extends React.Component {
       externalTypeRepo: [],
       internalTypeRepo: [],
     };
+    window.SiderDemo = this;
   }
 
   openNotificationWithIcon (type, title, desc){
@@ -147,6 +148,11 @@ class SiderDemo extends React.Component {
     if(key === "2"){
       editor.set(dm);
     }
+    if(key === "3"){
+      if(window.ListView !== undefined){
+        window.ListView.refresh();
+      }
+    }
   }
 
   handleLoadModalCancel = (e) => {
@@ -253,8 +259,6 @@ class SiderDemo extends React.Component {
 
   render() {
 
-    window.SiderDemo = this;
-
     return (
       <Layout style={{ minHeight: '100vh' }}>
           <Header style={{ background: '#fff', padding: 0 }}>
@@ -264,9 +268,9 @@ class SiderDemo extends React.Component {
                 key="subFile"
                 title={<span><Icon type="file" /><span>File</span></span>}
               >
-                <Menu.Item key="File1" onClick={this.showLoadModal} >Load Deployment model</Menu.Item>
-                <Menu.Item key="File3" onClick={this.loadFromServer}>Load deployment model from server</Menu.Item>
-                <Menu.Item key="File2" onClick={this.saveModel}>Store Deployment model</Menu.Item>
+                <Menu.Item key="File1" onClick={this.showLoadModal} >Load Deployment Model</Menu.Item>
+                <Menu.Item key="File3" onClick={this.loadFromServer}>Load Deployment Model from server</Menu.Item>
+                <Menu.Item key="File2" onClick={this.saveModel}>Store Deployment Model</Menu.Item>
               </SubMenu>
               <SubMenu
                 key="subDeploy"
@@ -340,7 +344,9 @@ class SiderDemo extends React.Component {
                     }}></div>
                   </div>
                 </TabPane>
-                <TabPane  tab="List View" key="3"><ListView /></TabPane>
+                <TabPane tab="List View" key="3">
+                  <ListView />
+                </TabPane>
               </Tabs>
             </div>
             <Notification/>
