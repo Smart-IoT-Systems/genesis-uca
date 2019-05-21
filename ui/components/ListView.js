@@ -18,16 +18,22 @@ class ListView extends React.Component {
       this.refresh();
     }
 
-    onEdit = function(){
-
+    onEdit = function(elt_name){
+      var dm = window.SiderDemo.getDM();
+      var comp = dm.find_node_named(elt_name);
+      window.DrawerEdit.showDrawer(cy.$("#" + elt_name), comp);
     };
 
     onCall = function(){
 
     };
 
-    onDelete = function(){
-
+    onDelete = function(elt_name){
+      var dm = window.SiderDemo.getDM();
+      var comp = dm.find_node_named(elt_name);
+      cy.remove("#" + elt_name); //remove from the display
+      window.SiderDemo.getDM().remove_component(comp); //remove from the model together with associated links
+      this.refresh();
     };
 
     refresh = function(){
@@ -106,9 +112,9 @@ class ListView extends React.Component {
                 <List.Item
                     key={item.title}
                     actions={[
-                        <Button type="primary" shape="circle" icon="edit" onClick={this.onEdit} />,
+                        <Button type="primary" shape="circle" icon="edit" onClick={() => this.onEdit(item.title)} />,
                         <Button type="default" shape="circle" icon="link" onClick={this.onCall} />,
-                        <Button type="danger" shape="circle" icon="delete" onClick={this.onDelete} />,
+                        <Button type="danger" shape="circle" icon="delete" onClick={() => this.onDelete(item.title)} />,
                     ]}
                 >
                     <List.Item.Meta
