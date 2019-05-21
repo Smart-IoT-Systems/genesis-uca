@@ -209,6 +209,13 @@ class SiderDemo extends React.Component {
         }});
   }
 
+  reset = () => {
+    cy.elements().remove();
+    dm = mm.deployment_model({
+      name: 'demo'
+    });
+  }
+
   deployModel = () => {
 
     load.loading('Deployment in progress..', 0);
@@ -271,6 +278,7 @@ class SiderDemo extends React.Component {
                 <Menu.Item key="File1" onClick={this.showLoadModal} >Load Deployment Model</Menu.Item>
                 <Menu.Item key="File3" onClick={this.loadFromServer}>Load Deployment Model from server</Menu.Item>
                 <Menu.Item key="File2" onClick={this.saveModel}>Store Deployment Model</Menu.Item>
+                <Menu.Item key="File2" onClick={this.reset}>Reset Editor</Menu.Item>
               </SubMenu>
               <SubMenu
                 key="subDeploy"

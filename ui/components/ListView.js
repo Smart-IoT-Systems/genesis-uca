@@ -85,7 +85,7 @@ class ListView extends React.Component {
         
         return (
             <List
-                itemLayout="vertical"
+                itemLayout="horizontal"
                 size="large"
                 dataSource={this.state.data}
                 renderItem={item => (
