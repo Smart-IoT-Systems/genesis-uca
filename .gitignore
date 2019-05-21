@@ -9,5 +9,5 @@ jspm_packages/
 lib/
 .jar
 package-lock.json
-generate_*/
+generated_*/
 hosts
