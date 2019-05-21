@@ -63,16 +63,12 @@ class FormEdit extends React.Component {
             if (typeof elem[item_value] === 'boolean') {
                 result.push(<Form.Item key={id++}><Checkbox onChange={this.handleChange} name={item_value}>{item_value}</Checkbox></Form.Item>);
             }else{
-                if(item_value !== 'name'){
-                    if(item_value !== '_type'){
-                        if(item_value !== 'id'){
-                            if (typeof elem[item_value] === 'object') {
-                                result.push(<Form.Item key={id++} label={item_value+':'}><TextArea name={item_value}  onChange={this.handleChange} defaultValue={JSON.stringify(elem[item_value], null, 4)}  autosize={{ minRows: 1, maxRows: 15 }} /></Form.Item>);
-                            }else{
-                                result.push(<Form.Item key={id++} name={item_value} label={item_value+':'}><Input name={item_value}  onChange={this.handleChange} prefix={<Icon type="tag" style={{ color: 'rgba(0,0,0,.25)' }} />}  defaultValue={elem[item_value]} /></Form.Item>);
-                            }
-                        }
-                    } 
+                if(item_value !== 'name' && item_value !== '_type' && item_value !== 'id'  && !(item_value.startsWith("_", 0))){
+                    if (typeof elem[item_value] === 'object') {
+                        result.push(<Form.Item key={id++} label={item_value+':'}><TextArea name={item_value}  onChange={this.handleChange} defaultValue={JSON.stringify(elem[item_value], null, 4)}  autosize={{ minRows: 1, maxRows: 15 }} /></Form.Item>);
+                    }else{
+                        result.push(<Form.Item key={id++} name={item_value} label={item_value+':'}><Input name={item_value}  onChange={this.handleChange} prefix={<Icon type="tag" style={{ color: 'rgba(0,0,0,.25)' }} />}  defaultValue={elem[item_value]} /></Form.Item>);
+                    }
                 }
             }
         }

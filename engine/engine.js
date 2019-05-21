@@ -11,6 +11,7 @@ var ac = require('./connectors/ansible-connector.js');
 var thingmlcli = require('./thingml-compiler.js');
 var mvn_builder = require('maven');
 var notifier = require('./notifier');
+var model_observer = require('./runtime_observer');
 var mqtt = require('mqtt');
 var nodered_connector = require('./connectors/nodered_connector.js');
 var fs = require('fs');
@@ -415,6 +416,10 @@ var engine = (function () {
             var comparator = comparison_engine(that.dep_model);
             that.diff = comparator.compare(dm);
             that.dep_model = dm; //target model becomes current
+
+            //We start the model observer
+            var m_observer = model_observer(that.dep_model);
+            m_observer.start();
 
             //First do all the removal stuff - TODO refactor
             logger.log("info", "Stopping removed containers");

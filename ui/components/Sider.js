@@ -236,6 +236,10 @@ class SiderDemo extends React.Component {
 		}).then(response => response.json())
 			.then(response => { 
         if (response.success) {
+          dm = mm.deployment_model(response.success);
+          dm.components = response.success.components;
+          dm.revive_links(response.success.links);
+          dm.revive_containments(response.success.containments);
           this.openNotificationWithIcon('success', 'Deployment completed', 'All components are deployed!');
           load.destroy();
           load.success('Deployment finished', 5).then(()=>{
@@ -273,12 +277,12 @@ class SiderDemo extends React.Component {
               <Menu.Item key="logo" disabled={true}><img style={{ height: "55px" }} src="https://enact-project.eu/img/logo-enact-blue2.png" alt="logo enact" /></Menu.Item>
               <SubMenu
                 key="subFile"
-                title={<span><Icon type="file" /><span>File</span></span>}
+                title={<span><Icon type="file" /><span>Model</span></span>}
               >
                 <Menu.Item key="File1" onClick={this.showLoadModal} >Load Deployment Model</Menu.Item>
                 <Menu.Item key="File3" onClick={this.loadFromServer}>Load Deployment Model from server</Menu.Item>
                 <Menu.Item key="File2" onClick={this.saveModel}>Store Deployment Model</Menu.Item>
-                <Menu.Item key="File2" onClick={this.reset}>Reset Editor</Menu.Item>
+                <Menu.Item key="File4" onClick={this.reset}>Reset Editor</Menu.Item>
               </SubMenu>
               <SubMenu
                 key="subDeploy"

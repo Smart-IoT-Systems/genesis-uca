@@ -6,7 +6,6 @@ import { List, Avatar, Button } from 'antd';
 
 class ListView extends React.Component {
 
-
     constructor(){
         super();
         this.state={
@@ -41,34 +40,49 @@ class ListView extends React.Component {
             d.title = elt.name;
             d.description= elt._type;
             d.content= '';
-            
+
+            var status = "?";
+            if(elt._runtime!== undefined){
+              if(elt._runtime.Status !== undefined){
+                status = elt._runtime.Status;
+              } 
+            }
+
+            if(elt._type.indexOf("internal") > 0){
+              var host = d_m.find_host(elt);
+              var host_name="";
+              if(host !== null){
+                host_name=host.name;
+              }
+            }
+              
             switch(elt._type) {
                 case "/infra/device":
                   d.avatar = '/device.png';
-                  d.content=`IP: ${elt.ip}, Port: ${elt.port[0]}, Status: , needDeployer: ${elt.isLocal}`;
+                  d.content=`IP: ${elt.ip}, Port: ${elt.port[0]}, Status: ${status}, needDeployer: ${elt.isLocal}`;
                   break;
                 case "/infra/vm_host":
                     d.avatar = '/server_cloud.png';
                   break;
                 case "/infra/docker_host":
                     d.avatar = '/docker-official.svg';
-                    d.content=`IP: ${elt.ip}, Port: ${elt.port[0]}, Status: `;
+                    d.content=`IP: ${elt.ip}, Port: ${elt.port[0]}, Status: ${status}`;
                   break;
                 case "/external":
                     d.avatar = '/server_cloud.png';
-                    d.content=`IP: ${elt.ip}, Port: ${elt.port[0]}, Status: `;
+                    d.content=`IP: ${elt.ip}, Port: ${elt.port[0]}, Status: ${status}`;
                   break;
                 case "/internal/thingml":
                     d.avatar = '/thingml_short.png';
-                    d.content=`Port: ${elt.port}, Status: , Host: , Target: ${elt.target_language}, File: ${elt.file}`;
+                    d.content=`Port: ${elt.port}, Status: ${status}, Host: Host: ${host_name}, Target: ${elt.target_language}, File: ${elt.file}`;
                   break;
                 case "/internal":
                     d.avatar = '/device.png';
-                    d.content=`Port: ${elt.port[0]}, Status: , Host: `;
+                    d.content=`Port: ${elt.port[0]}, Status: ${status}, Host: ${host_name}`;
                     break;
                 case "/internal/node_red":
                     d.avatar = '/node-red-256.png';
-                    d.content=`Port: ${elt.provided_communication_port[0].port_number}, Host: `;
+                    d.content=`Port: ${elt.provided_communication_port[0].port_number}, Host: ${host_name}, Status: ${status}`;
                   break;
                 default:
                     d.avatar = '/device.png';
