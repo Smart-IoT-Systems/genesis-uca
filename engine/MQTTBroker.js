@@ -26,7 +26,7 @@ var MQTTBroker = (function () {
         });
 
         aedes.on('publish', function (packet, client) {
-
+            
         });
 
         aedes.on('subscribe', function (subscriptions, client) {

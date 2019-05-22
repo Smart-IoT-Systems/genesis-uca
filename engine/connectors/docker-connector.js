@@ -30,7 +30,7 @@ var docker_connector = function () {
             });
 
             that.docker.ping().then(function(data){
-                logger.log("info", "Docker Host is reachable "+endpoint);
+                logger.log("info", "Docker Host ("+host_id+") is reachable "+endpoint);
                 that.comp_name = compo_name;
                 that.docker.pull(image, function (err, stream) {
                     bus.emit('host-config', host_id);

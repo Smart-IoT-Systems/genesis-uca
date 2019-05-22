@@ -5,6 +5,17 @@ var notifier = (function (client, dm) {
     that.MQTTClient = client;
 
     that.start = function () {
+        
+        that.MQTTClient.on('connect', function () {
+            client.subscribe('/deployment_agent');
+        });
+
+        that.MQTTClient.on('message', function (topic, message) {
+            if (topic === '/deployment_agent') {
+                var json = JSON.parse(message);
+                console.log(message);
+            }
+        });
 
         bus.on('remove-all', function(){
             that.MQTTClient.publish("/Notifications", JSON.stringify("Remove all completed!"));

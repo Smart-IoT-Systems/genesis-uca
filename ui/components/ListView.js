@@ -2,6 +2,7 @@ import React from "react";
 import 'antd/dist/antd.css';
 import { List, Avatar, Button } from 'antd';
 
+import RestCallModal from './RestCallModal.js';
 
 
 class ListView extends React.Component {
@@ -22,10 +23,6 @@ class ListView extends React.Component {
       var dm = window.SiderDemo.getDM();
       var comp = dm.find_node_named(elt_name);
       window.DrawerEdit.showDrawer(cy.$("#" + elt_name), comp);
-    };
-
-    onCall = function(){
-
     };
 
     onDelete = function(elt_name){
@@ -102,9 +99,10 @@ class ListView extends React.Component {
     };
 
     render() {
-        
         return (
-            <List
+            <div>
+              <RestCallModal />
+              <List
                 itemLayout="horizontal"
                 size="large"
                 dataSource={this.state.data}
@@ -113,7 +111,7 @@ class ListView extends React.Component {
                     key={item.title}
                     actions={[
                         <Button type="primary" shape="circle" icon="edit" onClick={() => this.onEdit(item.title)} />,
-                        <Button type="default" shape="circle" icon="link" onClick={this.onCall} />,
+                        <Button type="default" shape="circle" icon="link" onClick={() => window.RestCallModal.showModal(item.title)} />,
                         <Button type="danger" shape="circle" icon="delete" onClick={() => this.onDelete(item.title)} />,
                     ]}
                 >
@@ -125,7 +123,8 @@ class ListView extends React.Component {
                     {item.content}
                 </List.Item>
                 )}
-            />
+              />
+            </div>
         );
     }
 
