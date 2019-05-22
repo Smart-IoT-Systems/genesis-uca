@@ -1,0 +1,484 @@
+{
+    "dm": {
+        "name": "demo",
+        "components": [{
+            "_type": "/infra/docker_host",
+            "name": "nr1",
+            "properties": [],
+            "id": "c168330c-80b0-4ccf-9f6b-cf78dff7a6a3",
+            "provided_execution_port": [{
+                "name": "offerDocker"
+            }],
+            "ip": "192.168.1.16",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "ubuntu",
+                "sshkey": ""
+            }
+        }, {
+            "_type": "/infra/docker_host",
+            "name": "nr2",
+            "properties": [],
+            "id": "a91d77ee-c8e4-435a-ab15-c9269002ac6c",
+            "provided_execution_port": [{
+                "name": "offerDocker"
+            }],
+            "ip": "127.0.0.1",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "ubuntu",
+                "sshkey": ""
+            }
+        }, {
+            "_type": "/infra/device",
+            "name": "ardui",
+            "properties": [],
+            "id": "dd3f5ac5-7723-449b-a57e-8c5d1d62252d",
+            "provided_execution_port": [{
+                "name": "arduino"
+            }],
+            "ip": "127.0.0.1",
+            "port": ["80", "22"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "ubuntu",
+                "sshkey": ""
+            },
+            "physical_port": "/dev/ttyACM0",
+            "device_type": "arduino",
+            "isLocal": false
+        }, {
+            "_type": "/internal/node_red",
+            "name": "red1",
+            "properties": [],
+            "id": "ac5f3a1d-22b1-4503-8469-844ed62ca1e0",
+            "provided_execution_port": [],
+            "docker_resource": {
+                "name": "990271c1-968b-4c1b-8e28-42cd4ddacf07",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "8ab70184-ffda-4d48-9d27-5af8f40ccfa9",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "740e5b72-f61e-47ad-b81b-900a27a0bde9",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "needDocker",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "nrd",
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "arn",
+                "port_number": "1880",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "",
+            "packages": []
+        }, {
+            "_type": "/internal/node_red",
+            "name": "red2",
+            "properties": [],
+            "id": "c3e2ac96-027d-41ec-8d35-eb8b7445da7d",
+            "provided_execution_port": [],
+            "docker_resource": {
+                "name": "79e408bb-dfe9-495a-9892-db2a1f37de48",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "dca51d2a-3f7f-4338-8d10-73d9279449df",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "1cc3258f-4a06-4f47-88ae-1683e1d3414a",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "needDocker",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "ed0ed6bc-e829-422b-aa7a-1fb47507559c",
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "0bc6e33b-6c21-45af-b9f2-7fb5bb2f08d9",
+                "port_number": "1880",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "",
+            "packages": []
+        }, {
+            "_type": "/internal/arduino",
+            "name": "Main",
+            "properties": [],
+            "id": "2fe32002-21d5-47b1-8981-f675d0deaf1a",
+            "provided_execution_port": [],
+            "docker_resource": {
+                "name": "e7593157-3e1a-4340-8811-3a333fa1f333",
+                "image": "ubuntu",
+                "command": "",
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "7ea9b84e-c376-4595-86ed-3e977896caa3",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "b44b3380-5727-4e9b-9dfd-cdd278ebbfe5",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "needArduino",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "serial_out",
+                "port_number": ""
+            }],
+            "required_communication_port": [{
+                "name": "serial_in",
+                "port_number": "",
+                "isMandatory": false
+            }],
+            "nr_description": "",
+            "sketch": "/Users/ferrynico/Documents/Code/nr/SIS-Framework/generated/MainCfg.ino",
+            "libraries": ["Adafruit GFX Library", "Adafruit ST7735 and ST7789 Library"]
+        }],
+        "links": [{
+            "name": "cf",
+            "properties": [],
+            "src": "/red1/nrd",
+            "target": "/red2/0bc6e33b-6c21-45af-b9f2-7fb5bb2f08d9",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "xa",
+            "properties": [],
+            "src": "/red1/nrd",
+            "target": "/Main/serial_in",
+            "isControl": true,
+            "isDeployer": true
+        }],
+        "containments": [{
+            "name": "a",
+            "properties": [],
+            "src": "/nr1/offerDocker",
+            "target": "/red1/needDocker"
+        }, {
+            "name": "c",
+            "properties": [],
+            "src": "/nr2/offerDocker",
+            "target": "/red2/needDocker"
+        }, {
+            "name": "qqc",
+            "properties": [],
+            "src": "/ardui/arduino",
+            "target": "/Main/needArduino"
+        }],
+        "type_registry": []
+    },
+    "graph": {
+        "elements": {
+            "nodes": [{
+                "data": {
+                    "id": "nr1"
+                },
+                "position": {
+                    "x": 280.9690069599584,
+                    "y": 63.67647172129867
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "nr2"
+                },
+                "position": {
+                    "x": 412.4769961914697,
+                    "y": 102.6259206655471
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "ardui"
+                },
+                "position": {
+                    "x": 140.6835578474242,
+                    "y": 87.07698750728879
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "device"
+            }, {
+                "data": {
+                    "id": "red1",
+                    "parent": "nr1"
+                },
+                "position": {
+                    "x": 280.9690069599584,
+                    "y": 63.67647172129867
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }, {
+                "data": {
+                    "id": "red2",
+                    "parent": "nr2"
+                },
+                "position": {
+                    "x": 412.4769961914697,
+                    "y": 102.6259206655471
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }, {
+                "data": {
+                    "id": "Main",
+                    "parent": "ardui"
+                },
+                "position": {
+                    "x": 140.6835578474242,
+                    "y": 87.07698750728879
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }],
+            "edges": [{
+                "data": {
+                    "id": "cf",
+                    "source": "red1",
+                    "target": "red2"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "xa",
+                    "source": "red1",
+                    "target": "Main"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "control"
+            }]
+        },
+        "style": [{
+            "selector": "node",
+            "style": {
+                "label": "data(id)",
+                "background-fit": "contain",
+                "background-image-opacity": "0.3",
+                "text-valign": "center",
+                "text-halign": "center",
+                "font-size": "4px",
+                "font-weight": "bold"
+            }
+        }, {
+            "selector": "node.container",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/docker-official.svg"
+            }
+        }, {
+            "selector": "edge",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "triangle"
+            }
+        }, {
+            "selector": "edge.control",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "circle"
+            }
+        }, {
+            "selector": ":selected",
+            "style": {
+                "background-color": "black",
+                "line-color": "black",
+                "target-arrow-color": "black",
+                "source-arrow-color": "black"
+            }
+        }, {
+            "selector": "node.questionable",
+            "style": {
+                "border-color": "#A33",
+                "background-color": "#B55",
+                "shape": "roundrectangle"
+            }
+        }, {
+            "selector": "node.node_red",
+            "style": {
+                "background-image": "./img/node-red-256.png"
+            }
+        }, {
+            "selector": "node.ansible",
+            "style": {
+                "background-image": "./img/ansible.png"
+            }
+        }, {
+            "selector": "node.device",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/device.png"
+            }
+        }, {
+            "selector": "node.vm",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/server_cloud.png"
+            }
+        }],
+        "zoomingEnabled": true,
+        "userZoomingEnabled": true,
+        "zoom": 2.3768402866248803,
+        "minZoom": 0.4,
+        "maxZoom": 6,
+        "panningEnabled": true,
+        "userPanningEnabled": true,
+        "pan": {
+            "x": -176.85599931682623,
+            "y": 58.52242369258158
+        },
+        "boxSelectionEnabled": false,
+        "renderer": {
+            "name": "canvas"
+        }
+    }
+}
