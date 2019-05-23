@@ -210,6 +210,15 @@ var deployment_model = function (spec) {
         return tab;
     }
 
+    that.get_all_software_components = function(){
+        var tab = that.components.filter(function (elem) {
+            if ((elem._type.indexOf('internal') >= 0) || (elem._type.indexOf('external') >= 0)) {
+                return elem;
+            }
+        });
+        return tab;
+    }
+
     that.get_all_internals = function () {
         var tab = that.components.filter(function (elem) {
             if (elem._type.indexOf('internal') >= 0) {

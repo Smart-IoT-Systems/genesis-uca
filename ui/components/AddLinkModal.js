@@ -117,7 +117,7 @@ class CAddLinkModal extends React.Component {
         var optionsTgt=[];
         var optionsSrc=[];
         var d_m=window.SiderDemo.getDM();
-        d_m.get_all_can_be_hosted().forEach(element => {
+        d_m.get_all_software_components().forEach(element => {
             var optSrc={ value: element.name, label: element.name};
             optSrc.children = [];
             element.provided_communication_port.forEach(port => {

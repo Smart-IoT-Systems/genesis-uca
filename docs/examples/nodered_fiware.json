@@ -1,0 +1,443 @@
+{
+    "dm": {
+        "name": "demo",
+        "components": [{
+            "_type": "/infra/docker_host",
+            "name": "my_machine",
+            "properties": [],
+            "id": "4ff63a65-fceb-4315-9353-8e8a5c8498fd",
+            "provided_execution_port": [{
+                "name": "offerLinux"
+            }],
+            "ip": "127.0.0.1",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "ubuntu",
+                "sshkey": ""
+            }
+        }, {
+            "_type": "/internal",
+            "name": "Orion",
+            "properties": [],
+            "id": "bf1c8d43-b19e-49c7-969d-26b34e73e2e9",
+            "provided_execution_port": [],
+            "docker_resource": {
+                "name": "f3e3feba-056e-46a7-9225-5b9edf5f1820",
+                "image": "fiware/orion",
+                "command": "",
+                "port_bindings": {
+                    "1026": "1026"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "b44756b6-362e-4193-b21f-ffbc413636a1",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "14f3772b-5734-44d9-98ff-d1498dc57175",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "37ff0712-6a59-4d24-a6f6-c6db946161e2",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "518f3bd0-0fe4-41a2-8a76-ee7e93cca251",
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "bd3f34af-f691-4a46-b9cd-14bab0f9a8e0",
+                "port_number": "80",
+                "isMandatory": false
+            }]
+        }, {
+            "_type": "/internal",
+            "name": "mongoDB",
+            "properties": [],
+            "id": "5d3352e0-39f1-46ef-a93a-bc2bb54fb5a0",
+            "provided_execution_port": [],
+            "docker_resource": {
+                "name": "988fed11-7e53-476f-b07b-58fb50796e9d",
+                "image": "mongo:3.6",
+                "command": "--nojournal",
+                "port_bindings": {},
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "d0c1ba2d-88b4-421e-8238-9cbf2335e8ff",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "ce1966cd-023f-4cca-ac2a-147750755466",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "d5b9768c-c20f-4d02-9f70-4de8bcb82de6",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "97c5a6de-93a4-4d75-ae2e-91c9b04a5e56",
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "8a1c5a07-078e-45d9-81b9-51612143f495",
+                "port_number": "80",
+                "isMandatory": false
+            }]
+        }, {
+            "_type": "/infra/docker_host",
+            "name": "Rpi",
+            "properties": [],
+            "id": "eff2df33-0913-4017-9763-3a9cc620e29e",
+            "provided_execution_port": [{
+                "name": "offerDocker"
+            }],
+            "ip": "192.168.1.16",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "ubuntu",
+                "sshkey": ""
+            }
+        }, {
+            "_type": "/internal/node_red",
+            "name": "nr1",
+            "properties": [],
+            "id": "4c2d3999-94df-4bb6-b306-fc1460761708",
+            "provided_execution_port": [],
+            "docker_resource": {
+                "name": "0a3ea9a6-f5c9-4fec-ae17-4ae3b4e4a440",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "145eebb9-04a6-4611-834c-f5b4df2d2813",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "19827b7c-7c8c-45c4-81a3-1d76606e6750",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "e801eb1e-9268-472a-be87-939a1d5136ae",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "nr1API",
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "nr1APIin",
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "",
+            "packages": []
+        }],
+        "links": [{
+            "name": "s",
+            "properties": [],
+            "src": "/Orion/518f3bd0-0fe4-41a2-8a76-ee7e93cca251",
+            "target": "/mongoDB/8a1c5a07-078e-45d9-81b9-51612143f495",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "t",
+            "properties": [],
+            "src": "/nr1/nr1API",
+            "target": "/Orion/bd3f34af-f691-4a46-b9cd-14bab0f9a8e0",
+            "isControl": false,
+            "isDeployer": false
+        }],
+        "containments": [{
+            "name": "a",
+            "properties": [],
+            "src": "/my_machine/offerLinux",
+            "target": "/Orion/37ff0712-6a59-4d24-a6f6-c6db946161e2"
+        }, {
+            "name": "c",
+            "properties": [],
+            "src": "/my_machine/offerLinux",
+            "target": "/mongoDB/d5b9768c-c20f-4d02-9f70-4de8bcb82de6"
+        }, {
+            "name": "d",
+            "properties": [],
+            "src": "/Rpi/offerDocker",
+            "target": "/nr1/e801eb1e-9268-472a-be87-939a1d5136ae"
+        }],
+        "type_registry": []
+    },
+    "graph": {
+        "elements": {
+            "nodes": [{
+                "data": {
+                    "id": "my_machine"
+                },
+                "position": {
+                    "x": 294.33672113357557,
+                    "y": 171.2931986116838
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "Orion",
+                    "parent": "my_machine"
+                },
+                "position": {
+                    "x": 344.47735955420393,
+                    "y": 186.3694324343247
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "mongoDB",
+                    "parent": "my_machine"
+                },
+                "position": {
+                    "x": 244.1960827129472,
+                    "y": 156.21696478904295
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "Rpi"
+                },
+                "position": {
+                    "x": 485.4158238752013,
+                    "y": 168.1953423467576
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "nr1",
+                    "parent": "Rpi"
+                },
+                "position": {
+                    "x": 485.4158238752013,
+                    "y": 168.1953423467576
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }],
+            "edges": [{
+                "data": {
+                    "id": "s",
+                    "source": "Orion",
+                    "target": "mongoDB"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "t",
+                    "source": "nr1",
+                    "target": "Orion"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }]
+        },
+        "style": [{
+            "selector": "node",
+            "style": {
+                "label": "data(id)",
+                "background-fit": "contain",
+                "background-image-opacity": "0.3",
+                "text-valign": "center",
+                "text-halign": "center",
+                "font-size": "4px",
+                "font-weight": "bold"
+            }
+        }, {
+            "selector": "node.container",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/docker-official.svg"
+            }
+        }, {
+            "selector": "edge",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "triangle"
+            }
+        }, {
+            "selector": "edge.control",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "circle"
+            }
+        }, {
+            "selector": ":selected",
+            "style": {
+                "background-color": "black",
+                "line-color": "black",
+                "target-arrow-color": "black",
+                "source-arrow-color": "black"
+            }
+        }, {
+            "selector": "node.questionable",
+            "style": {
+                "border-color": "#A33",
+                "background-color": "#B55",
+                "shape": "roundrectangle"
+            }
+        }, {
+            "selector": "node.node_red",
+            "style": {
+                "background-image": "./img/node-red-256.png"
+            }
+        }, {
+            "selector": "node.ansible",
+            "style": {
+                "background-image": "./img/ansible.png"
+            }
+        }, {
+            "selector": "node.device",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/device.png"
+            }
+        }, {
+            "selector": "node.vm",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/server_cloud.png"
+            }
+        }],
+        "zoomingEnabled": true,
+        "userZoomingEnabled": true,
+        "zoom": 2.42102904673618,
+        "minZoom": 0.4,
+        "maxZoom": 6,
+        "panningEnabled": true,
+        "userPanningEnabled": true,
+        "pan": {
+            "x": -447.3078177968287,
+            "y": -215.0993197775173
+        },
+        "boxSelectionEnabled": false,
+        "renderer": {
+            "name": "canvas"
+        }
+    }
+}

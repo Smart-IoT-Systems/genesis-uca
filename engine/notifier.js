@@ -13,7 +13,7 @@ var notifier = (function (client, dm) {
         that.MQTTClient.on('message', function (topic, message) {
             if (topic === '/deployment_agent') {
                 var json = JSON.parse(message);
-                console.log(message);
+                console.log(json);
             }
         });
 
