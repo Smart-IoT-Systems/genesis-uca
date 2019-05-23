@@ -225,7 +225,7 @@ var engine = (function () {
                                     } else {
                                         //Manage simple docker
                                         var connector = dc();
-                                        connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.name, host.name).then(function () {
+                                        connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.name, host.name).then(function (id) {
                                             bus.emit('node-started', id, compo.name);
                                         });
                                     }
