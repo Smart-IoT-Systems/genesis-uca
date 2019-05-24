@@ -24,7 +24,7 @@
             "provided_execution_port": [],
             "docker_resource": {
                 "name": "f3e3feba-056e-46a7-9225-5b9edf5f1820",
-                "image": "fiware/orion",
+                "image": "fiware/orion:2.2.0",
                 "command": "",
                 "port_bindings": {
                     "1026": "1026"
@@ -80,7 +80,9 @@
                 "name": "988fed11-7e53-476f-b07b-58fb50796e9d",
                 "image": "mongo:3.6",
                 "command": "--nojournal",
-                "port_bindings": {},
+                "port_bindings": {
+                    "1016": "1016"
+                },
                 "devices": {
                     "PathOnHost": "",
                     "PathInContainer": "",
@@ -130,7 +132,7 @@
             "provided_execution_port": [{
                 "name": "offerDocker"
             }],
-            "ip": "192.168.1.16",
+            "ip": "127.0.0.1",
             "port": ["2376"],
             "credentials": {
                 "username": "ubuntu",
