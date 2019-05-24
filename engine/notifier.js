@@ -12,8 +12,12 @@ var notifier = (function (client, dm) {
 
         that.MQTTClient.on('message', function (topic, message) {
             if (topic === '/deployment_agent') {
-                var json = JSON.parse(message);
-                console.log(json);
+                var content = JSON.parse(message);
+                if(content.status === "success"){
+                    bus.emit('d_agent_success', content.cfg);
+                }else{
+                    bus.emit('d_agent_error', content.cfg);
+                }
             }
         });
 

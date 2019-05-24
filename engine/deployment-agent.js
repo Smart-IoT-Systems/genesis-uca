@@ -111,8 +111,7 @@ var deployment_agent = function (host, host_target, deployment_target) {
         });
 
 
-        //This is the data we are posting, it needs to be a string or a buffer
-        console.log(data);
+        //This is the data we are posting, it needs to be a string or a buffer  
         req.write(data);
         req.end();
     };

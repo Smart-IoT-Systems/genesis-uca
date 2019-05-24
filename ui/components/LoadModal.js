@@ -44,6 +44,7 @@ class LoadModal extends React.Component {
           visible={this.props.visible}
           onOk={()=>this.props.handleOk(this.state.fileList)}
           onCancel={this.props.handleCancel}
+          destroyOnClose={true}
         >
           <Dragger {...props}>
             <p className="ant-upload-drag-icon">

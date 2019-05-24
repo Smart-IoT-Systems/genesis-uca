@@ -21,8 +21,8 @@ document.getElementById('saveJSON').onclick = function () {
     edited.revive_containments(tmp_edited.containments);
     var r=edited.is_valid_with_errors();
     if (r.length <= 0) {
-        var r = compare(dm, edited);
-        dm = edited;
+        window.SiderDemo.setDM(edited);
+        console.log(JSON.stringify(window.SiderDemo.getDM()));
         window.SiderDemo.openNotificationWithIcon('success', 'Model updated!', 'The deployment model has been successfully updated!');
     } else {
         r.forEach(function(err){

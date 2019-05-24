@@ -67,6 +67,7 @@ var engine = (function () {
 
     that.deploy_agents = async function (links_deployer_tab) {
         logger.log("info", "Starting deployment of deployment agents");
+        var nb_dep_agent = 0;
         for (var l in links_deployer_tab) {
             var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
             var tgt_agent = that.dep_model.find_node_named(tgt_agent_name);
@@ -79,7 +80,23 @@ var engine = (function () {
             await d_agent.prepare();
             await d_agent.install();
         }
-        logger.log("info", "Deployment agents deployed");
+
+        bus.on('d_agent_success', function (cfg) {
+            console.log(JSON.stringify(cfg));
+            nb_dep_agent++;
+            if (nb_dep_agent >= links_deployer_tab.length) {
+                for (var l in links_deployer_tab) {
+                    var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
+                    bus.emit('node-started', "", tgt_agent_name);
+                }
+                nb_dep_agent = 0;
+                logger.log("info", "Deployment agents deployed");
+            }
+        });
+
+        bus.on('d_agent_error', function () {
+            
+        });
     };
 
     that.deploy_thingml = async function (comp, host) {
@@ -199,7 +216,7 @@ var engine = (function () {
 
 
             console.log(comp.length);
-            if(comp.length === 0 && diff.list_of_added_links.length === 0){//No new component then and no new links, we are done
+            if (comp.length === 0 && diff.list_of_added_links.length === 0) { //No new component then and no new links, we are done
                 resolve(0);
             }
 
@@ -211,13 +228,13 @@ var engine = (function () {
                         var host = that.dep_model.find_host(compo);
                         //And if there is an host to deploy on
                         if (host !== undefined) {
+                            nb++;
                             //Manage ThingML nodes
                             if (compo._type === "/internal/thingml") {
                                 await that.deploy_thingml(compo, host);
                             } else {
                                 //Manage component on docker
                                 if (host._type === "/infra/docker_host") {
-                                    nb++;
 
                                     //Manage Node-red on Docker
                                     if (compo._type === "/internal/node_red") {
@@ -427,7 +444,7 @@ var engine = (function () {
 
             //Deploy only the added stuff
             logger.log("info", "Starting deployment");
-            that.run(that.diff).then(function(){
+            that.run(that.diff).then(function () {
                 res.end(JSON.stringify({
                     success: that.dep_model
                 }));
