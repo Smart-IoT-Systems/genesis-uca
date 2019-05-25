@@ -46,7 +46,8 @@
         "antd": "^3.13.2",
         "concurrently": "^4.1.0",
         "nodemon": "^1.18.10",
-        "react-router-dom": "^5.0.0"
+        "react-router-dom": "^5.0.0",
+        "ip": "^1.1.5"
     },
     "devDependencies": {
         "@babel/cli": "^7.1.0",

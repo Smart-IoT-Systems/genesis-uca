@@ -67,7 +67,8 @@ var engine = (function () {
 
     that.deploy_agents = async function (links_deployer_tab) {
         logger.log("info", "Starting deployment of deployment agents");
-        var nb_dep_agent = 0;
+
+        var map_host_agent=[];
         for (var l in links_deployer_tab) {
             var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
             var tgt_agent = that.dep_model.find_node_named(tgt_agent_name);
@@ -78,24 +79,25 @@ var engine = (function () {
 
             var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
             await d_agent.prepare();
-            await d_agent.install();
+            var cont_id=await d_agent.install();
+            tgt_agent.container_id = cont_id;
+            map_host_agent[cont_id]=src_agent_host;
         }
 
         bus.on('d_agent_success', function (cfg) {
-            console.log(JSON.stringify(cfg));
-            nb_dep_agent++;
-            if (nb_dep_agent >= links_deployer_tab.length) {
-                for (var l in links_deployer_tab) {
-                    var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
-                    bus.emit('node-started', "", tgt_agent_name);
-                }
-                nb_dep_agent = 0;
-                logger.log("info", "Deployment agents deployed");
-            }
+            var con_docker = dc();
+            var c = that.dep_model.find_node_named(cfg);
+            con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function(){
+                bus.emit('node-started', c.container_id, cfg);
+            });
         });
 
-        bus.on('d_agent_error', function () {
-            
+        bus.on('d_agent_error', function (cfg) {
+            var con_docker = dc();
+            var c = that.dep_model.find_node_named(cfg);
+            con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function(){
+                bus.emit('node-error', c.container_id, cfg);
+            });
         });
     };
 
@@ -215,7 +217,6 @@ var engine = (function () {
             await that.deploy_agents(links_deployer_tab);
 
 
-            console.log(comp.length);
             if (comp.length === 0 && diff.list_of_added_links.length === 0) { //No new component then and no new links, we are done
                 resolve(0);
             }
@@ -264,6 +265,45 @@ var engine = (function () {
             }
 
 
+            var manage_links = function(comp_tab){
+                //For all Node-Red hosted components we generate the websocket proxies
+                for (var ct_elem of comp_tab) {
+                    (function (comp_tab, ct_elem) {
+                        if (ct_elem._type === '/internal/node_red') {
+                            var host = that.dep_model.find_host(ct_elem);
+
+                            //Get all links that start from the component
+                            var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
+                            //Get all links that end in the component
+                            var tgt_tab = that.dep_model.get_all_inputs_of_component(ct_elem);
+
+                            if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
+                                var noderedconnector = nodered_connector();
+                                noderedconnector.getCurrentFlow(host.ip, ct_elem.provided_communication_port[0].port_number).then(function (the_flow) {
+                                    that.generate_components(host.ip, ct_elem.provided_communication_port[0].port_number, src_tab, tgt_tab, that.dep_model, the_flow);
+                                    bus.emit('link-done');
+                                });
+                            } else {
+                                bus.emit('link-done');
+                            }
+                        } else {
+                            bus.emit('link-done');
+                        }
+                    }(comp_tab, ct_elem));
+                }
+            }
+
+            bus.on('node-error', function (container_id, comp_name) {
+                tmp++;
+                if (tmp >= nb) {
+                    tmp = 0;
+
+                    var comp_tab = that.dep_model.get_all_hosted();
+
+                    manage_links(comp_tab);
+                }
+            });
+
             //We collect all the started events, once they are all received we generate the flow skeleton based on the links
             bus.on('node-started', function (container_id, comp_name) {
                 tmp++;
@@ -277,31 +317,7 @@ var engine = (function () {
 
                     var comp_tab = that.dep_model.get_all_hosted();
 
-                    //For all Node-Red hosted components we generate the websocket proxies
-                    for (var ct_elem of comp_tab) {
-                        (function (comp_tab, ct_elem) {
-                            if (ct_elem._type === '/internal/node_red') {
-                                var host = that.dep_model.find_host(ct_elem);
-
-                                //Get all links that start from the component
-                                var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
-                                //Get all links that end in the component
-                                var tgt_tab = that.dep_model.get_all_inputs_of_component(ct_elem);
-
-                                if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
-                                    var noderedconnector = nodered_connector();
-                                    noderedconnector.getCurrentFlow(host.ip, ct_elem.provided_communication_port[0].port_number).then(function (the_flow) {
-                                        that.generate_components(host.ip, ct_elem.provided_communication_port[0].port_number, src_tab, tgt_tab, that.dep_model, the_flow);
-                                        bus.emit('link-done');
-                                    });
-                                } else {
-                                    bus.emit('link-done');
-                                }
-                            } else {
-                                bus.emit('link-done');
-                            }
-                        }(comp_tab, ct_elem));
-                    }
+                    manage_links(comp_tab);
                 }
             });
 

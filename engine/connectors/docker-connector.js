@@ -67,6 +67,7 @@ var docker_connector = function () {
         return new Promise(async function (resolve, reject) {
             bus.emit('container-config', that.comp_name);
             var port = '{';
+
             var exposedPort = '{';
             for (var i in port_bindings) {
                 var item_value = port_bindings[i];
@@ -92,9 +93,11 @@ var docker_connector = function () {
                 options.Cmd = ['/bin/bash', '-c', command];
             }
 
-            options.ExposedPorts = JSON.parse(exposedPort);
-            options.HostConfig = {};
-            options.HostConfig.PortBindings = JSON.parse(port);
+            try {
+                options.ExposedPorts = JSON.parse(exposedPort);
+                options.HostConfig = {};
+                options.HostConfig.PortBindings = JSON.parse(port);
+            } catch (e) {}
 
             if (devices !== undefined) {
 

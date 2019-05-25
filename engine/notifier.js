@@ -13,10 +13,10 @@ var notifier = (function (client, dm) {
         that.MQTTClient.on('message', function (topic, message) {
             if (topic === '/deployment_agent') {
                 var content = JSON.parse(message);
-                if(content.status === "success"){
-                    bus.emit('d_agent_success', content.cfg);
+                if(content.data.status === "success"){
+                    bus.emit('d_agent_success', content.target_name);
                 }else{
-                    bus.emit('d_agent_error', content.cfg);
+                    bus.emit('d_agent_error', content.target_name);
                 }
             }
         });
@@ -26,6 +26,15 @@ var notifier = (function (client, dm) {
         });
 
         bus.on('container-error', function (comp_name) {
+            //Send status info to the UI
+            var s = {
+                node: comp_name,
+                status: 'error'
+            };
+            that.MQTTClient.publish("/Status", JSON.stringify(s));
+        });
+
+        bus.on('node-error', function (container_id, comp_name) {
             //Send status info to the UI
             var s = {
                 node: comp_name,

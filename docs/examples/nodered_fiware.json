@@ -79,10 +79,7 @@
             "docker_resource": {
                 "name": "988fed11-7e53-476f-b07b-58fb50796e9d",
                 "image": "mongo:3.6",
-                "command": "--nojournal",
-                "port_bindings": {
-                    "1016": "1016"
-                },
+                "command": "",
                 "devices": {
                     "PathOnHost": "",
                     "PathInContainer": "",
@@ -195,7 +192,7 @@
             }],
             "nr_flow": [],
             "path_flow": "",
-            "packages": []
+            "packages": ["node-red-contrib-fiware-orion"]
         }],
         "links": [{
             "name": "s",
