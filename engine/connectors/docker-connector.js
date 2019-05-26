@@ -22,7 +22,7 @@ var docker_connector = function () {
         });
     };
 
-    that.buildAndDeploy = function (endpoint, port, port_bindings, devices, command, image, mounts, compo_name, host_id) {
+    that.buildAndDeploy = function (endpoint, port, port_bindings, devices, command, image, mounts, links, compo_name, host_id) {
         return new Promise(async function (resolve, reject) {
             that.docker = new Docker({
                 host: endpoint,
@@ -39,14 +39,14 @@ var docker_connector = function () {
                             end: true
                         });
                         stream.on('end', function () {
-                            that.createContainerAndStart(port_bindings, command, image, devices, mounts).then(function (id) {
+                            that.createContainerAndStart(port_bindings, command, image, devices, mounts, links).then(function (id) {
                                 resolve(id);
                             }).catch(function (err) {
                                 reject(err);
                             });
                         });
                     } else {
-                        that.createContainerAndStart(port_bindings, command, image, devices, mounts).then(function (id) {
+                        that.createContainerAndStart(port_bindings, command, image, devices, mounts, links).then(function (id) {
                             resolve(id);
                         }).catch(function (err) {
                             reject(err);
@@ -62,7 +62,7 @@ var docker_connector = function () {
         });
     }
 
-    that.createContainerAndStart = function (port_bindings, command, image, devices, mounts) {
+    that.createContainerAndStart = function (port_bindings, command, image, devices, mounts, links) {
         //Create a container from an image
         return new Promise(async function (resolve, reject) {
             bus.emit('container-config', that.comp_name);
@@ -93,11 +93,17 @@ var docker_connector = function () {
                 options.Cmd = ['/bin/bash', '-c', command];
             }
 
+            options.HostConfig = {};
             try {
                 options.ExposedPorts = JSON.parse(exposedPort);
-                options.HostConfig = {};
                 options.HostConfig.PortBindings = JSON.parse(port);
             } catch (e) {}
+
+            if(links !== undefined){
+                if(links.length > 0){
+                    options.HostConfig.links = links;
+                }
+            }
 
             if (devices !== undefined) {
 

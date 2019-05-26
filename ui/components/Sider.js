@@ -36,7 +36,6 @@ class SiderDemo extends React.Component {
     super();
     this.state = {
       collapsed: true,
-      loadModalIsOpen: false,
       externalTypeRepo: [],
       internalTypeRepo: [],
     };
@@ -90,9 +89,7 @@ class SiderDemo extends React.Component {
   }
 
   showLoadModal = () => {
-    this.setState({
-      loadModalIsOpen: true,
-    });
+    window.LoadModal.showModal();
   }
 
   showAddLinkodal = () => {
@@ -294,7 +291,7 @@ class SiderDemo extends React.Component {
               <Menu.Item key="3" onClick={this.openLogs}><Icon type="ordered-list" /><span>Logs</span></Menu.Item>
             </Menu>
           </Header>
-          <LoadModal visible={this.state.loadModalIsOpen} handleOk={this.handleLoadModalOk} handleCancel={this.handleLoadModalCancel}></LoadModal>
+          <LoadModal handleOk={this.handleLoadModalOk}></LoadModal>
           <AddModal />
           <AddLinkModal />
           <AddContainmentModal />

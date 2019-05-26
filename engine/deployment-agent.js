@@ -126,7 +126,7 @@ var deployment_agent = function (host, host_target, deployment_target) {
             "PathOnHost": that.host_target.physical_port,
             "PathInContainer": that.host_target.physical_port,
             "CgroupPermissions": "rwm"
-        }, "", "nicolasferry/multiarch-node-red-thingml:latest", "", that.deployment_target.name, that.host.name);
+        }, "", "nicolasferry/multiarch-node-red-thingml:latest", "", "", that.deployment_target.name, that.host.name);
 
         var readyToGo = await that.untilConnect(that.host.ip, 1889);
         if (readyToGo) {

@@ -6,10 +6,50 @@ import { Modal, Upload, Icon, message } from 'antd';
 
 class LoadModal extends React.Component {
 
-  state = {
-    fileList: [],
-    uploading: false,
-    visible: this.props.visible,
+  constructor(){
+    super();
+    this.state = { 
+      visible: false,
+      uploading: false,
+      fileList: [],
+    };
+    window.LoadModal=this;
+  }
+
+  showModal = () => {
+    this.setState({
+      visible: true,
+    });
+  };
+
+  onClose = () => {
+    this.setState({
+      visible: false,
+    });
+  };
+
+  handleOk = () => {
+    var fd=this.state.fileList[0];
+    var fr;
+    fr = new FileReader();
+    fr.onload = receivedText;
+    fr.readAsText(fd);
+
+    function receivedText() { //We ask the server because he is the one with all the plugins ...
+      var data = JSON.parse(fr.result);
+      var m_m=window.SiderDemo.getMM();
+      var dm = m_m.deployment_model(data.dm);
+      dm.components = data.dm.components;
+      dm.revive_links(data.dm.links);
+      dm.revive_containments(data.dm.containments);
+      window.SiderDemo.setDM(dm);
+      cy.json(data.graph);
+    }
+
+    this.setState({
+      visible: false,
+      fileList: [],
+    });
   }
 
   render() {
@@ -41,9 +81,9 @@ class LoadModal extends React.Component {
       <div>
         <Modal
           title="Load Model"
-          visible={this.props.visible}
-          onOk={()=>this.props.handleOk(this.state.fileList)}
-          onCancel={this.props.handleCancel}
+          visible={this.state.visible}
+          onOk={this.handleOk}
+          onCancel={this.onClose}
           destroyOnClose={true}
         >
           <Dragger {...props}>

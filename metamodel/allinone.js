@@ -661,6 +661,7 @@ var docker_resource = function (spec) {
     that.name = spec.name || uuidv4();
     that.image = spec.image || "ubuntu";
     that.command = spec.command || "";
+    that.links= spec.links || [];
     that.port_bindings = spec.port_bindings || {
         "1880": "1880"
     };

@@ -68,7 +68,7 @@ var engine = (function () {
     that.deploy_agents = async function (links_deployer_tab) {
         logger.log("info", "Starting deployment of deployment agents");
 
-        var map_host_agent=[];
+        var map_host_agent = [];
         for (var l in links_deployer_tab) {
             var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
             var tgt_agent = that.dep_model.find_node_named(tgt_agent_name);
@@ -79,15 +79,15 @@ var engine = (function () {
 
             var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
             await d_agent.prepare();
-            var cont_id=await d_agent.install();
+            var cont_id = await d_agent.install();
             tgt_agent.container_id = cont_id;
-            map_host_agent[cont_id]=src_agent_host;
+            map_host_agent[cont_id] = src_agent_host;
         }
 
         bus.on('d_agent_success', function (cfg) {
             var con_docker = dc();
             var c = that.dep_model.find_node_named(cfg);
-            con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function(){
+            con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
                 bus.emit('node-started', c.container_id, cfg);
             });
         });
@@ -95,7 +95,7 @@ var engine = (function () {
         bus.on('d_agent_error', function (cfg) {
             var con_docker = dc();
             var c = that.dep_model.find_node_named(cfg);
-            con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function(){
+            con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
                 bus.emit('node-error', c.container_id, cfg);
             });
         });
@@ -158,7 +158,7 @@ var engine = (function () {
         if (comp.docker_resource.image !== docker_image_nr && comp.docker_resource.image !== "") {
             docker_image_nr = comp.docker_resource.image;
         }
-        connector.buildAndDeploy(host.ip, host.port, comp.docker_resource.port_bindings, comp.docker_resource.devices, "", docker_image_nr, comp.docker_resource.mounts, comp.name, host.name).then(function (id) {
+        connector.buildAndDeploy(host.ip, host.port, comp.docker_resource.port_bindings, comp.docker_resource.devices, "", docker_image_nr, comp.docker_resource.mounts, comp.docker_resource.links, comp.name, host.name).then(function (id) {
             if ((comp.nr_flow !== undefined && comp.nr_flow !== "") ||
                 (comp.path_flow !== "" && comp.path_flow !== undefined)) { //if there is a flow to load with the nodered node
                 let noderedconnector = nodered_connector();
@@ -204,6 +204,47 @@ var engine = (function () {
     };
 
 
+    that.deploy_one_component = async function (compo, nb) { //We wrap in a closure so that each comp deployment comes with its own context
+        //if not to be deployed by a deployment agent
+        if (!that.dep_model.need_deployment_agent(compo)) {
+            var host = that.dep_model.find_host(compo);
+            //And if there is an host to deploy on
+            if (host !== undefined) {
+                nb++;
+                //Manage ThingML nodes
+                if (compo._type === "/internal/thingml") {
+                    await that.deploy_thingml(compo, host);
+                } else {
+                    //Manage component on docker
+                    if (host._type === "/infra/docker_host") {
+
+                        //Manage Node-red on Docker
+                        if (compo._type === "/internal/node_red") {
+                            await that.deploy_nodered(compo, host);
+                        } else {
+                            //Manage simple docker
+                            var connector = dc();
+                            connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.docker_resource.links, compo.name, host.name).then(function (id) {
+                                bus.emit('node-started', id, compo.name);
+                            });
+                        }
+                    }
+                    //Manage component via Ansible
+                    if (compo.ansible_resource.playbook_path !== "" && compo.ansible_resource.playbook_path !== undefined) {
+                        var connector = ac(host, ccompo);
+                        connector.executePlaybook();
+                    }
+
+                    //Manage component via ssh
+                    if (compo.ssh_resource.credentials.sshkey !== "") {
+                        await that.deploy_ssh(compo, host);
+                    }
+                }
+            }
+        }
+    };
+
+
     that.run = function (diff) { //TODO: factorize
         return new Promise(async function (resolve, reject) {
             var comp = diff.list_of_added_hosted_components;
@@ -214,58 +255,25 @@ var engine = (function () {
 
             //Deployment agent
             var links_deployer_tab = diff.list_of_added_links_deployer;
-            await that.deploy_agents(links_deployer_tab);
-
+            if(links_deployer_tab.length > 0){
+                await that.deploy_agents(links_deployer_tab);
+            }
 
             if (comp.length === 0 && diff.list_of_added_links.length === 0) { //No new component then and no new links, we are done
                 resolve(0);
             }
 
+            var nodes_already_processed = [];
+
             //Other nodes
             for (var i in comp) {
-                (async function (compo) { //We wrap in a closure so that each comp deployment comes with its own context
-                    //if not to be deployed by a deployment agent
-                    if (!that.dep_model.need_deployment_agent(compo)) {
-                        var host = that.dep_model.find_host(compo);
-                        //And if there is an host to deploy on
-                        if (host !== undefined) {
-                            nb++;
-                            //Manage ThingML nodes
-                            if (compo._type === "/internal/thingml") {
-                                await that.deploy_thingml(compo, host);
-                            } else {
-                                //Manage component on docker
-                                if (host._type === "/infra/docker_host") {
-
-                                    //Manage Node-red on Docker
-                                    if (compo._type === "/internal/node_red") {
-                                        await that.deploy_nodered(compo, host);
-                                    } else {
-                                        //Manage simple docker
-                                        var connector = dc();
-                                        connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.name, host.name).then(function (id) {
-                                            bus.emit('node-started', id, compo.name);
-                                        });
-                                    }
-                                }
-                                //Manage component via Ansible
-                                if (compo.ansible_resource.playbook_path !== "" && compo.ansible_resource.playbook_path !== undefined) {
-                                    var connector = ac(host, ccompo);
-                                    connector.executePlaybook();
-                                }
-
-                                //Manage component via ssh
-                                if (compo.ssh_resource.credentials.sshkey !== "") {
-                                    await that.deploy_ssh(compo, host);
-                                }
-                            }
-                        }
-                    }
-                }(comp[i]));
+                (function(one_component, nb){
+                    that.deploy_one_component(one_component, nb);
+                }(comp[i], nb));
             }
 
 
-            var manage_links = function(comp_tab){
+            var manage_links = function (comp_tab) {
                 //For all Node-Red hosted components we generate the websocket proxies
                 for (var ct_elem of comp_tab) {
                     (function (comp_tab, ct_elem) {
