@@ -26,6 +26,7 @@
                 "name": "f3e3feba-056e-46a7-9225-5b9edf5f1820",
                 "image": "fiware/orion:2.2.0",
                 "command": "",
+                "links": ["mongodb:mongodb"],
                 "port_bindings": {
                     "1026": "1026"
                 },
@@ -69,10 +70,14 @@
                 "name": "bd3f34af-f691-4a46-b9cd-14bab0f9a8e0",
                 "port_number": "80",
                 "isMandatory": false
+            }, {
+                "name": "requiresMongo",
+                "port_number": "80",
+                "isMandatory": true
             }]
         }, {
             "_type": "/internal",
-            "name": "mongoDB",
+            "name": "mongodb",
             "properties": [],
             "id": "5d3352e0-39f1-46ef-a93a-bc2bb54fb5a0",
             "provided_execution_port": [],
@@ -195,17 +200,17 @@
             "packages": ["node-red-contrib-fiware-orion"]
         }],
         "links": [{
-            "name": "s",
-            "properties": [],
-            "src": "/Orion/518f3bd0-0fe4-41a2-8a76-ee7e93cca251",
-            "target": "/mongoDB/8a1c5a07-078e-45d9-81b9-51612143f495",
-            "isControl": false,
-            "isDeployer": false
-        }, {
             "name": "t",
             "properties": [],
             "src": "/nr1/nr1API",
             "target": "/Orion/bd3f34af-f691-4a46-b9cd-14bab0f9a8e0",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "ad",
+            "properties": [],
+            "src": "/mongodb/97c5a6de-93a4-4d75-ae2e-91c9b04a5e56",
+            "target": "/Orion/requiresMongo",
             "isControl": false,
             "isDeployer": false
         }],
@@ -218,7 +223,7 @@
             "name": "c",
             "properties": [],
             "src": "/my_machine/offerLinux",
-            "target": "/mongoDB/d5b9768c-c20f-4d02-9f70-4de8bcb82de6"
+            "target": "/mongodb/d5b9768c-c20f-4d02-9f70-4de8bcb82de6"
         }, {
             "name": "d",
             "properties": [],
@@ -234,8 +239,8 @@
                     "id": "my_machine"
                 },
                 "position": {
-                    "x": 294.33672113357557,
-                    "y": 171.2931986116838
+                    "x": 310.858621213182,
+                    "y": 165.0974860818314
                 },
                 "group": "nodes",
                 "removed": false,
@@ -250,24 +255,8 @@
                     "parent": "my_machine"
                 },
                 "position": {
-                    "x": 344.47735955420393,
-                    "y": 186.3694324343247
-                },
-                "group": "nodes",
-                "removed": false,
-                "selected": false,
-                "selectable": true,
-                "locked": false,
-                "grabbable": true,
-                "classes": ""
-            }, {
-                "data": {
-                    "id": "mongoDB",
-                    "parent": "my_machine"
-                },
-                "position": {
-                    "x": 244.1960827129472,
-                    "y": 156.21696478904295
+                    "x": 360.99925963381037,
+                    "y": 180.17371990447228
                 },
                 "group": "nodes",
                 "removed": false,
@@ -307,12 +296,28 @@
                 "locked": false,
                 "grabbable": true,
                 "classes": "node_red"
+            }, {
+                "data": {
+                    "id": "mongodb",
+                    "parent": "my_machine"
+                },
+                "position": {
+                    "x": 260.71798279255364,
+                    "y": 150.02125225919053
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
             }],
             "edges": [{
                 "data": {
-                    "id": "s",
-                    "source": "Orion",
-                    "target": "mongoDB"
+                    "id": "ad",
+                    "source": "mongodb",
+                    "target": "Orion"
                 },
                 "position": {},
                 "group": "edges",

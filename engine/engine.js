@@ -224,9 +224,8 @@ var engine = (function () {
                         } else {
                             //Manage simple docker
                             var connector = dc();
-                            connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.docker_resource.links, compo.name, host.name).then(function (id) {
-                                bus.emit('node-started', id, compo.name);
-                            });
+                            var id= await connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.docker_resource.links, compo.name, host.name);
+                            bus.emit('node-started', id, compo.name);
                         }
                     }
                     //Manage component via Ansible
@@ -245,6 +244,8 @@ var engine = (function () {
     };
 
 
+
+
     that.run = function (diff) { //TODO: factorize
         return new Promise(async function (resolve, reject) {
             var comp = diff.list_of_added_hosted_components;
@@ -255,7 +256,7 @@ var engine = (function () {
 
             //Deployment agent
             var links_deployer_tab = diff.list_of_added_links_deployer;
-            if(links_deployer_tab.length > 0){
+            if (links_deployer_tab.length > 0) {
                 await that.deploy_agents(links_deployer_tab);
             }
 
@@ -263,15 +264,27 @@ var engine = (function () {
                 resolve(0);
             }
 
-            var nodes_already_processed = [];
+            var compo_already_deployed = [];
 
             //Other nodes
             for (var i in comp) {
-                (function(one_component, nb){
-                    that.deploy_one_component(one_component, nb);
-                }(comp[i], nb));
+                //TODO: make this recursive!
+                var comp_mandatories = that.dep_model.get_all_mandatory_of_a_component(comp[i]);
+                if (comp_mandatories !== null) {
+                    for (var m in comp_mandatories) {
+                        compo_already_deployed[comp_mandatories[m].name] = true;
+                        await (async function (one_component, nb) {
+                            await that.deploy_one_component(one_component, nb);
+                        }(comp_mandatories[m], nb));
+                    }
+                }
+                if (compo_already_deployed[comp[i].name] === undefined) {
+                    compo_already_deployed[comp[i].name] = true;
+                    (function (one_component, nb) {
+                        that.deploy_one_component(one_component, nb);
+                    }(comp[i], nb));
+                }
             }
-
 
             var manage_links = function (comp_tab) {
                 //For all Node-Red hosted components we generate the websocket proxies

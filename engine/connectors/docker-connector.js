@@ -138,6 +138,8 @@ var docker_connector = function () {
                 });
             }
 
+            options.name = that.comp_name;
+
             that.docker.createContainer(options).then(function (container) {
                 container.start(function () {
                     logger.log('info', 'Container started: ' + container.id + ' (' + that.comp_name + ')');

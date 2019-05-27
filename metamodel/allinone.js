@@ -76,7 +76,7 @@ var deployment_model = function (spec) {
 
 
     that.remove_component = function (component) {
-        var i = that.components.indexOf(component); 
+        var i = that.components.indexOf(component);
         if (i > -1) {
             that.components.splice(i, 1); //The second parameter of splice is the number of elements to remove. Note that splice modifies the array in place and returns a new array containing the elements that have been removed. 
         }
@@ -98,7 +98,7 @@ var deployment_model = function (spec) {
         for (var i in that.containments) {
             if (that.containments[i].target.indexOf(component.name) > -1 ||
                 that.containments[i].src.indexOf(component.name) > -1) {
-                    tabc_indexes.push(i);
+                tabc_indexes.push(i);
             }
         }
         if (tabc_indexes.length > 0) {
@@ -194,7 +194,7 @@ var deployment_model = function (spec) {
         var tab = [];
         that.containments.forEach(function (elem) {
             if (elem.target !== null) {
-                var comp_name=that.get_comp_name_from_port_id(elem.target);
+                var comp_name = that.get_comp_name_from_port_id(elem.target);
                 tab.push(that.find_node_named(comp_name));
             }
         });
@@ -210,7 +210,7 @@ var deployment_model = function (spec) {
         return tab;
     }
 
-    that.get_all_software_components = function(){
+    that.get_all_software_components = function () {
         var tab = that.components.filter(function (elem) {
             if ((elem._type.indexOf('internal') >= 0) || (elem._type.indexOf('external') >= 0)) {
                 return elem;
@@ -241,7 +241,7 @@ var deployment_model = function (spec) {
         var tab = that.links.filter(function (elem) {
             if (that.get_comp_name_from_port_id(elem.target) === comp.name) {
                 for (var e of comp.required_communication_port) {
-                    if(that.get_port_name_from_port_id(elem.target) === e.name){
+                    if (that.get_port_name_from_port_id(elem.target) === e.name) {
                         return elem;
                     }
                 }
@@ -254,7 +254,7 @@ var deployment_model = function (spec) {
         var tab = that.links.filter(function (elem) {
             if (that.get_comp_name_from_port_id(elem.src) === comp.name) {
                 for (var e of comp.provided_communication_port) {
-                    if(that.get_port_name_from_port_id(elem.src) === e.name){
+                    if (that.get_port_name_from_port_id(elem.src) === e.name) {
                         return elem;
                     }
                 }
@@ -320,7 +320,7 @@ var deployment_model = function (spec) {
         return id.split('/')[1];
     };
 
-    that.get_port_name_from_port_id = function (id){
+    that.get_port_name_from_port_id = function (id) {
         return id.split('/')[2];
     };
 
@@ -332,8 +332,25 @@ var deployment_model = function (spec) {
             var host_name = that.get_comp_name_from_port_id(port_host);
             return that.find_node_named(host_name);
         } else {
-            return null
+            return null;
         }
+    };
+
+    that.get_all_mandatory_of_a_component = function (comp) {
+        var all_mandatories = [];
+        comp.required_communication_port.forEach(function (elem) {
+            if (elem.isMandatory) {
+                var id = that.generate_port_id(comp, elem);
+                var link = that.find_link_of_required_port(id);
+                if (link) {
+                    var port_other = link.src;
+                    var other = that.get_comp_name_from_port_id(port_other);
+                    all_mandatories.push(that.find_node_named(other));
+                }
+            }
+        });
+
+        return all_mandatories;
     };
 
     that.is_valid_name = function (name) {
@@ -346,35 +363,35 @@ var deployment_model = function (spec) {
         return valid_name;
     };
 
-    that.change_name = function (name, comp){
-        if(that.is_valid_name(name)){
-            var oldname=comp.name;
+    that.change_name = function (name, comp) {
+        if (that.is_valid_name(name)) {
+            var oldname = comp.name;
             comp.name = name;
-            
+
             //then we change name of all port_id
             comp.provided_communication_port.forEach(pc => {
-                var l = that.find_link_of_provided_port('/'+oldname+'/'+pc.name);
-                if(l !== null){
-                    l.src=that.generate_port_id(comp, pc);
+                var l = that.find_link_of_provided_port('/' + oldname + '/' + pc.name);
+                if (l !== null) {
+                    l.src = that.generate_port_id(comp, pc);
                 }
             });
-            
+
             comp.required_communication_port.forEach(rc => {
-                var l = that.find_link_of_required_port('/'+oldname+'/'+rc.name);
-                if(l !== null){
-                    l.target=that.generate_port_id(comp, rc);
+                var l = that.find_link_of_required_port('/' + oldname + '/' + rc.name);
+                if (l !== null) {
+                    l.target = that.generate_port_id(comp, rc);
                 }
             });
-            
-            var ch = that.find_containment_of_required_port('/'+oldname+'/'+comp.required_execution_port.name);
-            if(ch !== null){
-                ch.target=that.generate_port_id(comp, comp.required_execution_port);
+
+            var ch = that.find_containment_of_required_port('/' + oldname + '/' + comp.required_execution_port.name);
+            if (ch !== null) {
+                ch.target = that.generate_port_id(comp, comp.required_execution_port);
             }
-            
+
             comp.provided_execution_port.forEach(pe => {
-                var c = that.find_containment_of_provided_port('/'+oldname+'/'+pe.name);
-                if(c !== null){
-                    c.src=that.generate_port_id(comp, pe);
+                var c = that.find_containment_of_provided_port('/' + oldname + '/' + pe.name);
+                if (c !== null) {
+                    c.src = that.generate_port_id(comp, pe);
                 }
             });
         }
@@ -661,7 +678,7 @@ var docker_resource = function (spec) {
     that.name = spec.name || uuidv4();
     that.image = spec.image || "ubuntu";
     that.command = spec.command || "";
-    that.links= spec.links || [];
+    that.links = spec.links || [];
     that.port_bindings = spec.port_bindings || {
         "1880": "1880"
     };
