@@ -90,7 +90,13 @@ var docker_connector = function () {
             };
 
             if (command !== "") {
-                options.Cmd = ['/bin/bash', '-c', command];
+                if(command[0] === "-"){
+                    var t_c=command.split(' ');
+                    options.Cmd = [t_c[0], t_c[1]];
+                    console.log(JSON.stringify(options.Cmd));
+                }else{
+                    options.Cmd = ['/bin/bash', '-c', command];
+                }
             }
 
             options.HostConfig = {};

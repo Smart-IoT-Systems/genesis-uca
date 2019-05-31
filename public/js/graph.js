@@ -1,5 +1,3 @@
-
-
 var cy = window.cy = cytoscape({
     container: document.getElementById('cy'),
 
@@ -9,8 +7,7 @@ var cy = window.cy = cytoscape({
     maxZoom: 6,
     minZoom: 0.4,
 
-    style: [
-        {
+    style: [{
             selector: 'node',
             css: {
                 'content': 'data(id)',
@@ -21,7 +18,7 @@ var cy = window.cy = cytoscape({
                 'font-size': '4px',
                 'font-weight': 'bold'
             }
-    },
+        },
         {
             selector: 'node.container',
             css: {
@@ -37,20 +34,20 @@ var cy = window.cy = cytoscape({
                 'shape': 'rectangle',
                 'background-image': './img/docker-official.svg'
             }
-    },
+        },
         {
             selector: 'edge',
             css: {
                 'curve-style': 'bezier',
                 'target-arrow-shape': 'triangle'
             }
-    }, {
+        }, {
             selector: 'edge.control',
             css: {
                 'curve-style': 'bezier',
                 'target-arrow-shape': 'circle'
             }
-    },
+        },
         {
             selector: ':selected',
             css: {
@@ -59,24 +56,30 @@ var cy = window.cy = cytoscape({
                 'target-arrow-color': 'black',
                 'source-arrow-color': 'black'
             }
-    }, {
+        }, {
             selector: 'node.questionable',
             css: {
                 'border-color': '#A33',
                 'background-color': '#B55',
                 'shape': 'roundrectangle'
             }
-    }, {
+        }, {
             selector: 'node.node_red',
             css: {
                 'background-image': './img/node-red-256.png',
             }
-    }, {
-        selector: 'node.ansible',
-        css: {
-            'background-image': './img/ansible.png',
-        }
-},
+        }, {
+            selector: 'node.ansible',
+            css: {
+                'background-image': './img/ansible.png',
+            }
+        },{
+            selector: 'node.orion',
+            css: {
+                'background-color': '#ADD8E6',
+                'background-image': './img/fiware_logo.png',
+            }
+        },
         {
             selector: 'node.device',
             css: {
@@ -92,7 +95,7 @@ var cy = window.cy = cytoscape({
                 'shape': 'rectangle',
                 'background-image': './img/device.png'
             }
-    }, {
+        }, {
             selector: 'node.vm',
             css: {
                 'padding-top': '10px',
@@ -107,7 +110,7 @@ var cy = window.cy = cytoscape({
                 'shape': 'rectangle',
                 'background-image': './img/server_cloud.png'
             }
-    }
+        }
     ],
 
     elements: {
@@ -126,7 +129,7 @@ var d_m;
 
 cy.on('cxttap', 'node', function (evt) {
     var target_node = evt.target;
-    d_m=window.SiderDemo.getDM();
+    d_m = window.SiderDemo.getDM();
     var elem = d_m.find_node_named(target_node.id());
     window.DrawerEdit.showDrawer(target_node, elem);
     //window.FormEdit.build_form(elem);
@@ -134,7 +137,7 @@ cy.on('cxttap', 'node', function (evt) {
 
 cy.on('cxttap', 'edge', function (evt) {
     var target_link = evt.target;
-    d_m=window.SiderDemo.getDM();
+    d_m = window.SiderDemo.getDM();
     var elem = d_m.find_link_named(target_link.id());
     window.EditLink.showDrawer(target_link, elem);
 });
@@ -177,8 +180,10 @@ var graph_factory = function (name) {
 
         } else if (type === "/infra/device") {
             node.classes = 'device';
-        } else if (type === 'ansible'){
+        } else if (type === 'ansible') {
             node.classes = 'ansible';
+        } else if (type === '/internal/orion') {
+            node.classes = 'orion';
         }
         return node;
     }

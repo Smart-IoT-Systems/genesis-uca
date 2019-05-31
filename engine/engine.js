@@ -169,8 +169,9 @@ var engine = (function () {
                     _data = JSON.stringify(comp.nr_flow);
                 }
                 noderedconnector.installAllNodeTypes(host.ip, comp.provided_communication_port[0].port_number, comp.packages).then(function () {
-                    noderedconnector.setFlow(host.ip, comp.provided_communication_port[0].port_number, _data, [], [], that.dep_model);
-                    bus.emit('node-started', id, comp.name);
+                    noderedconnector.setFlow(host.ip, comp.provided_communication_port[0].port_number, _data, [], [], that.dep_model).then(function(){
+                        bus.emit('node-started', id, comp.name);
+                    });
                 });
             }
         }).catch(function (err) {
@@ -204,13 +205,12 @@ var engine = (function () {
     };
 
 
-    that.deploy_one_component = async function (compo, nb) { //We wrap in a closure so that each comp deployment comes with its own context
+    that.deploy_one_component = async function (compo) { //We wrap in a closure so that each comp deployment comes with its own context
         //if not to be deployed by a deployment agent
         if (!that.dep_model.need_deployment_agent(compo)) {
             var host = that.dep_model.find_host(compo);
             //And if there is an host to deploy on
             if (host !== undefined) {
-                nb++;
                 //Manage ThingML nodes
                 if (compo._type === "/internal/thingml") {
                     await that.deploy_thingml(compo, host);
@@ -249,9 +249,9 @@ var engine = (function () {
     that.run = function (diff) { //TODO: factorize
         return new Promise(async function (resolve, reject) {
             var comp = diff.list_of_added_hosted_components;
-            var nb = 0;
+            var nb = that.dep_model.get_all_hosted().length;
             var tmp = 0;
-            var nb_link = that.dep_model.get_all_hosted().length;
+            var nb_link = that.dep_model.links.length; 
             var tmp_link = 0;
 
             //Deployment agent
@@ -264,6 +264,41 @@ var engine = (function () {
                 resolve(0);
             }
 
+
+            bus.on('node-error', function (container_id, comp_name) {
+                tmp++;
+                if (tmp >= nb) {
+                    tmp = 0;
+
+                    var comp_tab = that.dep_model.get_all_hosted();
+
+                    manage_links(comp_tab);
+                }
+            });
+
+            //We collect all the started events, once they are all received we generate the flow skeleton based on the links
+            bus.on('node-started', function (container_id, comp_name) {
+                tmp++;
+                //Add container id to the component
+                var comp = that.dep_model.find_node_named(comp_name);
+                comp.container_id = container_id;
+
+                if (tmp >= nb) {
+                    tmp = 0;
+                    var comp_tab = that.dep_model.get_all_hosted();
+                    manage_links(comp_tab);
+                }
+            });
+
+            bus.on('link-done', function () {
+                tmp_link++;
+                console.log(tmp_link+"::"+nb_link);
+                if (tmp_link >= nb_link) {
+                    tmp_link = 0;
+                    resolve(tmp_link);
+                }
+            });
+
             var compo_already_deployed = [];
 
             //Other nodes
@@ -273,16 +308,14 @@ var engine = (function () {
                 if (comp_mandatories !== null) {
                     for (var m in comp_mandatories) {
                         compo_already_deployed[comp_mandatories[m].name] = true;
-                        await (async function (one_component, nb) {
-                            await that.deploy_one_component(one_component, nb);
-                        }(comp_mandatories[m], nb));
+                        await that.deploy_one_component(comp_mandatories[m]);
                     }
                 }
                 if (compo_already_deployed[comp[i].name] === undefined) {
                     compo_already_deployed[comp[i].name] = true;
-                    (function (one_component, nb) {
-                        that.deploy_one_component(one_component, nb);
-                    }(comp[i], nb));
+                    (function (one_component) {
+                        that.deploy_one_component(one_component);
+                    }(comp[i]));
                 }
             }
 
@@ -314,43 +347,7 @@ var engine = (function () {
                 }
             }
 
-            bus.on('node-error', function (container_id, comp_name) {
-                tmp++;
-                if (tmp >= nb) {
-                    tmp = 0;
-
-                    var comp_tab = that.dep_model.get_all_hosted();
-
-                    manage_links(comp_tab);
-                }
-            });
-
-            //We collect all the started events, once they are all received we generate the flow skeleton based on the links
-            bus.on('node-started', function (container_id, comp_name) {
-                tmp++;
-
-                //Add container id to the component
-                var comp = that.dep_model.find_node_named(comp_name);
-                comp.container_id = container_id;
-
-                if (tmp >= nb) {
-                    tmp = 0;
-
-                    var comp_tab = that.dep_model.get_all_hosted();
-
-                    manage_links(comp_tab);
-                }
-            });
-
-            bus.on('link-done', function () {
-                tmp_link++;
-
-                if (tmp_link >= nb_link) {
-                    tmp_link = 0;
-
-                    resolve(tmp_link);
-                }
-            });
+            
         });
     };
 

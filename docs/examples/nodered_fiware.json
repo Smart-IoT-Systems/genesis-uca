@@ -25,7 +25,7 @@
             "docker_resource": {
                 "name": "f3e3feba-056e-46a7-9225-5b9edf5f1820",
                 "image": "fiware/orion:2.2.0",
-                "command": "",
+                "command": "-dbhost mongodb",
                 "links": ["mongodb:mongodb"],
                 "port_bindings": {
                     "1026": "1026"
@@ -264,7 +264,7 @@
                 "selectable": true,
                 "locked": false,
                 "grabbable": true,
-                "classes": ""
+                "classes": "orion"
             }, {
                 "data": {
                     "id": "Rpi"
@@ -402,6 +402,12 @@
             "selector": "node.ansible",
             "style": {
                 "background-image": "./img/ansible.png"
+            }
+        },{
+            "selector": "node.orion",
+            "css": {
+                "background-color": "#ADD8E6",
+                "background-image": "./img/fiware_logo.png"
             }
         }, {
             "selector": "node.device",
