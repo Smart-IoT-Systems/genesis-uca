@@ -79,8 +79,13 @@ var cy = window.cy = cytoscape({
                 'background-color': '#ADD8E6',
                 'background-image': './img/fiware_logo.png',
             }
-        },
-        {
+        },{
+            selector: 'node.thingml',
+            css: {
+                'background-color': '#ADD8E6',
+                'background-image': './img/thingml_short.png',
+            }
+        },{
             selector: 'node.device',
             css: {
                 'padding-top': '10px',
@@ -184,6 +189,8 @@ var graph_factory = function (name) {
             node.classes = 'ansible';
         } else if (type === '/internal/orion') {
             node.classes = 'orion';
+        } else if (type === '/internal/thingml') {
+            node.classes = 'thingml';
         }
         return node;
     }
