@@ -133,16 +133,16 @@ var docker_connector = function () {
                 }
             }
 
-            options.Mounts = [];
-            if (mounts !== undefined) {
-                options.Mounts.push({
-                    "Name": "",
-                    "Source": mounts.src,
-                    "Destination": mounts.tgt,
-                    "ReadOnly": false,
-                    "Type": "volume"
-                });
+            options.HostConfig.Mounts = [];
+            if (mounts !== undefined) {			
+				options.HostConfig.Mounts.push({
+					"Source": mounts.src,
+					"Target": mounts.tgt,
+					"ReadOnly": false,
+					"Type": mounts.type
+				});
             }
+			console.log(options.HostConfig.Mounts);
 
             options.name = that.comp_name;
 
