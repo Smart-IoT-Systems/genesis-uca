@@ -66,37 +66,48 @@ var engine = (function () {
     };
 
     that.deploy_agents = async function (links_deployer_tab) {
-        logger.log("info", "Starting deployment of deployment agents");
+        return new Promise(async function (resolve, reject) {
+            logger.log("info", "Starting deployment of deployment agents");
+            var nb_deployers = 0;
 
-        var map_host_agent = [];
-        for (var l in links_deployer_tab) {
-            var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
-            var tgt_agent = that.dep_model.find_node_named(tgt_agent_name);
-            var host_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].src);
-            var host_agent = that.dep_model.find_node_named(host_agent_name);
-            var tgt_agent_host = that.dep_model.find_host(tgt_agent);
-            var src_agent_host = that.dep_model.find_host(host_agent);
+            var map_host_agent = [];
+            for (var l in links_deployer_tab) {
+                var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
+                var tgt_agent = that.dep_model.find_node_named(tgt_agent_name);
+                var host_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].src);
+                var host_agent = that.dep_model.find_node_named(host_agent_name);
+                var tgt_agent_host = that.dep_model.find_host(tgt_agent);
+                var src_agent_host = that.dep_model.find_host(host_agent);
 
-            var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
-            await d_agent.prepare();
-            var cont_id = await d_agent.install();
-            tgt_agent.container_id = cont_id;
-            map_host_agent[cont_id] = src_agent_host;
-        }
+                var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
+                await d_agent.prepare();
+                var cont_id = await d_agent.install();
+                tgt_agent.container_id = cont_id;
+                map_host_agent[cont_id] = src_agent_host;
+            }
 
-        bus.on('d_agent_success', function (cfg) {
-            var con_docker = dc();
-            var c = that.dep_model.find_node_named(cfg);
-            con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
-                bus.emit('node-started', c.container_id, cfg);
+            bus.on('d_agent_success', function (cfg) {
+                nb_deployers++;
+                var con_docker = dc();
+                var c = that.dep_model.find_node_named(cfg);
+                con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
+                    bus.emit('node-started', c.container_id, cfg);
+                });
+                if(nb_deployers >= links_deployer_tab.length){
+                    resolve(true);
+                }
             });
-        });
 
-        bus.on('d_agent_error', function (cfg) {
-            var con_docker = dc();
-            var c = that.dep_model.find_node_named(cfg);
-            con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
-                bus.emit('node-error', c.container_id, cfg);
+            bus.on('d_agent_error', function (cfg) {
+                nb_deployers++;
+                var con_docker = dc();
+                var c = that.dep_model.find_node_named(cfg);
+                con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
+                    bus.emit('node-error', c.container_id, cfg);
+                });
+                if(nb_deployers >= links_deployer_tab.length){
+                    resolve(false);
+                }
             });
         });
     };
@@ -169,7 +180,7 @@ var engine = (function () {
                     _data = JSON.stringify(comp.nr_flow);
                 }
                 noderedconnector.installAllNodeTypes(host.ip, comp.provided_communication_port[0].port_number, comp.packages).then(function () {
-                    noderedconnector.setFlow(host.ip, comp.provided_communication_port[0].port_number, _data, [], [], that.dep_model).then(function(){
+                    noderedconnector.setFlow(host.ip, comp.provided_communication_port[0].port_number, _data, [], [], that.dep_model).then(function () {
                         bus.emit('node-started', id, comp.name);
                     });
                 });
@@ -224,7 +235,7 @@ var engine = (function () {
                         } else {
                             //Manage simple docker
                             var connector = dc();
-                            var id= await connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.docker_resource.links, compo.name, host.name);
+                            var id = await connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.docker_resource.links, compo.name, host.name);
                             bus.emit('node-started', id, compo.name);
                         }
                     }
@@ -251,7 +262,7 @@ var engine = (function () {
             var comp = diff.list_of_added_hosted_components;
             var nb = that.dep_model.get_all_hosted().length;
             var tmp = 0;
-            var nb_link = that.dep_model.links.length; 
+            var nb_link = that.dep_model.links.length;
             var tmp_link = 0;
 
             //Deployment agent
@@ -292,7 +303,7 @@ var engine = (function () {
 
             bus.on('link-done', function () {
                 tmp_link++;
-                console.log(tmp_link+"::"+nb_link);
+                console.log(tmp_link + "::" + nb_link);
                 if (tmp_link >= nb_link) {
                     tmp_link = 0;
                     resolve(tmp_link);
@@ -347,7 +358,7 @@ var engine = (function () {
                 }
             }
 
-            
+
         });
     };
 

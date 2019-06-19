@@ -53,6 +53,12 @@ var docker_connector = function () {
                         });
                     }
                 });
+                that.createContainerAndStart(port_bindings, command, image, devices, mounts, links).then(function (id) {
+                    bus.emit('host-config', host_id);
+                    resolve(id);
+                }).catch(function (err) {
+                    reject(err);
+                });
             }).catch(function(err){
                 logger.log("info", "Docker Host is not reachable "+err);
                 bus.emit('container-error', host_id);
@@ -133,15 +139,10 @@ var docker_connector = function () {
                 }
             }
 
-            options.Mounts = [];
+            //options.HostConfig.Mounts = [];
+            options.HostConfig.Binds = [];
             if (mounts !== undefined) {
-                options.Mounts.push({
-                    "Name": "",
-                    "Source": mounts.src,
-                    "Destination": mounts.tgt,
-                    "ReadOnly": false,
-                    "Type": "volume"
-                });
+                options.HostConfig.Binds.push(`${mounts.src}:${mounts.tgt}`);
             }
 
             options.name = that.comp_name;
