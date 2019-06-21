@@ -53,12 +53,12 @@ var docker_connector = function () {
                         });
                     }
                 });
-                that.createContainerAndStart(port_bindings, command, image, devices, mounts, links).then(function (id) {
+                /*that.createContainerAndStart(port_bindings, command, image, devices, mounts, links).then(function (id) {
                     bus.emit('host-config', host_id);
                     resolve(id);
                 }).catch(function (err) {
                     reject(err);
-                });
+                });*/
             }).catch(function(err){
                 logger.log("info", "Docker Host is not reachable "+err);
                 bus.emit('container-error', host_id);
