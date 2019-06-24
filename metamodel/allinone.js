@@ -397,6 +397,15 @@ var deployment_model = function (spec) {
         }
     };
 
+    that.get_all_infra_component = function(){
+        var tab = that.components.filter(function (elem) {
+            if (elem._type.indexOf('infra') >= 0) {
+                return elem;
+            }
+        });
+        return tab;
+    };
+
     that.is_valid_id = function (id) {
         var valid_id = true;
         that.components.forEach(function (elem) {
@@ -533,6 +542,7 @@ var infrastructure_component = function (spec) {
     that.ip = spec.ip || '127.0.0.1';
     that.port = spec.port || ['80', '22'];
     that.credentials = spec.credentials || credentials({});
+    that.monitoring_agent = spec.monitoring_agent || "none";
 
     return that;
 };

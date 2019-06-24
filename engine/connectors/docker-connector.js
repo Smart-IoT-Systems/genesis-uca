@@ -6,6 +6,11 @@ var docker_connector = function () {
     var that = {};
     that.docker = {};
     that.comp_name = '';
+    that.extra_options=[];
+
+    that.add_extra_options = function(obj){
+        that.extra_options.push(obj);
+    };
 
     that.stopAndRemove = function (container_id, endpoint, port) {
         return new Promise(async function (resolve, reject) {
@@ -142,10 +147,23 @@ var docker_connector = function () {
             //options.HostConfig.Mounts = [];
             options.HostConfig.Binds = [];
             if (mounts !== undefined) {
-                options.HostConfig.Binds.push(`${mounts.src}:${mounts.tgt}`);
+                if(Array.isArray(mounts)){
+                    mounts.forEach(element => {
+                        options.HostConfig.Binds.push(`${element.src}:${element.tgt}`);
+                    });
+                }else{
+                    options.HostConfig.Binds.push(`${mounts.src}:${mounts.tgt}`);
+                }
             }
 
             options.name = that.comp_name;
+
+            if(that.extra_options.length > 0){
+                that.extra_options.forEach(element =>{
+                    options.HostConfig[element[0]]=element[1];
+                });
+                console.log(JSON.stringify(options.HostConfig));
+            }
 
             that.docker.createContainer(options).then(function (container) {
                 container.start(function () {

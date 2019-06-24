@@ -6,6 +6,7 @@ var uuidv4 = require('uuid/v4');
 var comparison_engine = require('./model-comparison.js');
 var class_loader = require('./class-loader.js');
 var agent = require('./deployment-agent.js');
+var monitor_agent = require('./monitoring-agent.js');
 var logger = require('./logger.js');
 var ac = require('./connectors/ansible-connector.js');
 var thingmlcli = require('./thingml-compiler.js');
@@ -28,6 +29,8 @@ var engine = (function () {
     that.MQTTClient = {};
 
     that.graph = {};
+
+    that.m_observer = null;
 
     that.getDM_UI = function (req, res) {
         var all_in_one = {
@@ -110,6 +113,20 @@ var engine = (function () {
                 }
             });
         });
+    };
+
+    that.monitoring_agents = async function (comps){
+        logger.log("info", "Starting deployment of monitoring agents "+JSON.stringify(comps));
+        for(var inf in comps){
+            if(comps[inf]._type.indexOf('infra') > 0){
+                if(comps[inf].monitoring_agent !== undefined){
+                    if(comps[inf].monitoring_agent !== 'none'){
+                        var monitor = monitor_agent(comps[inf], "full");
+                        await monitor.install();
+                    }
+                }
+            }
+        }
     };
 
     that.deploy_thingml = async function (comp, host) {
@@ -271,6 +288,9 @@ var engine = (function () {
                 await that.deploy_agents(links_deployer_tab);
             }
 
+            //Monitoring agents
+            await that.monitoring_agents(diff.list_of_added_hosts);
+
             if (comp.length === 0 && diff.list_of_added_links.length === 0) { //No new component then and no new links, we are done
                 resolve(0);
             }
@@ -303,7 +323,7 @@ var engine = (function () {
 
             bus.on('link-done', function () {
                 tmp_link++;
-                console.log(tmp_link + "::" + nb_link);
+                //console.log(tmp_link + "::" + nb_link);
                 if (tmp_link >= nb_link) {
                     tmp_link = 0;
                     resolve(tmp_link);
@@ -479,9 +499,8 @@ var engine = (function () {
             that.diff = comparator.compare(dm);
             that.dep_model = dm; //target model becomes current
 
-            //We start the model observer
-            var m_observer = model_observer(that.dep_model);
-            m_observer.start();
+            //We set the model observer
+            that.m_observer.set_model(that.dep_model);
 
             //First do all the removal stuff - TODO refactor
             logger.log("info", "Stopping removed containers");
@@ -511,6 +530,10 @@ var engine = (function () {
         that.MQTTClient = mqtt.connect('ws://127.0.0.1:9001');
         var nfier = notifier(that.MQTTClient);
         nfier.start();
+
+        //We start the model observer
+        that.m_observer = model_observer(that.dep_model);
+        that.m_observer.start();
 
         //Load component types from the repository
         var cl = class_loader();

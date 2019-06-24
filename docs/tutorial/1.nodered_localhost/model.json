@@ -11,6 +11,7 @@
             }],
             "ip": "127.0.0.1",
             "port": ["2376"],
+            "monitoring_agent": "full",
             "credentials": {
                 "username": "ubuntu",
                 "password": "ubuntu",
