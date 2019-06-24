@@ -7,7 +7,6 @@ var runtime_observer = function (dm) {
     that.d_m=dm;
 
     that.setRuntimeInfo = function (elem_name, key, value) {
-        console.log(JSON.stringify(that.d_m));
         try{
             var elem = that.d_m.find_node_named(elem_name);
             if (elem._runtime === undefined) {
@@ -15,7 +14,7 @@ var runtime_observer = function (dm) {
             }
             elem._runtime[key] = value;
         }catch(err){
-            logger.log('info', 'Error setting runtime info of '+ elem_name +'! ' + err+ JSON.stringify(elem));
+            logger.log('info', 'Error setting runtime info of '+ elem_name +'! ' + err);
         }
     }
 
@@ -30,7 +29,6 @@ var runtime_observer = function (dm) {
         });
 
         bus.on('host-config', function (comp_name) {
-            console.log(">> config host");
             that.setRuntimeInfo(comp_name, "Status", "config");
         });
 
@@ -43,18 +41,15 @@ var runtime_observer = function (dm) {
         });
 
         bus.on('container-config', function (comp_name) {
-            console.log(">> config container");
             that.setRuntimeInfo(comp_name, "Status", "config");
         });
 
         bus.on('container-started', function (container_id, comp_name) {
-            console.log(">> container started");
             that.setRuntimeInfo(comp_name, "Status", "running");
             that.setRuntimeInfo(comp_name, "id", container_id);
         });
 
         bus.on('node-started', function (container_id, comp_name) {
-            console.log(">> node started");
             that.setRuntimeInfo(comp_name, "Status", "running");
             that.setRuntimeInfo(comp_name, "id", container_id);
         });
