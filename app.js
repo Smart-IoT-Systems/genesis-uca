@@ -6,6 +6,8 @@ var express = require("express");
 var app = express();
 var fs = require('fs');
 var bodyParser = require('body-parser')
+var swaggerUi = require('swagger-ui-express');
+var swaggerDocument = require('./swagger.json');
 
 app.set("port", 8000);
 app.use(bodyParser.json())
@@ -35,6 +37,7 @@ app.get("/genesis/model", runtime.getDM);
 //Send the current deployment model with graph
 app.get("/genesis/model_ui", runtime.getDM_UI);
 
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 function getLogs(req, res){
     var contents = fs.readFileSync(__dirname+'/genesis.log', 'utf8');
