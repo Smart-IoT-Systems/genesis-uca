@@ -1,0 +1,248 @@
+swagger: "2.0"
+info:
+  description: "[GeneSIS](https://gitlab.com/enact/GeneSIS) aims to facilitate the engineering and continuous deployment of smart IoT systems, allowing decentralized processing across heterogeneous the IoT, edge and cloud space. GeneSIS includes: (i) a domain specific modelling language to model the orchestration and deployment of smart IoT systems across the IoT, edge and cloud spaces; and (ii) an execution engine that will support the orchestration of IoT, edge and cloud services as well as their automatic deployment over IoT, edge and cloud resources."
+  version: "0.2.0"
+  title: "Generation and Deployment of Smart IoT Systems (GeneSIS)"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "127.0.0.1:8880"
+basePath: "/genesis"
+tags:
+- name: "Model"
+  description: "Everything to manage your models"
+  externalDocs:
+    description: "Find out more"
+    url: "https://gitlab.com/enact/GeneSIS"
+- name: "Events"
+  description: "Everything about the status of your SIS"
+  externalDocs:
+    description: "Find out more"
+    url: "https://gitlab.com/enact/GeneSIS"
+
+schemes:
+- "https"
+- "http"
+paths:
+  /model:
+    get:
+      tags:
+      - "Model"
+      summary: "To retrieve the current deployment mode"
+      description: ""
+      operationId: "getModel"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Model"
+        400:
+          description: "Error while getting model"
+  
+   
+  /model_ui:
+    get:
+      tags:
+      - "Model"
+      summary: "Get Model with UI description"
+      description: "To retrieve  the  current deployment model  including  its graphical representation"
+      operationId: "model_ui"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Model"
+        400:
+          description: "Invalid model"
+
+  /types:
+    get:
+      tags:
+      - "Model"
+      summary: "Retrieve list of component types"
+      description: "To retrieve the complete list of component types loaded by the execution engine"
+      operationId: "types"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Model"
+        400:
+          description: "Invalid model"
+  
+  /logs:
+    get:
+      tags:
+      - "Events"
+      summary: "Retrieve deployment logs"
+      description: "To retrieve all the logs from the deployment engine."
+      operationId: "logs"
+      produces:
+      - "plain/text"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Model"
+        400:
+          description: "Cannot access logs"
+
+  /deploy:
+    post:
+      tags:
+      - "Model"
+      summary: "Trigger a deployment"
+      description: "Provide a new deployment model to trigger a deployment"
+      operationId: "deploy"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "model"
+        description: "New deployment model"
+        required: true
+        schema:
+          $ref: "#/definitions/Model"
+
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Model"
+        405:
+          description: "Invalid input"
+
+definitions:
+  links:
+    type: "object"
+    properties:
+      target:
+        type: "string"
+        example: "/NodeRED_Obs/48465079-caff-4d66-bd56-17e6affa1389"
+      src:
+        type: "string"
+        example: "/Grove_Elec/a33be473-c269-4af3-a296-aeb0a7571343"
+      name:
+        type: "string"
+      isControl:
+        type: boolean
+      isDeployer:
+        type: boolean
+    xml:
+      name: "Category"
+      
+      
+  pep:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        
+  pcp:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      port_number:
+        type: "string"
+        
+  components:
+    type: "object"
+    properties:
+      ip:
+        type: "string"
+        example: "127.0.0.1"
+      port:
+        type: array
+        items:
+          type: "string"
+          example: "80"
+      provided_execution_port:
+        type: array
+        items:
+          $ref: '#/definitions/pep'
+      required_execution_port:
+        type: array
+        items:
+          $ref: '#/definitions/pep'
+      provided_communication_port:
+        type: array
+        items:
+          $ref: '#/definitions/pcp'
+      required_communication_port:
+        type: array
+        items:
+          $ref: '#/definitions/pcp'
+      name:
+        type: "string"
+    xml:
+      name: "Category"
+      
+  containments:
+    type: "object"
+    properties:
+      target:
+        type: "string"
+        example: "/NodeRED_Obs/48465079-caff-4d66-bd56-17e6affa1389"
+      src:
+        type: "string"
+        example: "/Grove_Elec/a33be473-c269-4af3-a296-aeb0a7571343"
+      name:
+        type: "string"
+    xml:
+      name: "Category"
+  
+
+  Model:
+    type: "object"
+    required:
+    - "name"
+    - "components"
+    - "links"
+    - "containments"
+    properties:
+      links:
+        $ref: "#/definitions/links"
+      containments:
+        $ref: '#/definitions/containments'
+      components:
+        $ref: '#/definitions/components'
+      name:
+        type: "string"
+        example: "model1"
+    xml:
+      name: "Pet"
+      
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      message:
+        type: "string"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
