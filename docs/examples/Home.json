@@ -1,0 +1,619 @@
+{
+    "dm": {
+        "name": "demo",
+        "components": [{
+            "_type": "/infra/docker_host",
+            "name": "RaspiHome",
+            "properties": [],
+            "id": "393796b2-d5ae-4934-8232-33f3824f1230",
+            "provided_execution_port": [{
+                "name": "0e1657d2-5a4f-4a12-a6d1-95c6aec43014"
+            }],
+            "ip": "192.168.43.3",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "ubuntu",
+                "sshkey": ""
+            }
+        }, {
+            "_type": "/internal/node_red",
+            "name": "NodeRED_App",
+            "properties": [],
+            "id": "eb86d718-fbc9-4d6d-a8c9-e95fe8c8f307",
+            "provided_execution_port": [],
+            "docker_resource": {
+                "name": "10dae1cc-18f8-4178-8505-717dbfafb3ce",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880",
+                    "1883": "1883"
+                },
+                "devices": {
+                    "PathOnHost": "/dev/i2c-1",
+                    "PathInContainer": "/dev/i2c-1",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "ab226dd3-fdfa-475f-a64d-cc619cd91b1e",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "5b705db6-ccee-455a-ae6b-ff91fc980416",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "51a55a65-1285-4abb-b518-298bf7c6eed9",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "b3b97e20-6810-431a-8b86-737b0e088a3a",
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "13c2f9d8-18c6-4f99-8679-1b321a62aeaf",
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "/Users/ferrynico/Documents/Code/behavioural_drift_analysis/demo_bilbao/Application.json",
+            "packages": []
+        }, {
+            "_type": "/infra/docker_host",
+            "name": "RaspiObs",
+            "properties": [],
+            "id": "a5be0735-fade-4443-a96e-d82d4d77e13d",
+            "provided_execution_port": [{
+                "name": "aaacd12f-7782-4e90-9fd1-7c11db80ee45"
+            }],
+            "ip": "192.168.43.5",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "ubuntu",
+                "sshkey": ""
+            }
+        }, {
+            "_type": "/internal/node_red",
+            "name": "NodeRED_Obs",
+            "properties": [],
+            "id": "207f2974-59bf-4538-9dd9-f578ba421cac",
+            "provided_execution_port": [],
+            "docker_resource": {
+                "name": "7d546111-0113-4f00-8892-e296ddfecd34",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880",
+                    "1883": "1883"
+                },
+                "devices": [{
+                    "PathOnHost": "/dev/i2c-1",
+                    "PathInContainer": "/dev/i2c-1",
+                    "CgroupPermissions": "rwm"
+                }, {
+                    "PathOnHost": "/dev/ttyACM0",
+                    "PathInContainer": "/dev/ttyACM0",
+                    "CgroupPermissions": "rwm"
+                }]
+            },
+            "ssh_resource": {
+                "name": "24f33ce1-662b-451d-a49f-4ad0c3091a9f",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "fc308d7d-f002-4e06-a399-15db77c0a038",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "e2e24ffd-996e-4ad2-8bad-5fe71917b5f3",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "48465079-caff-4d66-bd56-17e6affa1389",
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "e116554a-68b9-4075-a2d5-efd89cb27a42",
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "/Users/ferrynico/Documents/Code/behavioural_drift_analysis/demo_bilbao/Observer.json",
+            "packages": []
+        }, {
+            "_type": "/infra/device",
+            "name": "Arduino",
+            "properties": [],
+            "id": "a58b7795-a9ab-45f6-8fab-b172c5365edf",
+            "provided_execution_port": [{
+                "name": "f9559fa2-7eaf-4425-8369-678560c12d47"
+            }],
+            "ip": "127.0.0.1",
+            "port": ["80", "22"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "ubuntu",
+                "sshkey": ""
+            },
+            "physical_port": "/dev/ttyACM0",
+            "device_type": "arduino",
+            "isLocal": false
+        }, {
+            "_type": "/internal/arduino",
+            "name": "Grove_Elec",
+            "properties": [],
+            "id": "6740bd77-b44e-4f47-9889-49e91a11e72f",
+            "provided_execution_port": [{
+                "name": "caec38cd-6371-4f29-86b8-8fbaa495dd5f"
+            }],
+            "docker_resource": {
+                "name": "8669bb67-26e4-4ae3-ba01-c7196a1d9af1",
+                "image": "ubuntu",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "b2df4687-3e16-4446-8938-2dc455618133",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "15b58dc9-d2da-4820-bbf1-f5049b111431",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "28e6c98c-fb3c-426a-aeab-d8142bcf825f",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "97aeb12f-66ee-45ea-b14e-e1624da343de",
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "a33be473-c269-4af3-a296-aeb0a7571343",
+                "port_number": "1880",
+                "isMandatory": false
+            }],
+            "nr_description": "",
+            "sketch": "/Users/ferrynico/Documents/Code/behavioural_drift_analysis/demo_bilbao/Grove_Elec.ino",
+            "libraries": []
+        }, {
+            "_type": "/infra/docker_host",
+            "name": "myHost_BDA",
+            "properties": [],
+            "id": "f45b55c6-70b2-4098-b70f-d322d0ceddc6",
+            "provided_execution_port": [{
+                "name": "89ca3875-ac7a-4ca1-94cd-4df61a5c50d4"
+            }],
+            "ip": "127.0.0.1",
+            "port": ["2376"],
+            "monitoring_agent": "full",
+            "credentials": {
+                "username": "ubuntu",
+                "password": "ubuntu",
+                "sshkey": ""
+            }
+        }, {
+            "_type": "/internal/node_red",
+            "name": "NodeRED_BDA",
+            "properties": [],
+            "id": "79282049-cb97-4093-8329-d006b1926cfb",
+            "provided_execution_port": [{
+                "name": "54dbcfd6-c45b-4543-912c-bfaf55b0d88f"
+            }],
+            "docker_resource": {
+                "name": "3e024f72-5119-492e-bf67-74872c1d091a",
+                "image": "enact-bda:0.25",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "e0865b3a-0e66-412c-9dca-c7b92b2a60d4",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "93e4e957-8a70-4ca2-8b7f-779a144f844f",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "ubuntu",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "a518ada6-e105-4f53-ae8b-1824564e7ce1",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "d55cc96c-3475-49c6-a576-7d9a8e49935d",
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "3f661221-2e51-43cb-85ef-0c51bc10e8a8",
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "/Users/ferrynico/Documents/Code/behavioural_drift_analysis/demo_bilbao/BDA.json",
+            "packages": []
+        }],
+        "links": [{
+            "name": "link1",
+            "properties": [],
+            "src": "/NodeRED_Obs/48465079-caff-4d66-bd56-17e6affa1389",
+            "target": "/Grove_Elec/a33be473-c269-4af3-a296-aeb0a7571343",
+            "isControl": false,
+            "isDeployer": true
+        }, {
+            "name": "link2",
+            "properties": [],
+            "src": "/NodeRED_Obs/48465079-caff-4d66-bd56-17e6affa1389",
+            "target": "/NodeRED_BDA/3f661221-2e51-43cb-85ef-0c51bc10e8a8",
+            "isControl": false,
+            "isDeployer": false
+        }],
+        "containments": [{
+            "name": "cont1",
+            "properties": [],
+            "src": "/RaspiHome/0e1657d2-5a4f-4a12-a6d1-95c6aec43014",
+            "target": "/NodeRED_App/51a55a65-1285-4abb-b518-298bf7c6eed9"
+        }, {
+            "name": "cont2",
+            "properties": [],
+            "src": "/RaspiObs/aaacd12f-7782-4e90-9fd1-7c11db80ee45",
+            "target": "/NodeRED_Obs/e2e24ffd-996e-4ad2-8bad-5fe71917b5f3"
+        }, {
+            "name": "cont3",
+            "properties": [],
+            "src": "/Arduino/f9559fa2-7eaf-4425-8369-678560c12d47",
+            "target": "/Grove_Elec/28e6c98c-fb3c-426a-aeab-d8142bcf825f"
+        }, {
+            "name": "cont4",
+            "properties": [],
+            "src": "/myHost_BDA/89ca3875-ac7a-4ca1-94cd-4df61a5c50d4",
+            "target": "/NodeRED_BDA/a518ada6-e105-4f53-ae8b-1824564e7ce1"
+        }],
+        "type_registry": []
+    },
+    "graph": {
+        "elements": {
+            "nodes": [{
+                "data": {
+                    "id": "RaspiHome"
+                },
+                "position": {
+                    "x": 210.34719646311464,
+                    "y": 254.1244819216729
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "NodeRED_App",
+                    "parent": "RaspiHome"
+                },
+                "position": {
+                    "x": 210.34719646311464,
+                    "y": 254.1244819216729
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }, {
+                "data": {
+                    "id": "RaspiObs"
+                },
+                "position": {
+                    "x": 313,
+                    "y": 162
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "NodeRED_Obs",
+                    "parent": "RaspiObs"
+                },
+                "position": {
+                    "x": 313,
+                    "y": 162
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }, {
+                "data": {
+                    "id": "Arduino"
+                },
+                "position": {
+                    "x": 210.88242578935447,
+                    "y": 161.47305992699302
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "device"
+            }, {
+                "data": {
+                    "id": "Grove_Elec",
+                    "parent": "Arduino"
+                },
+                "position": {
+                    "x": 210.88242578935447,
+                    "y": 161.47305992699302
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "myHost_BDA"
+                },
+                "position": {
+                    "x": 416.7427469034213,
+                    "y": 162.7234053125444
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "NodeRED_BDA",
+                    "parent": "myHost_BDA"
+                },
+                "position": {
+                    "x": 416.7427469034213,
+                    "y": 162.7234053125444
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }],
+            "edges": [{
+                "data": {
+                    "id": "link1",
+                    "source": "NodeRED_Obs",
+                    "target": "Grove_Elec"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "control"
+            }, {
+                "data": {
+                    "id": "link2",
+                    "source": "NodeRED_Obs",
+                    "target": "NodeRED_BDA"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }]
+        },
+        "style": [{
+            "selector": "node",
+            "style": {
+                "label": "data(id)",
+                "background-fit": "contain",
+                "background-image-opacity": "0.3",
+                "text-valign": "center",
+                "text-halign": "center",
+                "font-size": "4px",
+                "font-weight": "bold"
+            }
+        }, {
+            "selector": "node.container",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/docker-official.svg"
+            }
+        }, {
+            "selector": "edge",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "triangle"
+            }
+        }, {
+            "selector": "edge.control",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "circle"
+            }
+        }, {
+            "selector": ":selected",
+            "style": {
+                "background-color": "black",
+                "line-color": "black",
+                "target-arrow-color": "black",
+                "source-arrow-color": "black"
+            }
+        }, {
+            "selector": "node.questionable",
+            "style": {
+                "border-color": "#A33",
+                "background-color": "#B55",
+                "shape": "roundrectangle"
+            }
+        }, {
+            "selector": "node.node_red",
+            "style": {
+                "background-image": "./img/node-red-256.png"
+            }
+        }, {
+            "selector": "node.ansible",
+            "style": {
+                "background-image": "./img/ansible.png"
+            }
+        }, {
+            "selector": "node.orion",
+            "style": {
+                "background-color": "#ADD8E6",
+                "background-image": "./img/fiware_logo.png"
+            }
+        }, {
+            "selector": "node.thingml",
+            "style": {
+                "background-color": "#ADD8E6",
+                "background-image": "./img/thingml_short.png"
+            }
+        }, {
+            "selector": "node.device",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/device.png"
+            }
+        }, {
+            "selector": "node.vm",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/server_cloud.png"
+            }
+        }],
+        "zoomingEnabled": true,
+        "userZoomingEnabled": true,
+        "zoom": 1.7864875748520532,
+        "minZoom": 0.4,
+        "maxZoom": 6,
+        "panningEnabled": true,
+        "userPanningEnabled": true,
+        "pan": {
+            "x": -62.1616002172952,
+            "y": -119.81858338589787
+        },
+        "boxSelectionEnabled": false,
+        "renderer": {
+            "name": "canvas"
+        }
+    }
+}
