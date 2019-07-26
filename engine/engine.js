@@ -62,6 +62,9 @@ var engine = (function () {
                 //Need to find the host in the old model
                 if (host._type === "/infra/docker_host") {
                     await connector.stopAndRemove(removed[i].container_id, host.ip, host.port);
+                } else if (compo.ssh_resource.credentials.sshkey !== "" || compo.ssh_resource.credentials.agent !== "" || compo.ssh_resource.credentials.password !== ""){
+                    var ssh_connection = sshc(host.ip, host.port, removed[i].ssh_resource.credentials.username, removed[i].ssh_resource.credentials.password, removed[i].ssh_resource.credentials.sshkey, removed[i].ssh_resource.credentials.agent);
+                    await ssh_connection.execute_command(comp.ssh_resource.stopCommand);
                 }
             }
         }
@@ -208,7 +211,7 @@ var engine = (function () {
     };
 
     that.deploy_ssh = async function (comp, host) {
-        var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
+        var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
         //just for fun 0o' let's try the most crappy code ever!
         sc.execute_command(comp.ssh_resource.downloadCommand).then(function () {
             logger.log("info", "Download command executed");
