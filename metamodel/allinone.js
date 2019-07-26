@@ -487,6 +487,7 @@ var credentials = function (spec) {
     that.username = spec.username || "ubuntu";
     that.password = spec.password || "ubuntu";
     that.sshkey = spec.sshkey || "";
+    that.agent = spec.agent || "";
 
     return that;
 }

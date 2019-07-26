@@ -3,7 +3,7 @@ var fs = require('fs');
 var logger = require('../logger.js');
 const SSH2Utils = require('ssh2-utils');
 
-var ssh_connector = function (ip, port, username, passwd, key) {
+var ssh_connector = function (ip, port, username, passwd, key, agent) {
 
     var that = {};
     that.options={
@@ -13,6 +13,8 @@ var ssh_connector = function (ip, port, username, passwd, key) {
     };
     if(key !== ""){
         that.options.privateKey= fs.readFileSync(key);
+    } else if (agent !== "") {
+        that.options.agent=agent;
     }else{
         that.options.password=passwd;
     }

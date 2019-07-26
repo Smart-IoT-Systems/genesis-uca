@@ -150,7 +150,7 @@ var engine = (function () {
                 }).then(function () {
                     //TODO: make it more generic
                     //as a start we connect and deploy via SSH
-                    var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey);
+                    var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
                     sc.upload_file("./generated_" + comp.name + '/target/' + comp.name + '-1.0.0-jar-with-dependencies.jar', '/home/' + comp.ssh_resource.credentials.username + '/' + comp.name + '-1.0.0-jar-with-dependencies.jar').then(function (file_path_tgt) {
                         sc.execute_command(comp.ssh_resource.startCommand);
                         bus.emit('ssh-started', host.name);
@@ -165,7 +165,7 @@ var engine = (function () {
             }
             if (comp[i].target_language === 'nodejs') {
                 logger.log("info", process.cwd() + "/generated_" + comp.name);
-                var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey);
+                var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
                 sc.upload_directory("./generated_" + comp[i].name, '/home/' + comp.ssh_resource.credentials.username + '/generated_' + comp.name).then(function (file_path_tgt) {
                     sc.execute_command(comp.ssh_resource.startCommand);
                     bus.emit('ssh-started', host.name);
@@ -208,15 +208,15 @@ var engine = (function () {
     };
 
     that.deploy_ssh = async function (comp, host) {
-        var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.sshkey);
+        var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
         //just for fun 0o' let's try the most crappy code ever!
-        sc.execute_command(comp[i].ssh_resource.downloadCommand).then(function () {
+        sc.execute_command(comp.ssh_resource.downloadCommand).then(function () {
             logger.log("info", "Download command executed");
-            sc.execute_command(comp[i].ssh_resource.installCommand).then(function () {
+            sc.execute_command(comp.ssh_resource.installCommand).then(function () {
                 logger.log("info", "Install command executed");
-                sc.execute_command(comp[i].ssh_resource.configureCommand).then(function () {
+                sc.execute_command(comp.ssh_resource.configureCommand).then(function () {
                     logger.log("info", "Configure command executed");
-                    sc.execute_command(comp[i].ssh_resource.startCommand).then(function () {
+                    sc.execute_command(comp.ssh_resource.startCommand).then(function () {
                         logger.log("info", "Start command executed");
                     }).catch(function (err) {
                         logger.log("error", "Start command error " + err);
@@ -263,7 +263,7 @@ var engine = (function () {
                     }
 
                     //Manage component via ssh
-                    if (compo.ssh_resource.credentials.sshkey !== "") {
+                    if (compo.ssh_resource.credentials.sshkey !== "" || compo.ssh_resource.credentials.agent !== "" || compo.ssh_resource.credentials.password != "") {
                         await that.deploy_ssh(compo, host);
                     }
                 }
