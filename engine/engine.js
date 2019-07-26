@@ -32,6 +32,8 @@ var engine = (function () {
 
     that.m_observer = null;
 
+    that.compo_already_deployed = [];
+
     that.getDM_UI = function (req, res) {
         var all_in_one = {
             dm: that.dep_model,
@@ -62,7 +64,7 @@ var engine = (function () {
                 //Need to find the host in the old model
                 if (host._type === "/infra/docker_host") {
                     await connector.stopAndRemove(removed[i].container_id, host.ip, host.port);
-                } else if (compo.ssh_resource.credentials.sshkey !== "" || compo.ssh_resource.credentials.agent !== "" || compo.ssh_resource.credentials.password !== ""){
+                } else if (compo.ssh_resource.credentials.sshkey !== "" || compo.ssh_resource.credentials.agent !== "" || compo.ssh_resource.credentials.password !== "") {
                     var ssh_connection = sshc(host.ip, host.port, removed[i].ssh_resource.credentials.username, removed[i].ssh_resource.credentials.password, removed[i].ssh_resource.credentials.sshkey, removed[i].ssh_resource.credentials.agent);
                     await ssh_connection.execute_command(comp.ssh_resource.stopCommand);
                 }
@@ -99,7 +101,7 @@ var engine = (function () {
                 con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
                     bus.emit('node-started', c.container_id, cfg);
                 });
-                if(nb_deployers >= links_deployer_tab.length){
+                if (nb_deployers >= links_deployer_tab.length) {
                     resolve(true);
                 }
             });
@@ -111,19 +113,19 @@ var engine = (function () {
                 con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
                     bus.emit('node-error', c.container_id, cfg);
                 });
-                if(nb_deployers >= links_deployer_tab.length){
+                if (nb_deployers >= links_deployer_tab.length) {
                     resolve(false);
                 }
             });
         });
     };
 
-    that.monitoring_agents = async function (comps){
+    that.monitoring_agents = async function (comps) {
         logger.log("info", "Starting deployment of monitoring agents ");
-        for(var inf in comps){
-            if(comps[inf]._type.indexOf('infra') > 0){
-                if(comps[inf].monitoring_agent !== undefined){
-                    if(comps[inf].monitoring_agent !== 'none'){
+        for (var inf in comps) {
+            if (comps[inf]._type.indexOf('infra') > 0) {
+                if (comps[inf].monitoring_agent !== undefined) {
+                    if (comps[inf].monitoring_agent !== 'none') {
                         var monitor = monitor_agent(comps[inf], "full");
                         await monitor.install();
                     }
@@ -210,32 +212,42 @@ var engine = (function () {
         });
     };
 
-    that.deploy_ssh = async function (comp, host) {
-        var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
-        //just for fun 0o' let's try the most crappy code ever!
-        sc.execute_command(comp.ssh_resource.downloadCommand).then(function () {
-            logger.log("info", "Download command executed");
-            sc.execute_command(comp.ssh_resource.installCommand).then(function () {
-                logger.log("info", "Install command executed");
-                sc.execute_command(comp.ssh_resource.configureCommand).then(function () {
-                    logger.log("info", "Configure command executed");
-                    sc.execute_command(comp.ssh_resource.startCommand).then(function () {
-                        logger.log("info", "Start command executed");
+    that.deploy_ssh = function (comp, host) {
+        return new Promise(function (resolve, reject) {
+            var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
+            //just for fun 0o' let's try the most crappy code ever!
+            sc.execute_command(comp.ssh_resource.downloadCommand).then(function () {
+                logger.log("info", "Download command executed");
+                sc.execute_command(comp.ssh_resource.installCommand).then(function () {
+                    logger.log("info", "Install command executed");
+                    sc.execute_command(comp.ssh_resource.configureCommand).then(function () {
+                        logger.log("info", "Configure command executed");
+                        sc.execute_command(comp.ssh_resource.startCommand).then(function () {
+                            logger.log("info", "Start command executed");
+                            bus.emit('ssh-started', host.name);
+                            bus.emit('ssh-started', comp.name);
+                            bus.emit('node-started', "", comp.name);
+                            resolve(true);
+                        }).catch(function (err) {
+                            logger.log("error", "Start command error " + err);
+                            reject(err);
+                        });
                     }).catch(function (err) {
-                        logger.log("error", "Start command error " + err);
+                        logger.log("error", "Configure command error " + err);
+                        reject(err);
                     });
                 }).catch(function (err) {
-                    logger.log("error", "Configure command error " + err);
+                    logger.log("error", "Install command error " + err);
+                    reject(err);
                 });
             }).catch(function (err) {
-                logger.log("error", "Install command error " + err);
+                logger.log("error", "Download command error " + err);
+                reject(err);
             });
-        }).catch(function (err) {
-            logger.log("error", "Download command error " + err);
         });
     };
 
-    that.deploy_node_red_flow = async function(a_component){
+    that.deploy_node_red_flow = async function (a_component) {
         var nredconnector = nodered_connector();
         var host = that.dep_model.find_host(a_component);
         var _data = "";
@@ -251,7 +263,7 @@ var engine = (function () {
         });
     };
 
-    that.deploy_one_component = async function (compo) { //We wrap in a closure so that each comp deployment comes with its own context
+    that.deploy_one_component = async function (compo) { //We wrap in a closure so that each comp deployment comes with its own context        
         //if not to be deployed by a deployment agent
         if (!that.dep_model.need_deployment_agent(compo)) {
             var host = that.dep_model.find_host(compo);
@@ -276,7 +288,7 @@ var engine = (function () {
                     }
 
                     //Manage node-red-flow components
-                    if(compo._type === "/internal/node_red_flow"){
+                    if (compo._type === "/internal/node_red_flow") {
                         logger.log('info', 'Deploy a flow');
                         await that.deploy_node_red_flow(compo);
                     }
@@ -289,7 +301,7 @@ var engine = (function () {
 
                     //Manage component via ssh
                     if (compo.ssh_resource.credentials.sshkey !== "" || compo.ssh_resource.credentials.agent !== "" || compo.ssh_resource.credentials.password !== "") {
-                        logger.log('info', 'Deploy via SSH' + JSON.stringify(compo.ssh_resource));
+                        logger.log('info', 'Deploy via SSH');
                         await that.deploy_ssh(compo, host);
                     }
                 }
@@ -298,6 +310,27 @@ var engine = (function () {
     };
 
 
+    that.recursive_deploy = async function (cpnt) {
+        var one_level = that.dep_model.find_host_one_level_down(cpnt);
+        if ((one_level !== null) && (that.compo_already_deployed[one_level] === true) && (one_level._type.indexOf('infra') < 0)) {
+            await that.recursive_deploy(one_level, true);
+        } else {
+            var comp_mandatories = that.dep_model.get_all_mandatory_of_a_component(cpnt);
+            if (comp_mandatories !== null) {
+                for (var m in comp_mandatories) {
+                    that.compo_already_deployed[comp_mandatories[m].name] = true;
+                    await that.deploy_one_component(comp_mandatories[m]);
+                }
+            }
+            if (that.compo_already_deployed[cpnt.name] === undefined) {
+                that.compo_already_deployed[cpnt.name] = true;
+                await that.deploy_one_component(cpnt);
+                /*(function (one_component) {
+                    that.deploy_one_component(one_component);
+                }(cpnt));*/
+            }
+        }
+    };
 
 
     that.run = function (diff) { //TODO: factorize
@@ -356,25 +389,14 @@ var engine = (function () {
                 }
             });
 
-            var compo_already_deployed = [];
+
+            that.compo_already_deployed = [];
 
             //Other nodes
             for (var i in comp) {
-                //TODO: make this recursive!
-                var comp_mandatories = that.dep_model.get_all_mandatory_of_a_component(comp[i]);
-                if (comp_mandatories !== null) {
-                    for (var m in comp_mandatories) {
-                        compo_already_deployed[comp_mandatories[m].name] = true;
-                        await that.deploy_one_component(comp_mandatories[m]);
-                    }
-                }
-                if (compo_already_deployed[comp[i].name] === undefined) {
-                    compo_already_deployed[comp[i].name] = true;
-                    (function (one_component) {
-                        that.deploy_one_component(one_component);
-                    }(comp[i]));
-                }
+                await that.recursive_deploy(comp[i]);
             }
+
 
             var manage_links = function (comp_tab) {
                 //For all Node-Red hosted components we generate the websocket proxies
@@ -519,6 +541,8 @@ var engine = (function () {
         if (dm.is_valid()) {
 
             logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));
+
+            that.already_deployed = [];
 
             //Compare model
             var comparator = comparison_engine(that.dep_model);
