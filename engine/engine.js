@@ -300,7 +300,7 @@ var engine = (function () {
                     }
 
                     //Manage component via ssh
-                    if (compo.ssh_resource.credentials.sshkey !== "" || compo.ssh_resource.credentials.agent !== "" || compo.ssh_resource.credentials.password !== "") {
+                    if (that.need_ssh(compo)) {
                         logger.log('info', 'Deploy via SSH');
                         await that.deploy_ssh(compo, host);
                     }
@@ -309,26 +309,33 @@ var engine = (function () {
         }
     };
 
+    that.need_ssh = function (compo) {
+        if ((compo.ssh_resource.credentials.sshkey !== undefined && compo.ssh_resource.credentials.sshkey !== "") || (compo.ssh_resource.credentials.agent !== undefined && compo.ssh_resource.credentials.agent !== "") || (compo.ssh_resource.credentials.password !== undefined && compo.ssh_resource.credentials.password !== "")) {
+            return true;
+        }
+
+        return false;
+    };
+
 
     that.recursive_deploy = async function (cpnt) {
         var one_level = that.dep_model.find_host_one_level_down(cpnt);
-        if ((one_level !== null) && (that.compo_already_deployed[one_level] === true) && (one_level._type.indexOf('infra') < 0)) {
-            await that.recursive_deploy(one_level, true);
-        } else {
-            var comp_mandatories = that.dep_model.get_all_mandatory_of_a_component(cpnt);
-            if (comp_mandatories !== null) {
-                for (var m in comp_mandatories) {
-                    that.compo_already_deployed[comp_mandatories[m].name] = true;
-                    await that.deploy_one_component(comp_mandatories[m]);
-                }
+        if ((one_level !== null) && (that.compo_already_deployed[one_level] !== true) && (one_level._type.indexOf('infra') < 0)) {
+            await that.recursive_deploy(one_level);
+        }
+        var comp_mandatories = that.dep_model.get_all_mandatory_of_a_component(cpnt);
+        if (comp_mandatories !== null) {
+            for (var m in comp_mandatories) {
+                that.compo_already_deployed[comp_mandatories[m].name] = true;
+                await that.deploy_one_component(comp_mandatories[m]);
             }
-            if (that.compo_already_deployed[cpnt.name] === undefined) {
-                that.compo_already_deployed[cpnt.name] = true;
-                await that.deploy_one_component(cpnt);
-                /*(function (one_component) {
-                    that.deploy_one_component(one_component);
-                }(cpnt));*/
-            }
+        }
+        if (that.compo_already_deployed[cpnt.name] === undefined) {
+            that.compo_already_deployed[cpnt.name] = true;
+            await that.deploy_one_component(cpnt);
+            /*(function (one_component) {
+                that.deploy_one_component(one_component);
+            }(cpnt));*/
         }
     };
 
