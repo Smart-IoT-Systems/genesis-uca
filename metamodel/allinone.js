@@ -325,6 +325,19 @@ var deployment_model = function (spec) {
     };
 
     that.find_host = function (comp) {
+        var h = that.find_host_one_level_down(comp);
+        if(h === null){
+            return null;
+        }else{
+            if(h._type.indexOf('internal') >=0){
+                return that.find_host(h);
+            }else{
+                return h;
+            }
+        }
+    };
+
+    that.find_host_one_level_down = function(comp){
         var id = that.generate_port_id(comp, comp.required_execution_port);
         var containment = that.find_containment_of_required_port(id);
         if (containment) {
@@ -485,7 +498,7 @@ var deployment_model = function (spec) {
 var credentials = function (spec) {
     var that = {};
     that.username = spec.username || "ubuntu";
-    that.password = spec.password || "ubuntu";
+    that.password = spec.password || "";
     that.sshkey = spec.sshkey || "";
     that.agent = spec.agent || "";
 
@@ -641,6 +654,8 @@ var node_red = function (spec) {
 var external_node = function (spec) {
     var that = component(spec); //the inheritance
     that._type += "/external";
+
+    that.ip = spec.ip || '127.0.0.1';
 
     var tab_pcp = [];
     tab_pcp.push(provided_communication_port({}));

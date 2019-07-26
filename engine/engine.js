@@ -116,7 +116,7 @@ var engine = (function () {
     };
 
     that.monitoring_agents = async function (comps){
-        logger.log("info", "Starting deployment of monitoring agents "+JSON.stringify(comps));
+        logger.log("info", "Starting deployment of monitoring agents ");
         for(var inf in comps){
             if(comps[inf]._type.indexOf('infra') > 0){
                 if(comps[inf].monitoring_agent !== undefined){
@@ -232,6 +232,21 @@ var engine = (function () {
         });
     };
 
+    that.deploy_node_red_flow = async function(a_component){
+        var nredconnector = nodered_connector();
+        var host = that.dep_model.find_host(a_component);
+        var _data = "";
+        if (a_component.path_flow !== "" && a_component.path_flow !== undefined) {
+            _data = fs.readFileSync(a_component.path_flow);
+        } else {
+            _data = JSON.stringify(a_component.nr_flow);
+        }
+        nredconnector.installAllNodeTypes(host.ip, a_component.required_communication_port[0].port_number, a_component.packages).then(function () {
+            nredconnector.setFlow(host.ip, a_component.required_communication_port[0].port_number, _data, [], [], that.dep_model).then(function () {
+                bus.emit('node-started', null, a_component.name);
+            });
+        });
+    };
 
     that.deploy_one_component = async function (compo) { //We wrap in a closure so that each comp deployment comes with its own context
         //if not to be deployed by a deployment agent
@@ -256,6 +271,13 @@ var engine = (function () {
                             bus.emit('node-started', id, compo.name);
                         }
                     }
+
+                    //Manage node-red-flow components
+                    if(compo._type === "/internal/node_red_flow"){
+                        logger.log('info', 'Deploy a flow');
+                        await that.deploy_node_red_flow(compo);
+                    }
+
                     //Manage component via Ansible
                     if (compo.ansible_resource.playbook_path !== "" && compo.ansible_resource.playbook_path !== undefined) {
                         var connector = ac(host, ccompo);
@@ -263,7 +285,8 @@ var engine = (function () {
                     }
 
                     //Manage component via ssh
-                    if (compo.ssh_resource.credentials.sshkey !== "" || compo.ssh_resource.credentials.agent !== "" || compo.ssh_resource.credentials.password != "") {
+                    if (compo.ssh_resource.credentials.sshkey !== "" || compo.ssh_resource.credentials.agent !== "" || compo.ssh_resource.credentials.password !== "") {
+                        logger.log('info', 'Deploy via SSH' + JSON.stringify(compo.ssh_resource));
                         await that.deploy_ssh(compo, host);
                     }
                 }
