@@ -1,1 +1,218 @@
-{"dm":{"name":"demo","components":[{"_type":"/infra/device","name":"my_machine","properties":[],"id":"711636d9-c22c-4919-a848-986d7440bf77","provided_execution_port":[{"name":"offerLinux"}],"ip":"192.168.1.16","port":["22"],"credentials":{"username":"ubuntu","password":"ubuntu","sshkey":""},"physical_port":"","device_type":"","isLocal":false},{"_type":"/internal","name":"CouchDB","properties":[],"id":"3f6dc78e-b00c-41f2-b482-b4636b7ea137","provided_execution_port":[],"docker_resource":{"name":"e0e4d25d-6649-48e6-bbe1-f70ef993fb50","image":"ubuntu","command":"","port_bindings":{"1880":"1880"},"devices":{"PathOnHost":"","PathInContainer":"","CgroupPermissions":"rwm"}},"ssh_resource":{"name":"dab7edb9-0ee5-4e5a-ab51-cccfd9d72b4a","startCommand":"","downloadCommand":"","installCommand":"","configureCommand":"","credentials":{"username":"ubuntu","password":"ubuntu","sshkey":""}},"ansible_resource":{"name":"0e8bd3c2-3419-4ee4-baae-fa8c454de2a9","playbook_path":"/Users/ferrynico/Documents/Code/Ansible/couchdb","playbook_host":"targets","credentials":{"username":"pi","password":"","sshkey":"/Users/ferrynico/Documents/Code/genesiskeys/cloudml.pem"}},"required_execution_port":{"name":"requiresSSH","needDeployer":false},"provided_communication_port":[{"name":"couchdb_REST","port_number":"5984"}],"required_communication_port":[]}],"links":[],"containments":[{"name":"l","properties":[],"src":"/my_machine/offerLinux","target":"/CouchDB/requiresSSH"}],"type_registry":[]},"graph":{"elements":{"nodes":[{"data":{"id":"my_machine"},"position":{"x":110.74884236402845,"y":143.68884315701894},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"classes":"device"},{"data":{"id":"CouchDB","parent":"my_machine"},"position":{"x":110.74884236402845,"y":143.68884315701894},"group":"nodes","removed":false,"selected":false,"selectable":true,"locked":false,"grabbable":true,"classes":""}]},"style":[{"selector":"node","style":{"label":"data(id)","background-fit":"contain","background-image-opacity":"0.3","text-valign":"center","text-halign":"center","font-size":"4px","font-weight":"bold"}},{"selector":"node.container","style":{"padding":"10px","text-valign":"top","text-halign":"center","background-color":"#DDD","font-size":"8px","font-weight":"normal","shape":"rectangle","background-image":"./img/docker-official.svg"}},{"selector":"edge","style":{"curve-style":"bezier","target-arrow-shape":"triangle"}},{"selector":"edge.control","style":{"curve-style":"bezier","target-arrow-shape":"circle"}},{"selector":":selected","style":{"background-color":"black","line-color":"black","target-arrow-color":"black","source-arrow-color":"black"}},{"selector":"node.questionable","style":{"border-color":"#A33","background-color":"#B55","shape":"roundrectangle"}},{"selector":"node.node_red","style":{"background-image":"./img/node-red-256.png"}},{"selector":"node.ansible","style":{"background-image":"./img/ansible.png"}},{"selector":"node.device","style":{"padding":"10px","text-valign":"top","text-halign":"center","background-color":"#DDD","font-size":"8px","font-weight":"normal","shape":"rectangle","background-image":"./img/device.png"}},{"selector":"node.vm","style":{"padding":"10px","text-valign":"top","text-halign":"center","background-color":"#DDD","font-size":"8px","font-weight":"normal","shape":"rectangle","background-image":"./img/server_cloud.png"}}],"zoomingEnabled":true,"userZoomingEnabled":true,"zoom":2.8840315031266104,"minZoom":0.4,"maxZoom":6,"panningEnabled":true,"userPanningEnabled":true,"pan":{"x":177.80025112793317,"y":-173.08378037519327},"boxSelectionEnabled":false,"renderer":{"name":"canvas"}}}
+{
+    "dm": {
+        "name": "demo",
+        "components": [{
+            "_type": "/infra/device",
+            "name": "my_machine",
+            "properties": [],
+            "id": "711636d9-c22c-4919-a848-986d7440bf77",
+            "provided_execution_port": [{
+                "name": "offerLinux"
+            }],
+            "ip": "192.168.1.16",
+            "port": ["22"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "",
+                "sshkey": ""
+            },
+            "physical_port": "",
+            "device_type": "",
+            "isLocal": false
+        }, {
+            "_type": "/internal",
+            "name": "CouchDB",
+            "properties": [],
+            "id": "3f6dc78e-b00c-41f2-b482-b4636b7ea137",
+            "provided_execution_port": [],
+            "docker_resource": {
+                "name": "e0e4d25d-6649-48e6-bbe1-f70ef993fb50",
+                "image": "ubuntu",
+                "command": "",
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "dab7edb9-0ee5-4e5a-ab51-cccfd9d72b4a",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "0e8bd3c2-3419-4ee4-baae-fa8c454de2a9",
+                "playbook_path": "/Users/ferrynico/Documents/Code/Ansible/couchdb",
+                "playbook_host": "targets",
+                "credentials": {
+                    "username": "pi",
+                    "password": "",
+                    "sshkey": "/Users/ferrynico/Documents/Code/genesiskeys/cloudml.pem"
+                }
+            },
+            "required_execution_port": {
+                "name": "requiresSSH",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "couchdb_REST",
+                "port_number": "5984"
+            }],
+            "required_communication_port": []
+        }],
+        "links": [],
+        "containments": [{
+            "name": "l",
+            "properties": [],
+            "src": "/my_machine/offerLinux",
+            "target": "/CouchDB/requiresSSH"
+        }],
+        "type_registry": []
+    },
+    "graph": {
+        "elements": {
+            "nodes": [{
+                "data": {
+                    "id": "my_machine"
+                },
+                "position": {
+                    "x": 110.74884236402845,
+                    "y": 143.68884315701894
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "device"
+            }, {
+                "data": {
+                    "id": "CouchDB",
+                    "parent": "my_machine"
+                },
+                "position": {
+                    "x": 110.74884236402845,
+                    "y": 143.68884315701894
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }]
+        },
+        "style": [{
+            "selector": "node",
+            "style": {
+                "label": "data(id)",
+                "background-fit": "contain",
+                "background-image-opacity": "0.3",
+                "text-valign": "center",
+                "text-halign": "center",
+                "font-size": "4px",
+                "font-weight": "bold"
+            }
+        }, {
+            "selector": "node.container",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/docker-official.svg"
+            }
+        }, {
+            "selector": "edge",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "triangle"
+            }
+        }, {
+            "selector": "edge.control",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "circle"
+            }
+        }, {
+            "selector": ":selected",
+            "style": {
+                "background-color": "black",
+                "line-color": "black",
+                "target-arrow-color": "black",
+                "source-arrow-color": "black"
+            }
+        }, {
+            "selector": "node.questionable",
+            "style": {
+                "border-color": "#A33",
+                "background-color": "#B55",
+                "shape": "roundrectangle"
+            }
+        }, {
+            "selector": "node.node_red",
+            "style": {
+                "background-image": "./img/node-red-256.png"
+            }
+        }, {
+            "selector": "node.ansible",
+            "style": {
+                "background-image": "./img/ansible.png"
+            }
+        }, {
+            "selector": "node.device",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/device.png"
+            }
+        }, {
+            "selector": "node.vm",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/server_cloud.png"
+            }
+        }],
+        "zoomingEnabled": true,
+        "userZoomingEnabled": true,
+        "zoom": 2.8840315031266104,
+        "minZoom": 0.4,
+        "maxZoom": 6,
+        "panningEnabled": true,
+        "userPanningEnabled": true,
+        "pan": {
+            "x": 177.80025112793317,
+            "y": -173.08378037519327
+        },
+        "boxSelectionEnabled": false,
+        "renderer": {
+            "name": "canvas"
+        }
+    }
+}

@@ -13,7 +13,7 @@
             "port": ["22"],
             "credentials": {
                 "username": "ubuntu",
-                "password": "ubuntu",
+                "password": "",
                 "sshkey": ""
             },
             "physical_port": "",
@@ -46,7 +46,7 @@
                 "configureCommand": "",
                 "credentials": {
                     "username": "pi",
-                    "password": "ubuntu",
+                    "password": "",
                     "sshkey": "/Users/ferrynico/Documents/Code/TestCloudMLasLibrary/cloudml.pem"
                 }
             },
@@ -56,7 +56,7 @@
                 "playbook_host": "",
                 "credentials": {
                     "username": "ubuntu",
-                    "password": "ubuntu",
+                    "password": "",
                     "sshkey": ""
                 }
             },

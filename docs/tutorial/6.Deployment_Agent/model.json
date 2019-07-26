@@ -13,7 +13,7 @@
             "port": ["2376"],
             "credentials": {
                 "username": "ubuntu",
-                "password": "ubuntu",
+                "password": "",
                 "sshkey": ""
             }
         }, {
@@ -28,7 +28,7 @@
             "port": ["2376"],
             "credentials": {
                 "username": "ubuntu",
-                "password": "ubuntu",
+                "password": "",
                 "sshkey": ""
             }
         }, {
@@ -43,7 +43,7 @@
             "port": ["80", "22"],
             "credentials": {
                 "username": "ubuntu",
-                "password": "ubuntu",
+                "password": "",
                 "sshkey": ""
             },
             "physical_port": "/dev/ttyACM0",
@@ -76,7 +76,7 @@
                 "configureCommand": "",
                 "credentials": {
                     "username": "ubuntu",
-                    "password": "ubuntu",
+                    "password": "",
                     "sshkey": ""
                 }
             },
@@ -86,7 +86,7 @@
                 "playbook_host": "",
                 "credentials": {
                     "username": "ubuntu",
-                    "password": "ubuntu",
+                    "password": "",
                     "sshkey": ""
                 }
             },
@@ -133,7 +133,7 @@
                 "configureCommand": "",
                 "credentials": {
                     "username": "ubuntu",
-                    "password": "ubuntu",
+                    "password": "",
                     "sshkey": ""
                 }
             },
@@ -143,7 +143,7 @@
                 "playbook_host": "",
                 "credentials": {
                     "username": "ubuntu",
-                    "password": "ubuntu",
+                    "password": "",
                     "sshkey": ""
                 }
             },
@@ -190,7 +190,7 @@
                 "configureCommand": "",
                 "credentials": {
                     "username": "ubuntu",
-                    "password": "ubuntu",
+                    "password": "",
                     "sshkey": ""
                 }
             },
@@ -200,7 +200,7 @@
                 "playbook_host": "",
                 "credentials": {
                     "username": "ubuntu",
-                    "password": "ubuntu",
+                    "password": "",
                     "sshkey": ""
                 }
             },
