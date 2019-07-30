@@ -15,7 +15,8 @@
                 "username": "ubuntu",
                 "password": "",
                 "sshkey": ""
-            }
+            },
+            "monitoring_agent": "full"
         }, {
             "_type": "/internal/node_red",
             "name": "nodered",

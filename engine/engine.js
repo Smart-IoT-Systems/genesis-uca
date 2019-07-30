@@ -52,8 +52,9 @@ var engine = (function () {
 
     that.remove_containers = async function (diff) {
         var removed = diff.list_of_removed_components;
+        var removed_hosts = diff.list_removed_hosts;
         var connector = dc();
-        if (removed.length === 0) {
+        if (removed.length === 0 && removed_hosts.length <= 0) {
             return;
         }
         for (var i in removed) {
@@ -70,6 +71,16 @@ var engine = (function () {
                 }
             }
         }
+
+        for(var j in removed_hosts){
+            if(removed_hosts[i]._type.indexOf('infra') >= 0){//Only infra have monitoring agents so far
+                if(removed_hosts[i].monitoring_agent !== undefined && removed_hosts[i].monitoring_agent !== "none"){
+                    var monitor = monitor_agent(removed_hosts[j], "full");
+                    await monitor.remove();
+                }
+            }
+        }
+
         bus.emit('remove-all');
     };
 

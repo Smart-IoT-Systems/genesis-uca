@@ -14,6 +14,12 @@ var monitoring_agent = function (host, level) {
 
     };
 
+    that.remove = async function(){
+        var connector = dc();
+
+        await connector.stopAndRemove("netdata", that.host.ip, that.host.port);
+    }
+
     that.install = async function(){
         var connector = dc();
 
