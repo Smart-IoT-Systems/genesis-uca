@@ -731,7 +731,7 @@ var ssh_resource = function (spec) {
     that.credentials = spec.credentials || credentials({});
 
     return that;
-}
+};
 
 /*****************************/
 /*Ansible resource           */
@@ -744,7 +744,7 @@ var ansible_resource = function (spec) {
     that.credentials = spec.credentials || credentials({});
 
     return that;
-}
+};
 
 
 /*****************************/
@@ -753,9 +753,10 @@ var ansible_resource = function (spec) {
 var port = function (spec) {
     var that = {};
     that.name = spec.name || uuidv4();
+    that.capabilities = spec.capabilities || [];
 
     return that;
-}
+};
 
 
 
@@ -767,7 +768,7 @@ var provided_execution_port = function (spec) {
     var that = port(spec);
 
     return that;
-}
+};
 
 
 /*****************************/
@@ -779,7 +780,7 @@ var required_execution_port = function (spec) {
     that.needDeployer = spec.needDeployer || false;
 
     return that;
-}
+};
 
 /*****************************/
 /*ProvidedCommunicationPort  */
@@ -791,7 +792,7 @@ var required_communication_port = function (spec) {
     that.isMandatory = spec.isMandatory || false;
 
     return that;
-}
+};
 
 /*****************************/
 /*RequiredCommunicationPort  */
@@ -802,7 +803,56 @@ var provided_communication_port = function (spec) {
     that.port_number = spec.port_number || '80';
 
     return that;
-}
+};
+
+/*****************************/
+/*Capabilities               */
+/*****************************/
+var capability = function(spec){
+    var that = {};
+    that._type += "/capability";
+    that.name = spec.name || 'a_capability';
+
+    return that;
+};
+
+/*****************************/
+/*S&P Capability             */
+/*****************************/
+var security_capability = function(spec){
+    var that = capability(spec);
+    that._type += "/security_capability";
+
+
+    return that;
+};
+
+/*****************************/
+/*Hardware Capability        */
+/*****************************/
+var hardware_capability = function(spec){
+    var that = capability(spec);
+    that._type += "/hardware_capability";
+    that.connector = spec.connector || "GPIO";
+    that.path = spec.path || "/dev/pigpio";
+    that.permissions = spec.permission || "rwx";
+
+    return that;
+};
+
+/*****************************/
+/*Soft Capability            */
+/*****************************/
+var soft_capability = function(spec){
+    var that = capability(spec);
+    that._type += "/soft_capability";
+    that.value = spec.connector || "";
+
+    return that;
+};
+
+
+
 
 ////////////////////////////////////////////////
 module.exports = {
@@ -825,5 +875,8 @@ module.exports = {
     required_communication_port: required_communication_port,
     required_execution_port: required_execution_port,
     provided_execution_port: provided_execution_port,
-    hosting: hosting
+    hosting: hosting,
+    security_capability: security_capability,
+    hardware_capability: hardware_capability,
+    soft_capability: soft_capability
 }
