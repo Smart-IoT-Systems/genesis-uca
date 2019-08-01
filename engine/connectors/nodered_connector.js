@@ -147,13 +147,15 @@ var nodered_connector = function () {
 
                 response.on('end', function () {
                     logger.log("info", "Request to upload Node-Red flow completed on: " + tgt_host + ":" + tgt_port);
-                    for (var w in tgt_tab) { //if success, send feedback
-                        bus.emit('link-ok', tgt_tab[w].name);
-                    }
-                    for (var p in src_tab) { //if success, send feedback
-                        var a = dm.get_comp_name_from_port_id(src_tab[p].target);
-                        if (dm.find_node_named(a).nr_description !== undefined) {
-                            bus.emit('link-ok', src_tab[p].name);
+                    if(JSON.parse(data).length > 0){
+                        for (var w in tgt_tab) { //if success, send feedback
+                            bus.emit('link-ok', tgt_tab[w].name);
+                        }
+                        for (var p in src_tab) { //if success, send feedback
+                            var a = dm.get_comp_name_from_port_id(src_tab[p].target);
+                            if (dm.find_node_named(a).nr_description !== undefined) {
+                                bus.emit('link-ok', src_tab[p].name);
+                            }
                         }
                     }
                     resolve();

@@ -50,6 +50,19 @@ var engine = (function () {
         res.end(JSON.stringify(that.available_types));
     };
 
+
+    that.to_be_removed = function (diff, comp) {
+        var result = false;
+        var removed_comp = diff.list_of_removed_components;
+        for (var i in removed_comp) {
+            if (removed_comp[i].name === comp.name) {
+                result = true;
+                return result;
+            }
+        }
+        return result;
+    };
+
     that.remove_containers = async function (diff) {
         var removed = diff.list_of_removed_components;
         var removed_hosts = diff.list_removed_hosts;
@@ -65,6 +78,13 @@ var engine = (function () {
                 //Need to find the host in the old model
                 if (host._type === "/infra/docker_host") {
                     await connector.stopAndRemove(removed[i].container_id, host.ip, host.port);
+                } else if (removed[i]._type === "/internal/node_red_flow") {
+                    if (!that.to_be_removed(diff, host)) {
+                        var n_connector = nodered_connector();
+                        n_connector.setFlow(host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model).then(function () {
+                            logger.log("info", "Node-Red Flow Removed!");
+                        });
+                    }
                 } else if (that.need_ssh(removed[i])) {
                     var ssh_connection = sshc(host.ip, host.port, removed[i].ssh_resource.credentials.username, removed[i].ssh_resource.credentials.password, removed[i].ssh_resource.credentials.sshkey, removed[i].ssh_resource.credentials.agent);
                     await ssh_connection.execute_command(removed[i].ssh_resource.stopCommand);
@@ -72,9 +92,9 @@ var engine = (function () {
             }
         }
 
-        for(var j in removed_hosts){
-            if(removed_hosts[i]._type.indexOf('infra') >= 0){//Only infra have monitoring agents so far
-                if(removed_hosts[i].monitoring_agent !== undefined && removed_hosts[i].monitoring_agent !== "none"){
+        for (var j in removed_hosts) {
+            if (removed_hosts[i]._type.indexOf('infra') >= 0) { //Only infra have monitoring agents so far
+                if (removed_hosts[i].monitoring_agent !== undefined && removed_hosts[i].monitoring_agent !== "none") {
                     var monitor = monitor_agent(removed_hosts[j], "full");
                     await monitor.remove();
                 }

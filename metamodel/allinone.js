@@ -326,18 +326,18 @@ var deployment_model = function (spec) {
 
     that.find_host = function (comp) {
         var h = that.find_host_one_level_down(comp);
-        if(h === null){
+        if (h === null) {
             return null;
-        }else{
-            if(h._type.indexOf('internal') >=0){
+        } else {
+            if (h._type.indexOf('internal') >= 0) {
                 return that.find_host(h);
-            }else{
+            } else {
                 return h;
             }
         }
     };
 
-    that.find_host_one_level_down = function(comp){
+    that.find_host_one_level_down = function (comp) {
         var id = that.generate_port_id(comp, comp.required_execution_port);
         var containment = that.find_containment_of_required_port(id);
         if (containment) {
@@ -410,7 +410,7 @@ var deployment_model = function (spec) {
         }
     };
 
-    that.get_all_infra_component = function(){
+    that.get_all_infra_component = function () {
         var tab = that.components.filter(function (elem) {
             if (elem._type.indexOf('infra') >= 0) {
                 return elem;
@@ -427,6 +427,31 @@ var deployment_model = function (spec) {
             }
         });
         return valid_id;
+    };
+
+
+    that.find_target_port_of_link = function (l) {
+        var resultat=undefined;
+        var target_node_name = l.target.split('/')[1];
+        var the_target_node = that.find_node_named(target_node_name);
+        the_target_node.required_communication_port.forEach(function (elem) {
+            if (that.get_port_name_from_port_id(elem.target) === elem.name) {
+                resultat= elem;
+            }
+        });
+        return resultat;
+    };
+
+    that.find_src_port_of_link = function (l) {
+        var resultat=undefined;
+        var src_node_name = l.target.split('/')[1];
+        var the_src_node = that.find_node_named(src_node_name);
+        the_src_node.required_communication_port.forEach(function (elem) {
+            if (that.get_port_name_from_port_id(elem.target) === elem.name) {
+                resultat= elem;
+            }
+        });
+        return resultat;
     };
 
     that.is_valid_with_errors = function () {
@@ -453,13 +478,48 @@ var deployment_model = function (spec) {
         }
 
 
-        //Make sure all links relate to existing components 
-        that.links.forEach(function (elem) {
+        //Make sure all links relate to existing components && check capabilities
+        that.links.forEach(function (tgt_portelem) {
             var target_node_name = elem.target.split('/')[1];
             var src_node_name = elem.src.split('/')[1];
-            if ((that.find_node_named(src_node_name) === undefined) ||
-                (that.find_node_named(target_node_name) === undefined)) {
+            var the_target_node = that.find_node_named(target_node_name);
+            var the_src_node = that.find_node_named(src_node_name);
+            if ((the_target_node === undefined) ||
+                (the_src_node === undefined)) {
                 errors.push("Src or target of " + elem.name + " does not exist!");
+            } else {
+                //Then let's check capabilities
+                var tgt_port = that.find_target_port_of_link(elem);
+                var src_port = that.find_src_port_of_link(elem);
+                if (tgt_port.capabilities !== undefined && tgt_port.capabilities.length > 0) {
+                    if(src_port.capabilities !== undefined && src_port.capabilities.length > 0) {
+                        errors.push("Capability " + cap.name + " of " + elem.name + " is not satisfied!");
+                    }else{
+                        tgt_port.capabilities.forEach(function (cap) {
+                            var res=false;
+                            src_port.capabilities.forEach(function (car) {
+                                if (cap._type.indexOf("security_capability") >= 0) {
+                                    if(car.control_id === cap.control_id){
+                                        res=true;
+                                    }
+                                }
+                                if (cap._type.indexOf("soft_capability") >= 0) {
+                                    if(car.value === cap.value){
+                                        res=true;
+                                    }
+                                }
+                                if (cap._type.indexOf("hardware_capability") >= 0) {
+                                    if(car.connector === cap.connector && car.path === cap.path && car.permissions === cap.permission){
+                                        res=true;
+                                    }
+                                }
+                            });
+                            if(!res){
+                                errors.push("Capability " + cap.name + " of " + elem.name + " is not satisfied!");
+                            }
+                        });
+                    }
+                }
             }
         });
 
@@ -515,6 +575,7 @@ var component = function (spec) {
     that._type = "";
     that.name = spec.name || 'a_component';
     that.properties = [];
+    that.version = spec.version || "0.0.1";
 
     that.id = spec.id || uuidv4();
 
@@ -753,7 +814,7 @@ var ansible_resource = function (spec) {
 var port = function (spec) {
     var that = {};
     that.name = spec.name || uuidv4();
-    that.capabilities = spec.capabilities || [];
+    that.capabilities = spec.capabilities || security_capability({});
 
     return that;
 };
@@ -808,9 +869,9 @@ var provided_communication_port = function (spec) {
 /*****************************/
 /*Capabilities               */
 /*****************************/
-var capability = function(spec){
+var capability = function (spec) {
     var that = {};
-    that._type += "/capability";
+    that._type = "/capability";
     that.name = spec.name || 'a_capability';
 
     return that;
@@ -819,10 +880,12 @@ var capability = function(spec){
 /*****************************/
 /*S&P Capability             */
 /*****************************/
-var security_capability = function(spec){
+var security_capability = function (spec) {
     var that = capability(spec);
     that._type += "/security_capability";
-
+    //https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r4.pdf
+    that.control_id = spec.control_id || "";
+    that.description = spec.description || "";
 
     return that;
 };
@@ -830,7 +893,7 @@ var security_capability = function(spec){
 /*****************************/
 /*Hardware Capability        */
 /*****************************/
-var hardware_capability = function(spec){
+var hardware_capability = function (spec) {
     var that = capability(spec);
     that._type += "/hardware_capability";
     that.connector = spec.connector || "GPIO";
@@ -843,14 +906,13 @@ var hardware_capability = function(spec){
 /*****************************/
 /*Soft Capability            */
 /*****************************/
-var soft_capability = function(spec){
+var soft_capability = function (spec) {
     var that = capability(spec);
     that._type += "/soft_capability";
     that.value = spec.connector || "";
 
     return that;
 };
-
 
 
 
