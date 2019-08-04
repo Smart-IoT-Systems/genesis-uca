@@ -577,9 +577,6 @@ var engine = (function () {
         logger.log("info", "Revive Containment");
 
         if (dm.is_valid()) {
-
-            logger.log("info", "Model Loaded: " + JSON.stringify(dm.components));
-
             that.already_deployed = [];
 
             //Compare model

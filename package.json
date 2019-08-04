@@ -48,7 +48,8 @@
         "nodemon": "^1.18.10",
         "react-router-dom": "^5.0.0",
         "ip": "^1.1.5",
-        "swagger-ui-express": "2.0.6"
+        "swagger-ui-express": "2.0.6",
+        "lodash": "4.17.11"
     },
     "devDependencies": {
         "@babel/cli": "^7.1.0",
