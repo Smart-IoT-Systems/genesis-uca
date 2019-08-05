@@ -93,8 +93,8 @@ var engine = (function () {
         }
 
         for (var j in removed_hosts) {
-            if (removed_hosts[i]._type.indexOf('infra') >= 0) { //Only infra have monitoring agents so far
-                if (removed_hosts[i].monitoring_agent !== undefined && removed_hosts[i].monitoring_agent !== "none") {
+            if (removed_hosts[j]._type.indexOf('infra') >= 0) { //Only infra have monitoring agents so far
+                if (removed_hosts[j].monitoring_agent !== undefined && removed_hosts[j].monitoring_agent !== "none") {
                     var monitor = monitor_agent(removed_hosts[j], "full");
                     await monitor.remove();
                 }
