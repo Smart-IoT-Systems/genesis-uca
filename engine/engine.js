@@ -72,7 +72,7 @@ var engine = (function () {
         }
         for (var i in removed) {
 
-            var host = diff.old_dm.find_host(removed[i]);
+            var host = diff.old_dm.find_host_one_level_down(removed[i]);
 
             if (host !== null) {
                 //Need to find the host in the old model
