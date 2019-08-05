@@ -297,7 +297,7 @@ var engine = (function () {
     that.deploy_one_component = async function (compo) { //We wrap in a closure so that each comp deployment comes with its own context        
         //if not to be deployed by a deployment agent
         if (!that.dep_model.need_deployment_agent(compo)) {
-            var host = that.dep_model.find_host(compo);
+            var host = that.dep_model.find_host_one_level_down(compo);
             //And if there is an host to deploy on
             if (host !== undefined) {
                 //Manage ThingML nodes
