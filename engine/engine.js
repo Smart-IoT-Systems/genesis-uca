@@ -341,8 +341,16 @@ var engine = (function () {
     };
 
     that.need_ssh = function (compo) {
-        if ((compo.ssh_resource.credentials.sshkey !== undefined && compo.ssh_resource.credentials.sshkey !== "") || (compo.ssh_resource.credentials.agent !== undefined && compo.ssh_resource.credentials.agent !== "") || (compo.ssh_resource.credentials.password !== undefined && compo.ssh_resource.credentials.password !== "")) {
-            return true;
+        if ((compo.ssh_resource.credentials.sshkey !== undefined && compo.ssh_resource.credentials.sshkey !== "") 
+        || (compo.ssh_resource.credentials.agent !== undefined && compo.ssh_resource.credentials.agent !== "") 
+        || (compo.ssh_resource.credentials.password !== undefined && compo.ssh_resource.credentials.password !== "")){
+            if((compo.ssh_resource.startCommand !== undefined && compo.ssh_resource.startCommand !== "")
+            || (compo.ssh_resource.configureCommand !== undefined && compo.ssh_resource.configureCommand !== "")
+            || (compo.ssh_resource.installCommand !== undefined && compo.ssh_resource.installCommand !== "")){
+                return true;
+            }else{
+                return false;
+            }
         }
 
         return false;
