@@ -196,8 +196,8 @@
                 "isMandatory": false
             }],
             "nr_flow": [],
-            "path_flow": "",
-            "packages": ["node-red-contrib-fiware-orion"]
+            "path_flow": "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/GeneSIS/docs/examples/a_node-red_flow.json",
+            "packages": ["node-red-contrib-fiware-orion", "node-red-contrib-web-worldmap"]
         }],
         "links": [{
             "name": "t",
@@ -403,7 +403,7 @@
             "style": {
                 "background-image": "./img/ansible.png"
             }
-        },{
+        }, {
             "selector": "node.orion",
             "css": {
                 "background-color": "#ADD8E6",
