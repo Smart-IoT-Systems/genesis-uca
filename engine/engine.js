@@ -25,6 +25,7 @@ var engine = (function () {
 
     that.dep_model = mm.deployment_model({});
     that.diff = {};
+    that.target_model= mm.deployment_model({});
 
     that.MQTTClient = {};
 
@@ -33,6 +34,8 @@ var engine = (function () {
     that.m_observer = null;
 
     that.compo_already_deployed = [];
+
+    that.map_host_agent = [];
 
     that.getDM_UI = function (req, res) {
         var all_in_one = {
@@ -50,6 +53,36 @@ var engine = (function () {
         res.end(JSON.stringify(that.available_types));
     };
 
+    that.get_targetDM = function(req, res){
+        res.end(JSON.stringify(that.target_model));
+    };
+
+    that.update_component = function(req, res){
+        var input = req.body;
+        logger.log("info", "Received request to update Target model in memory " + JSON.stringify(input));
+        try{
+            that.target_model.change_attribute(input.name, input.attribute, input.value);
+        }catch{
+            logger.log("error", "Body not valid");
+            res.end("error");
+        }
+        res.end("OK");
+    };
+
+    that.push_model = function(req, res){
+        req.body=that.target_model;
+        that.deploy(req, res);
+    };
+
+    that.update_target_model = function(req, res){
+        let data=req.body;
+        that.target_model= mm.deployment_model({});
+        that.target_model.name = data.name;
+        that.target_model.revive_components(data.components);
+        that.target_model.revive_links(data.links);
+        that.target_model.revive_containments(data.containments);
+        res.end(JSON.stringify(that.target_model));
+    };
 
     that.to_be_removed = function (diff, comp) {
         var result = false;
@@ -106,10 +139,10 @@ var engine = (function () {
 
     that.deploy_agents = async function (links_deployer_tab) {
         return new Promise(async function (resolve, reject) {
+            bus.removeAllListeners('d_agent_success');
             logger.log("info", "Starting deployment of deployment agents");
             var nb_deployers = 0;
 
-            var map_host_agent = [];
             for (var l in links_deployer_tab) {
                 var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
                 var tgt_agent = that.dep_model.find_node_named(tgt_agent_name);
@@ -121,15 +154,16 @@ var engine = (function () {
                 var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
                 await d_agent.prepare();
                 var cont_id = await d_agent.install();
+                bus.emit('node-started', "", tgt_agent_host.name);
+                that.map_host_agent[cont_id] = src_agent_host;
                 tgt_agent.container_id = cont_id;
-                map_host_agent[cont_id] = src_agent_host;
             }
 
             bus.on('d_agent_success', function (cfg) {
                 nb_deployers++;
                 var con_docker = dc();
                 var c = that.dep_model.find_node_named(cfg);
-                con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
+                con_docker.stopAndRemove(c.container_id, that.map_host_agent[c.container_id].ip, that.map_host_agent[c.container_id].port).then(function () {
                     bus.emit('node-started', c.container_id, cfg);
                 });
                 if (nb_deployers >= links_deployer_tab.length) {
@@ -381,10 +415,12 @@ var engine = (function () {
 
     that.run = function (diff) { //TODO: factorize
         return new Promise(async function (resolve, reject) {
+            bus.removeAllListeners('node-error2');
+            bus.removeAllListeners('node-started2');
+            bus.removeAllListeners('link-done');
+
             var comp = diff.list_of_added_hosted_components;
-            var nb = that.dep_model.get_all_hosted().length;
             var tmp = 0;
-            var nb_link = that.dep_model.links.length;
             var tmp_link = 0;
 
             //Deployment agent
@@ -400,41 +436,35 @@ var engine = (function () {
                 resolve(0);
             }
 
-
-            bus.on('node-error', function (container_id, comp_name) {
+            bus.on('node-error2', function (container_id, comp_name) {
                 tmp++;
-                if (tmp >= nb) {
+                if (tmp >= comp.length) {
                     tmp = 0;
 
-                    var comp_tab = that.dep_model.get_all_hosted();
-
-                    manage_links(comp_tab);
+                    manage_links(diff.list_of_added_hosted_components);
                 }
             });
 
             //We collect all the started events, once they are all received we generate the flow skeleton based on the links
-            bus.on('node-started', function (container_id, comp_name) {
+            bus.on('node-started2', function (container_id, comp_name) {
                 tmp++;
                 //Add container id to the component
-                var comp = that.dep_model.find_node_named(comp_name);
-                comp.container_id = container_id;
+                var compon = that.dep_model.find_node_named(comp_name);
+                compon.container_id = container_id;
 
-                if (tmp >= nb) {
+                if (tmp >= comp.length) {
                     tmp = 0;
-                    var comp_tab = that.dep_model.get_all_hosted();
-                    manage_links(comp_tab);
+                    manage_links(diff.list_of_added_hosted_components);
                 }
             });
 
             bus.on('link-done', function () {
                 tmp_link++;
-                //console.log(tmp_link + "::" + nb_link);
-                if (tmp_link >= nb_link) {
+                if (tmp_link >= diff.list_of_added_links.length) {
                     tmp_link = 0;
                     resolve(tmp_link);
                 }
             });
-
 
             that.compo_already_deployed = [];
 
@@ -442,7 +472,6 @@ var engine = (function () {
             for (var i in comp) {
                 await that.recursive_deploy(comp[i]);
             }
-
 
             var manage_links = function (comp_tab) {
                 //For all Node-Red hosted components we generate the websocket proxies
@@ -563,6 +592,8 @@ var engine = (function () {
     that.deploy = async function (req, res) {
         //Create a deployment model
         var dm = mm.deployment_model({});
+        that.target_model = mm.deployment_model({});
+
         //Add types to the registry before we create the instances
         dm.type_registry = that.modules; //can be used as follows modules[i].module({})
 
@@ -584,7 +615,19 @@ var engine = (function () {
         dm.revive_containments(data.containments);
         logger.log("info", "Revive Containment");
 
+        //We keep a copy in memory of the model that has been pushed last as a buffer for edit
+        that.target_model.type_registry = that.modules;
+        that.target_model.name = data.name;
+        that.target_model.revive_components(data.components);
+        that.target_model.revive_links(data.links);
+        that.target_model.revive_containments(data.containments);
+
         if (dm.is_valid()) {
+
+            res.end(JSON.stringify({
+                started: that.dep_model
+            }));
+
             that.already_deployed = [];
 
             //Compare model
@@ -602,9 +645,7 @@ var engine = (function () {
             //Deploy only the added stuff
             logger.log("info", "Starting deployment");
             that.run(that.diff).then(function () {
-                res.end(JSON.stringify({
-                    success: that.dep_model
-                }));
+                bus.emit('deployment-completed');
                 logger.log("info", "Deployment completed!");
             });
         } else {

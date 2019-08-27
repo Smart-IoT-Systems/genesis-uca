@@ -18,7 +18,9 @@ var MQTTBroker = (function () {
         });
 
         aedes.on('clientError', function (client, err) {
-            logger.log("info", 'client error ' + client.id + " " + err.message + " " + err.stack);
+            if(err.message !== 'keep alive timeout'){
+                logger.log("info", 'client error ' + client.id + " " + err.message + " " + err.stack);
+            }
         });
 
         aedes.on('connectionError', function (client, err) {

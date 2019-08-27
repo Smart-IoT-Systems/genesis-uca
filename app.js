@@ -8,6 +8,7 @@ var fs = require('fs');
 var bodyParser = require('body-parser')
 var swaggerUi = require('swagger-ui-express');
 var swaggerDocument = require('./swagger.json');
+var http = require('http');
 
 app.set("port", 8000);
 app.use(bodyParser.json())
@@ -23,8 +24,9 @@ puml.start();
 // start server
 var server = app.listen(app.get('port'), function () {
 	var port = server.address().port;
-	logger.log('info','GeneSIS Engine API started on ' + port);
+   logger.log('info','GeneSIS Engine API started on ' + port);
 });
+
 
 //Retrieve all component types registered in the engine
 app.get("/genesis/types", runtime.getTypes);
@@ -36,7 +38,15 @@ app.get("/genesis/logs", getLogs);
 app.get("/genesis/model", runtime.getDM);
 //Send the current deployment model with graph
 app.get("/genesis/model_ui", runtime.getDM_UI);
-
+//Update attribute of a component
+app.post("/genesis/component", runtime.update_component);
+//Trigger a deployment of the model in memory
+app.get("/genesis/deploy_model", runtime.push_model);
+//Update target model in memory
+app.post("/genesis/push_model", runtime.update_target_model);
+//Retrieve target model
+app.get("/genesis/get_target_model", runtime.get_targetDM);
+//Description of the GeneSIS API
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 function getLogs(req, res){

@@ -376,6 +376,15 @@ var deployment_model = function (spec) {
         return valid_name;
     };
 
+    that.change_attribute = function(name, attribute, val){ //TODO: make it generic, xpath like stuff
+        let n=that.find_node_named(name);
+        if(n !== undefined){
+            if(attribute.indexOf("name") < 0 && attribute.indexOf("port") < 0){
+                n[attribute] = val;
+            }
+        }
+    };
+
     that.change_name = function (name, comp) {
         if (that.is_valid_name(name)) {
             var oldname = comp.name;
@@ -435,7 +444,7 @@ var deployment_model = function (spec) {
         var target_node_name = l.target.split('/')[1];
         var the_target_node = that.find_node_named(target_node_name);
         the_target_node.required_communication_port.forEach(function (elem) {
-            if (that.get_port_name_from_port_id(elem.target) === elem.name) {
+            if (that.get_port_name_from_port_id(l.target) === elem.name) {
                 resultat= elem;
             }
         });
@@ -447,7 +456,7 @@ var deployment_model = function (spec) {
         var src_node_name = l.target.split('/')[1];
         var the_src_node = that.find_node_named(src_node_name);
         the_src_node.required_communication_port.forEach(function (elem) {
-            if (that.get_port_name_from_port_id(elem.target) === elem.name) {
+            if (that.get_port_name_from_port_id(l.target) === elem.name) {
                 resultat= elem;
             }
         });
@@ -479,7 +488,7 @@ var deployment_model = function (spec) {
 
 
         //Make sure all links relate to existing components && check capabilities
-        that.links.forEach(function (tgt_portelem) {
+        that.links.forEach(function (elem) {
             var target_node_name = elem.target.split('/')[1];
             var src_node_name = elem.src.split('/')[1];
             var the_target_node = that.find_node_named(target_node_name);
@@ -493,7 +502,7 @@ var deployment_model = function (spec) {
                 var src_port = that.find_src_port_of_link(elem);
                 if (tgt_port.capabilities !== undefined && tgt_port.capabilities.length > 0) {
                     if(src_port.capabilities !== undefined && src_port.capabilities.length > 0) {
-                        errors.push("Capability " + cap.name + " of " + elem.name + " is not satisfied!");
+                        errors.push("Capability " + elem.name + " is not satisfied!");
                     }else{
                         tgt_port.capabilities.forEach(function (cap) {
                             var res=false;

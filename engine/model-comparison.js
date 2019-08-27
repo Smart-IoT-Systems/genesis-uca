@@ -32,7 +32,7 @@ var comparator = function (dm) {
         for (var i in target_comps) {
             var tmp_node = dm.find_node_named(target_comps[i].name);
             if (tmp_node === undefined) { 
-                console.log(target_comps[i].name + " is not in old model so it has been added");
+                logger.log('info', target_comps[i].name + " is not in old model so it has been added");
                 if (target_comps[i]._type.indexOf('internal') > -1) {
                     if (target_dm.find_host(target_comps[i]) !== null) {
                         result.list_of_added_hosted_components.push(target_comps[i]);
@@ -52,6 +52,8 @@ var comparator = function (dm) {
                     } else {
                         result.list_of_added_hosts.push(target_comps[i]);
                     }
+                }else{ //we save the runtime info
+                    target_comps[i]._runtime = tmp_node._runtime;
                 }
             }
         }
@@ -61,7 +63,7 @@ var comparator = function (dm) {
         for (var i in comps) {
             var tmp_host = target_dm.find_node_named(comps[i].name);
             if (tmp_host === undefined) {
-                console.log(comps[i].name + " is not in the target model so it has been removed!");
+                logger.log('info', comps[i].name + " is not in the target model so it has been removed!");
                 if (comps[i]._type.indexOf('internal') > -1) {
                     result.list_of_removed_components.push(comps[i]);
                 } else {
@@ -89,6 +91,18 @@ var comparator = function (dm) {
                 } else {
                     result.list_of_added_links.push(target_links[i]);
                 }
+            } else {
+                //We need to check if input or output have changed
+                result.list_of_added_components.forEach(function(c){
+                    if(dm.get_comp_name_from_port_id(target_links[i].target) === c.name || dm.get_comp_name_from_port_id(target_links[i].src) === c.name){
+                        result.list_of_removed_links.push(tmp_link[i]);
+                        if (target_links[i].isDeployer) {
+                            result.list_of_added_links_deployer.push(target_links[i]);
+                        } else {
+                            result.list_of_added_links.push(target_links[i]);
+                        }
+                    }
+                });
             }
         }
 

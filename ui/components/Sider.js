@@ -40,6 +40,7 @@ class SiderDemo extends React.Component {
       internalTypeRepo: [],
     };
     window.SiderDemo = this;
+    window.loader=load;
   }
 
   openNotificationWithIcon (type, title, desc){
@@ -196,13 +197,8 @@ class SiderDemo extends React.Component {
 			body: JSON.stringify(model)
 		}).then(response => response.json())
 			.then(response => { 
-        if (response.success) {
+        if (response.started) {
           cy.elements().remove();
-          this.openNotificationWithIcon('success', 'Remove All', 'All component were removed!');
-          load.destroy();
-          load.success('Deployment finished', 5).then(()=>{
-            load.destroy();
-          });
         }});
   }
 
@@ -232,16 +228,16 @@ class SiderDemo extends React.Component {
 			body: JSON.stringify(all_in_one)
 		}).then(response => response.json())
 			.then(response => { 
-        if (response.success) {
-          dm = mm.deployment_model(response.success);
-          dm.components = response.success.components;
-          dm.revive_links(response.success.links);
-          dm.revive_containments(response.success.containments);
+        if (response.started) {
+          /*dm = mm.deployment_model(response.started);
+          dm.components = response.started.components;
+          dm.revive_links(response.started.links);
+          dm.revive_containments(response.started.containments);
           this.openNotificationWithIcon('success', 'Deployment completed', 'All components are deployed!');
           load.destroy();
           load.success('Deployment finished', 5).then(()=>{
             load.destroy();
-          });
+          });*/
         }});
   }
 

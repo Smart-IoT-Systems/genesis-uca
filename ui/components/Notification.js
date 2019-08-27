@@ -37,7 +37,20 @@ class Notification extends React.Component {
       client.on('message', function (topic, message) {
         if (topic === '/Notifications') { // This is a notification
           if(JSON.parse(message) !== "Remove all completed!"){
-            openNotification("success", "Notification", message);
+            openNotification("success", "Notification", JSON.parse(message));
+          }
+          if(JSON.parse(message) === "Deployment completed!"){
+            window.loader.destroy();
+            window.loader.success('Deployment finished', 5).then(()=>{
+              window.loader.destroy();
+            });
+          }
+          if(JSON.parse(message) === "Remove all completed!"){
+            openNotification('success', 'Remove', 'All removed component were uninstalled!');
+            /*window.loader.destroy();
+            window.loader.success('Deployment finished', 5).then(()=>{
+              load.destroy();
+            });*/
           }
         }else{
           var json = JSON.parse(message);

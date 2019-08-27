@@ -5,4 +5,5 @@ emitter.on('uncaughtException', function (err) {
     console.error(err);
 });
 
+
 module.exports = emitter;

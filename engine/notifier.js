@@ -14,6 +14,7 @@ var notifier = (function (client, dm) {
             if (topic === '/deployment_agent') {
                 var content = JSON.parse(message);
                 if(content.data.status === "success"){
+                    console.log("agent sucess event");
                     bus.emit('d_agent_success', content.target_name);
                 }else{
                     bus.emit('d_agent_error', content.target_name);
@@ -23,6 +24,10 @@ var notifier = (function (client, dm) {
 
         bus.on('remove-all', function(){
             that.MQTTClient.publish("/Notifications", JSON.stringify("Remove all completed!"));
+        });
+
+        bus.on('deployment-completed', function(){
+            that.MQTTClient.publish("/Notifications", JSON.stringify("Deployment completed!"));
         });
 
         bus.on('container-error', function (comp_name) {
@@ -41,6 +46,7 @@ var notifier = (function (client, dm) {
                 status: 'error'
             };
             that.MQTTClient.publish("/Status", JSON.stringify(s));
+            bus.emit('node-error2', container_id, comp_name);
         });
 
         bus.on('host-config', function (comp_name) {
@@ -108,6 +114,7 @@ var notifier = (function (client, dm) {
                 status: 'running'
             };
             that.MQTTClient.publish("/Status", JSON.stringify(s));
+            bus.emit('node-started2', container_id, comp_name);
         });
 
     }
