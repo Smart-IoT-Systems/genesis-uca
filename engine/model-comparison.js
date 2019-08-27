@@ -54,6 +54,7 @@ var comparator = function (dm) {
                     }
                 }else{ //we save the runtime info
                     target_comps[i]._runtime = tmp_node._runtime;
+                    target_comps[i].container_id = tmp_node.container_id;
                 }
             }
         }
