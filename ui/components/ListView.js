@@ -77,11 +77,11 @@ class ListView extends React.Component {
                   break;
                 case "/internal/thingml":
                     d.avatar = '/thingml_short.png';
-                    d.content=`Port: ${elt.port}, Status: ${status}, Host: Host: ${host_name}, Target: ${elt.target_language}, File: ${elt.file}`;
+                    d.content=`Port: ${elt.provided_communication_port[0].port_number}, Status: ${status}, Host: ${host_name}, Target: ${elt.target_language}, File: ${elt.file}`;
                   break;
                 case "/internal":
                     d.avatar = '/device.png';
-                    d.content=`Port: ${elt.port[0]}, Status: ${status}, Host: ${host_name}`;
+                    d.content=`Port: ${elt.provided_communication_port[0].port_number}, Status: ${status}, Host: ${host_name}`;
                     break;
                 case "/internal/node_red":
                     d.avatar = '/node-red-256.png';
