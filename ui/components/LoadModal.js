@@ -36,12 +36,22 @@ class LoadModal extends React.Component {
     fr.readAsText(fd);
 
     function receivedText() { //We ask the server because he is the one with all the plugins ...
-      var data = JSON.parse(fr.result);
+      try{
+        var data = JSON.parse(fr.result);
+      }catch(err){
+        window.SiderDemo.openNotificationWithIcon('error', 'Invalid JSON', JSON.stringify(err));
+        return;
+      }
       var m_m=window.SiderDemo.getMM();
       var dm = m_m.deployment_model(data.dm);
       dm.components = data.dm.components;
       dm.revive_links(data.dm.links);
       dm.revive_containments(data.dm.containments);
+      var tab_errors = dm.is_valid_with_errors();
+      if(tab_errors.length > 0){
+        window.SiderDemo.openNotificationWithIcon('error', 'Invalid Model', tab_erros[0]);
+        return;
+      }
       window.SiderDemo.setDM(dm);
       cy.json(data.graph);
     }
