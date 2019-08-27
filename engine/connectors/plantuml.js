@@ -82,8 +82,8 @@ var plantuml_generator=(function(){
           gen.out.pipe(res);
         });
         
-        logger.log("info", 'PlantUML diagram generator started on port: '+8080);
-        app.listen(8080);
+        logger.log("info", 'PlantUML diagram generator started on port: '+8081);
+        app.listen(8081);
     };
 
     return that;
