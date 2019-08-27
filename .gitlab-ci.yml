@@ -11,11 +11,19 @@ image: nicolasferry/node-red-contrib-thingml:latest
 #  - redis:latest
 #  - postgres:latest
 
+services:
+  - docker:dind
+
 # This folder is cached between builds
 # http://docs.gitlab.com/ce/ci/yaml/README.html#cache
 cache:
   paths:
   - node_modules/
+
+build:
+  stage: build
+  script:
+    - docker build -t test .
 
 test:
   script:
