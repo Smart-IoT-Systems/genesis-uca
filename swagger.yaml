@@ -102,6 +102,22 @@ paths:
               $ref: "#/definitions/Model"
         400:
           description: "Cannot access logs"
+          
+  /deploy_model:
+    get:
+      tags:
+      - "Model"
+      summary: "Trigger a deployment"
+      description: "Trigger deployme tof model in memory"
+      operationId: "deploy_model"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "object"
+            items:
+              $ref: "#/definitions/Model"
+
 
   /deploy:
     post:
@@ -121,14 +137,71 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Model"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "object"
+            items:
+              $ref: "#/definitions/Model"
+
+        405:
+          description: "Invalid input"
+          
+  /component:
+    post:
+      tags:
+      - "Model"
+      summary: "Update attribute of a component"
+      description: "Provide a mean to update an attribute of a component (only one level down)"
+      operationId: "component"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "update"
+        description: "Description of the attribute change"
+        required: true
+        schema:
+          $ref: "#/definitions/component"
 
       responses:
         200:
           description: "Successful operation"
           schema:
-            type: "array"
+            type: "boolean"
+
+        405:
+          description: "Invalid input"
+          
+  /push_model:
+    post:
+      tags:
+      - "Model"
+      summary: "Update target model in GeneSIS memory"
+      description: "Update target model in GeneSIS memory but does not deploy"
+      operationId: "push_model"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "model"
+        description: "New deployment model"
+        required: true
+        schema:
+          $ref: "#/definitions/Model"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: "object"
             items:
               $ref: "#/definitions/Model"
+
         405:
           description: "Invalid input"
 
@@ -212,6 +285,21 @@ definitions:
     xml:
       name: "Category"
   
+  
+  component:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        example: "NodeRED_Obs"
+      attribute:
+        type: "string"
+        example: "version"
+      value:
+        type: "string"
+        example: "0.0.1"
+    xml:
+      name: "Category"
 
   Model:
     type: "object"
@@ -243,6 +331,8 @@ definitions:
         type: "string"
       message:
         type: "string"
+        
+        
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"
