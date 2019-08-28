@@ -674,10 +674,6 @@ var engine = (function () {
 
     that.start = function () {
 
-        var os = require('os');
-        var networkInterfaces = os.networkInterfaces();
-        console.log(networkInterfaces);
-
         //We use MQTT for the notifications
         that.MQTTClient = mqtt.connect('ws://127.0.0.1:9001');
         var nfier = notifier(that.MQTTClient);

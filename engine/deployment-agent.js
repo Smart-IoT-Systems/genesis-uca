@@ -11,7 +11,7 @@ var http = require('http');
 var logger = require('./logger.js');
 var bus = require('./event-bus.js');
 var fs = require('fs');
-var ip = require('ip');
+//var ip = require('ip');
 
 var deployment_agent = function (host, host_target, deployment_target) {
     var that={};
@@ -20,6 +20,23 @@ var deployment_agent = function (host, host_target, deployment_target) {
     that.host_target=host_target;
     that.deployment_target=deployment_target;
     that.flow='';
+
+
+    that.compute_ip_address=function(){
+        var os = require('os');
+        var networkInterfaces = os.networkInterfaces();
+        var result = null;
+        for(var i in networkInterfaces){
+            var splitted=host.ip.split(".");
+            var splitted2=networkInterfaces[i][0].address.split(".");//Wahoua what a crappy code
+            if(splitted[0] === splitted2[0] && splitted[1] === splitted2[1] && splitted[2] === splitted2[2]){
+                result = networkInterfaces[i][0].address;
+            }
+        }
+        return result;
+    };
+
+    that.ip=that.compute_ip_address();
 
     //We need to identify what should be in the deployment agent
     that.prepare= async function(){
@@ -35,7 +52,7 @@ var deployment_agent = function (host, host_target, deployment_target) {
                 }
                 that.flow+=',{"id": "'+id_deployer_node_in_agent+'","type": "arduino","z": "dac41de7.a03033","name": "'+that.host_target.name+'","serial": "7d118b53.12e99c","ardtype": "uno","cpu": "'+that.host_target.cpu+'","libraries": '+JSON.stringify(lib_strigified)+',"x": 590,"y": 260, "wires": [["39ea4abb.22c316"]]},';
                 that.flow+='{"id":"39ea4abb.22c316","type":"function","z":"dac41de7.a03033","name":"add_target_name","func":'+JSON.stringify('var newmsg={ payload: {}};\nnewmsg.payload.target_name='+JSON.stringify(that.deployment_target.name)+';\nnewmsg.payload.data=msg.payload;\nreturn newmsg;')+',"outputs":1,"noerr":0,"x":310,"y":940,"wires":[["4355eb1b.25b744"]]},'
-                that.flow+='{"id": "4355eb1b.25b744","type": "mqtt out","z": "dac41de7.a03033","name": "toGeneSIS","topic": "/deployment_agent","qos": "0","retain": "true","broker": "758af4ba.66f854","x": 690,"y": 320,"wires": []},{"id": "7d118b53.12e99c","type": "serial-port","z": "","serialport": "'+that.host_target.physical_port+'","serialbaud": "9600","databits": "8","parity": "none","stopbits": "1","newline": "\\n","bin": "false","out": "char","addchar": false},{"id":"758af4ba.66f854","type":"mqtt-broker","z":"","name":"GeneSIS","broker":"ws://'+ip.address()+':9001","port":"9001","clientid":"","usetls":false,"compatmode":true,"keepalive":"6000","cleansession":true,"birthTopic":"","birthQos":"0","birthRetain":"false","birthPayload":"","closeTopic":"","closeQos":"0","closeRetain":"false","closePayload":"","willTopic":"","willQos":"0","willRetain":"false","willPayload":""}';
+                that.flow+='{"id": "4355eb1b.25b744","type": "mqtt out","z": "dac41de7.a03033","name": "toGeneSIS","topic": "/deployment_agent","qos": "0","retain": "true","broker": "758af4ba.66f854","x": 690,"y": 320,"wires": []},{"id": "7d118b53.12e99c","type": "serial-port","z": "","serialport": "'+that.host_target.physical_port+'","serialbaud": "9600","databits": "8","parity": "none","stopbits": "1","newline": "\\n","bin": "false","out": "char","addchar": false},{"id":"758af4ba.66f854","type":"mqtt-broker","z":"","name":"GeneSIS","broker":"ws://'+that.ip+':9001","port":"9001","clientid":"","usetls":false,"compatmode":true,"keepalive":"6000","cleansession":true,"birthTopic":"","birthQos":"0","birthRetain":"false","birthPayload":"","closeTopic":"","closeQos":"0","closeRetain":"false","closePayload":"","willTopic":"","willQos":"0","willRetain":"false","willPayload":""}';
             }
             if(deployment_target._type === "thingml"){
                 var language="nodejs";
