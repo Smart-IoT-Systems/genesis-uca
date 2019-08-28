@@ -34,6 +34,7 @@ var engine = (function () {
     that.m_observer = null;
 
     that.compo_already_deployed = [];
+    that.compo_already_started = [];
 
     that.map_host_agent = [];
 
@@ -417,9 +418,6 @@ var engine = (function () {
         if (that.compo_already_deployed[cpnt.name] === undefined) {
             that.compo_already_deployed[cpnt.name] = true;
             await that.deploy_one_component(cpnt);
-            /*(function (one_component) {
-                that.deploy_one_component(one_component);
-            }(cpnt));*/
         }
     };
 
@@ -508,11 +506,15 @@ var engine = (function () {
 
             that.compo_already_deployed = [];
 
-            //Other nodes
             for (var i in comp) {
-                await that.recursive_deploy(comp[i]);
+                //await that.recursive_deploy(comp[i]);
+                if(that.dep_model.is_top_component(comp[i])){
+                    console.log(comp[i].name+ "is top");
+                    (function (one_component) {
+                        that.recursive_deploy(one_component);
+                    }(comp[i]));
+                }
             }
-
 
         });
     };
@@ -671,6 +673,10 @@ var engine = (function () {
 
 
     that.start = function () {
+
+        var os = require('os');
+        var networkInterfaces = os.networkInterfaces();
+        console.log(networkInterfaces);
 
         //We use MQTT for the notifications
         that.MQTTClient = mqtt.connect('ws://127.0.0.1:9001');

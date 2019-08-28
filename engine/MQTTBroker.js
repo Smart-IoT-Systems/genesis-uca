@@ -14,7 +14,7 @@ var MQTTBroker = (function () {
         }, aedes.handle);
 
         that.server.listen(that.port, "0.0.0.0", function () {
-            logger.log("info", 'MQTT websocket server listening on port ' + that.port);
+            logger.log("info", 'MQTT websocket server listening on :'+ that.port);
         });
 
         aedes.on('clientError', function (client, err) {

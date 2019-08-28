@@ -312,6 +312,18 @@ var deployment_model = function (spec) {
         return result;
     }
 
+    that.is_top_component = function (elem) {
+        var result = true;
+        for (var e of elem.provided_execution_port) {
+            var id_p = that.generate_port_id(elem, e);
+            var t = that.find_containment_of_provided_port(id_p);
+            if (t !== null) {
+                result=false;
+            }
+        };
+        return result;
+    }
+
     that.generate_port_id = function (comp, port) {
         return '/' + comp.name + '/' + port.name;
     }
@@ -376,10 +388,10 @@ var deployment_model = function (spec) {
         return valid_name;
     };
 
-    that.change_attribute = function(name, attribute, val){ //TODO: make it generic, xpath like stuff
-        let n=that.find_node_named(name);
-        if(n !== undefined){
-            if(attribute.indexOf("name") < 0 && attribute.indexOf("port") < 0){
+    that.change_attribute = function (name, attribute, val) { //TODO: make it generic, xpath like stuff
+        let n = that.find_node_named(name);
+        if (n !== undefined) {
+            if (attribute.indexOf("name") < 0 && attribute.indexOf("port") < 0) {
                 n[attribute] = val;
             }
         }
@@ -440,24 +452,24 @@ var deployment_model = function (spec) {
 
 
     that.find_target_port_of_link = function (l) {
-        var resultat=undefined;
+        var resultat = undefined;
         var target_node_name = l.target.split('/')[1];
         var the_target_node = that.find_node_named(target_node_name);
         the_target_node.required_communication_port.forEach(function (elem) {
             if (that.get_port_name_from_port_id(l.target) === elem.name) {
-                resultat= elem;
+                resultat = elem;
             }
         });
         return resultat;
     };
 
     that.find_src_port_of_link = function (l) {
-        var resultat=undefined;
+        var resultat = undefined;
         var src_node_name = l.target.split('/')[1];
         var the_src_node = that.find_node_named(src_node_name);
         the_src_node.required_communication_port.forEach(function (elem) {
             if (that.get_port_name_from_port_id(l.target) === elem.name) {
-                resultat= elem;
+                resultat = elem;
             }
         });
         return resultat;
@@ -501,29 +513,29 @@ var deployment_model = function (spec) {
                 var tgt_port = that.find_target_port_of_link(elem);
                 var src_port = that.find_src_port_of_link(elem);
                 if (tgt_port.capabilities !== undefined && tgt_port.capabilities.length > 0) {
-                    if(src_port.capabilities !== undefined && src_port.capabilities.length > 0) {
+                    if (src_port.capabilities !== undefined && src_port.capabilities.length > 0) {
                         errors.push("Capability " + elem.name + " is not satisfied!");
-                    }else{
+                    } else {
                         tgt_port.capabilities.forEach(function (cap) {
-                            var res=false;
+                            var res = false;
                             src_port.capabilities.forEach(function (car) {
                                 if (cap._type.indexOf("security_capability") >= 0) {
-                                    if(car.control_id === cap.control_id){
-                                        res=true;
+                                    if (car.control_id === cap.control_id) {
+                                        res = true;
                                     }
                                 }
                                 if (cap._type.indexOf("soft_capability") >= 0) {
-                                    if(car.value === cap.value){
-                                        res=true;
+                                    if (car.value === cap.value) {
+                                        res = true;
                                     }
                                 }
                                 if (cap._type.indexOf("hardware_capability") >= 0) {
-                                    if(car.connector === cap.connector && car.path === cap.path && car.permissions === cap.permission){
-                                        res=true;
+                                    if (car.connector === cap.connector && car.path === cap.path && car.permissions === cap.permission) {
+                                        res = true;
                                     }
                                 }
                             });
-                            if(!res){
+                            if (!res) {
                                 errors.push("Capability " + cap.name + " of " + elem.name + " is not satisfied!");
                             }
                         });
@@ -712,7 +724,7 @@ var node_red = function (spec) {
     that.path_flow = spec.path_flow || "";
     that.packages = spec.packages || [];
 
-    if(spec.provided_communication_port === undefined){
+    if (spec.provided_communication_port === undefined) {
         that.provided_communication_port[0].port_number = '1880';
     }
 
