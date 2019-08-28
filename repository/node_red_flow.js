@@ -12,7 +12,9 @@ var node_red_flow = function (spec) {
     that.path_flow = spec.path_flow || "";
     that.packages = spec.packages || [];
 
-    that.required_communication_port[0].port_number = '1880';
+    if(spec.required_communication_port === undefined){
+        that.required_communication_port[0].port_number = '1880';
+    }
 
     return that;
 };

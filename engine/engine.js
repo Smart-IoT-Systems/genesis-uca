@@ -313,6 +313,7 @@ var engine = (function () {
     };
 
     that.deploy_node_red_flow = async function (a_component) {
+        console.log(">>>>>>>"+JSON.stringify(a_component));
         var nredconnector = nodered_connector();
         var host = that.dep_model.find_host(a_component);
         var _data = "";
