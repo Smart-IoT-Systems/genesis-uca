@@ -405,7 +405,14 @@ var engine = (function () {
 
     that.recursive_deploy = async function (cpnt) {
         var one_level = that.dep_model.find_host_one_level_down(cpnt);
-        if ((one_level !== null) && (that.compo_already_deployed[one_level] !== true) && (one_level._type.indexOf('infra') < 0)) {
+        var one_level_new = false;
+        for (var elem of that.diff.list_of_added_components) {
+            if (elem.name === one_level.name) {
+                one_level_new = true;
+            }
+        }
+        if ((one_level !== null) && (that.compo_already_deployed[one_level] !== true) &&
+            (one_level._type.indexOf('infra') < 0) && one_level_new) {
             await that.recursive_deploy(one_level);
         }
         var comp_mandatories = that.dep_model.get_all_mandatory_of_a_component(cpnt);
@@ -508,8 +515,8 @@ var engine = (function () {
 
             for (var i in comp) {
                 //await that.recursive_deploy(comp[i]);
-                if(that.dep_model.is_top_component(comp[i])){
-                    console.log(comp[i].name+ "is top");
+                if (that.dep_model.is_top_component(comp[i])) {
+                    console.log(comp[i].name + "is top");
                     (function (one_component) {
                         that.recursive_deploy(one_component);
                     }(comp[i]));
