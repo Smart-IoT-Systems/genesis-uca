@@ -27,11 +27,12 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, "public/"),
     port: 8880,
-    publicPath: "http://127.0.0.1:8880/dist/",
+    host: '0.0.0.0',
+    publicPath: "http://0.0.0.0:8880/dist/",
     hotOnly: true,
     proxy: {
         '/genesis/*': {
-            target: 'http://127.0.0.1:8000',
+            target: 'http://0.0.0.0:8000',
                 secure: false,
                 changeOrigin: true,
         }

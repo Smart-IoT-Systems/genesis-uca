@@ -22,7 +22,7 @@ broker.start();
 puml.start();
 
 // start server
-var server = app.listen(app.get('port'), function () {
+var server = app.listen(app.get('port'), '0.0.0.0', function () {
 	var port = server.address().port;
    logger.log('info','GeneSIS Engine API started on ' + port);
 });
