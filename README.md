@@ -88,7 +88,7 @@ You may build your own Docker image of GeneSIS by using our DockerFile. This ima
 
 3. Run the docker container (Depending on how you plan to use GeneSIS, remember to open the proper ports, cf. https://docs.docker.com/engine/reference/run/).
 
-        docker run -p 8880:8880 genesis
+        docker run -d -p 8880:8880 -p 9001:9001 -p 8000:8000 genesis
 
 4. Access the GeneSIS web interface
 
