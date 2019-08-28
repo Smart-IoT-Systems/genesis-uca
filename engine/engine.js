@@ -25,7 +25,7 @@ var engine = (function () {
 
     that.dep_model = mm.deployment_model({});
     that.diff = {};
-    that.target_model= mm.deployment_model({});
+    that.target_model = mm.deployment_model({});
 
     that.MQTTClient = {};
 
@@ -53,30 +53,30 @@ var engine = (function () {
         res.end(JSON.stringify(that.available_types));
     };
 
-    that.get_targetDM = function(req, res){
+    that.get_targetDM = function (req, res) {
         res.end(JSON.stringify(that.target_model));
     };
 
-    that.update_component = function(req, res){
+    that.update_component = function (req, res) {
         var input = req.body;
         logger.log("info", "Received request to update Target model in memory " + JSON.stringify(input));
-        try{
+        try {
             that.target_model.change_attribute(input.name, input.attribute, input.value);
-        }catch(e){
+        } catch (e) {
             logger.log("error", "Body not valid");
             res.end("error");
         }
         res.end("OK");
     };
 
-    that.push_model = function(req, res){
-        req.body=that.target_model;
+    that.push_model = function (req, res) {
+        req.body = that.target_model;
         that.deploy(req, res);
     };
 
-    that.update_target_model = function(req, res){
-        let data=req.body;
-        that.target_model= mm.deployment_model({});
+    that.update_target_model = function (req, res) {
+        let data = req.body;
+        that.target_model = mm.deployment_model({});
         that.target_model.name = data.name;
         that.target_model.revive_components(data.components);
         that.target_model.revive_links(data.links);
@@ -251,29 +251,33 @@ var engine = (function () {
     };
 
     that.deploy_nodered = async function (comp, host) {
-        var connector = dc();
-        var docker_image_nr = "nicolasferry/multiarch-node-red-thingml:latest";
-        if (comp.docker_resource.image !== docker_image_nr && comp.docker_resource.image !== "") {
-            docker_image_nr = comp.docker_resource.image;
-        }
-        connector.buildAndDeploy(host.ip, host.port, comp.docker_resource.port_bindings, comp.docker_resource.devices, "", docker_image_nr, comp.docker_resource.mounts, comp.docker_resource.links, comp.name, host.name).then(function (id) {
-            if ((comp.nr_flow !== undefined && comp.nr_flow !== "") ||
-                (comp.path_flow !== "" && comp.path_flow !== undefined)) { //if there is a flow to load with the nodered node
-                let noderedconnector = nodered_connector();
-                var _data = "";
-                if (comp.path_flow !== "" && comp.path_flow !== undefined) {
-                    _data = fs.readFileSync(comp.path_flow);
-                } else {
-                    _data = JSON.stringify(comp.nr_flow);
-                }
-                noderedconnector.installAllNodeTypes(host.ip, comp.provided_communication_port[0].port_number, comp.packages).then(function () {
-                    noderedconnector.setFlow(host.ip, comp.provided_communication_port[0].port_number, _data, [], [], that.dep_model).then(function () {
-                        bus.emit('node-started', id, comp.name);
-                    });
-                });
+        return new Promise(function (resolve, reject) {
+            var connector = dc();
+            var docker_image_nr = "nicolasferry/multiarch-node-red-thingml:latest";
+            if (comp.docker_resource.image !== docker_image_nr && comp.docker_resource.image !== "") {
+                docker_image_nr = comp.docker_resource.image;
             }
-        }).catch(function (err) {
-            logger.log('info', "Could not deploy node: " + comp.name + " => " + err);
+            connector.buildAndDeploy(host.ip, host.port, comp.docker_resource.port_bindings, comp.docker_resource.devices, "", docker_image_nr, comp.docker_resource.mounts, comp.docker_resource.links, comp.name, host.name).then(function (id) {
+                if ((comp.nr_flow !== undefined && comp.nr_flow !== "") ||
+                    (comp.path_flow !== "" && comp.path_flow !== undefined)) { //if there is a flow to load with the nodered node
+                    let noderedconnector = nodered_connector();
+                    var _data = "";
+                    if (comp.path_flow !== "" && comp.path_flow !== undefined) {
+                        _data = fs.readFileSync(comp.path_flow);
+                    } else {
+                        _data = JSON.stringify(comp.nr_flow);
+                    }
+                    noderedconnector.installAllNodeTypes(host.ip, comp.provided_communication_port[0].port_number, comp.packages).then(function () {
+                        noderedconnector.setFlow(host.ip, comp.provided_communication_port[0].port_number, _data, [], [], that.dep_model).then(function () {
+                            resolve(comp.name);
+                            bus.emit('node-started', id, comp.name);
+                        });
+                    });
+                }
+            }).catch(function (err) {
+                logger.log('info', "Could not deploy node: " + comp.name + " => " + err);
+                reject(err);
+            });
         });
     };
 
@@ -313,19 +317,25 @@ var engine = (function () {
     };
 
     that.deploy_node_red_flow = async function (a_component) {
-        console.log(">>>>>>>"+JSON.stringify(a_component));
-        var nredconnector = nodered_connector();
-        var host = that.dep_model.find_host(a_component);
-        var _data = "";
-        if (a_component.path_flow !== "" && a_component.path_flow !== undefined) {
-            _data = fs.readFileSync(a_component.path_flow);
-        } else {
-            _data = JSON.stringify(a_component.nr_flow);
-        }
-        nredconnector.installAllNodeTypes(host.ip, a_component.required_communication_port[0].port_number, a_component.packages).then(function () {
-            nredconnector.setFlow(host.ip, a_component.required_communication_port[0].port_number, _data, [], [], that.dep_model).then(function () {
-                bus.emit('node-started', null, a_component.name);
-            });
+        return new Promise(function (resolve, reject) {
+            bus.emit('container-config', a_component.name);
+            var nredconnector = nodered_connector();
+            var host = that.dep_model.find_host(a_component);
+            var _data = "";
+            if (a_component.path_flow !== "" && a_component.path_flow !== undefined) {
+                _data = fs.readFileSync(a_component.path_flow);
+            } else {
+                _data = JSON.stringify(a_component.nr_flow);
+            }
+            nredconnector.installAllNodeTypes(host.ip, a_component.required_communication_port[0].port_number, a_component.packages).then(function () {
+                nredconnector.setFlow(host.ip, a_component.required_communication_port[0].port_number, _data, [], [], that.dep_model).then(function () {
+                    bus.emit('node-started', null, a_component.name);
+                    resolve(a_component.name);
+                });
+            }).catch(function (err) {
+                logger.log('info', "Could not deploy node: " + comp.name + " => " + err);
+                reject(err);
+            });;
         });
     };
 
@@ -376,14 +386,14 @@ var engine = (function () {
     };
 
     that.need_ssh = function (compo) {
-        if ((compo.ssh_resource.credentials.sshkey !== undefined && compo.ssh_resource.credentials.sshkey !== "") 
-        || (compo.ssh_resource.credentials.agent !== undefined && compo.ssh_resource.credentials.agent !== "") 
-        || (compo.ssh_resource.credentials.password !== undefined && compo.ssh_resource.credentials.password !== "")){
-            if((compo.ssh_resource.startCommand !== undefined && compo.ssh_resource.startCommand !== "")
-            || (compo.ssh_resource.configureCommand !== undefined && compo.ssh_resource.configureCommand !== "")
-            || (compo.ssh_resource.installCommand !== undefined && compo.ssh_resource.installCommand !== "")){
+        if ((compo.ssh_resource.credentials.sshkey !== undefined && compo.ssh_resource.credentials.sshkey !== "") ||
+            (compo.ssh_resource.credentials.agent !== undefined && compo.ssh_resource.credentials.agent !== "") ||
+            (compo.ssh_resource.credentials.password !== undefined && compo.ssh_resource.credentials.password !== "")) {
+            if ((compo.ssh_resource.startCommand !== undefined && compo.ssh_resource.startCommand !== "") ||
+                (compo.ssh_resource.configureCommand !== undefined && compo.ssh_resource.configureCommand !== "") ||
+                (compo.ssh_resource.installCommand !== undefined && compo.ssh_resource.installCommand !== "")) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
@@ -437,6 +447,35 @@ var engine = (function () {
                 resolve(0);
             }
 
+            var manage_links = function (comp_tab) {
+                //For all Node-Red hosted components we generate the websocket proxies
+                for (var ct_elem of comp_tab) {
+                    (function (comp_tab, ct_elem) {
+                        if (ct_elem._type === '/internal/node_red') {
+                            var host = that.dep_model.find_host(ct_elem);
+
+                            //Get all links that start from the component
+                            var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
+                            //Get all links that end in the component
+                            var tgt_tab = that.dep_model.get_all_inputs_of_component(ct_elem);
+
+                            if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
+                                var noderedconnector = nodered_connector();
+                                noderedconnector.getCurrentFlow(host.ip, ct_elem.provided_communication_port[0].port_number).then(function (the_flow) {
+                                    that.generate_components(host.ip, ct_elem.provided_communication_port[0].port_number, src_tab, tgt_tab, that.dep_model, the_flow);
+                                    bus.emit('link-done');
+                                });
+                            } else {
+                                bus.emit('link-done');
+                            }
+                        } else {
+                            bus.emit('link-done');
+                        }
+                    }(comp_tab, ct_elem));
+                }
+            }
+
+
             bus.on('node-error2', function (container_id, comp_name) {
                 tmp++;
                 if (tmp >= comp.length) {
@@ -472,34 +511,6 @@ var engine = (function () {
             //Other nodes
             for (var i in comp) {
                 await that.recursive_deploy(comp[i]);
-            }
-
-            var manage_links = function (comp_tab) {
-                //For all Node-Red hosted components we generate the websocket proxies
-                for (var ct_elem of comp_tab) {
-                    (function (comp_tab, ct_elem) {
-                        if (ct_elem._type === '/internal/node_red') {
-                            var host = that.dep_model.find_host(ct_elem);
-
-                            //Get all links that start from the component
-                            var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
-                            //Get all links that end in the component
-                            var tgt_tab = that.dep_model.get_all_inputs_of_component(ct_elem);
-
-                            if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
-                                var noderedconnector = nodered_connector();
-                                noderedconnector.getCurrentFlow(host.ip, ct_elem.provided_communication_port[0].port_number).then(function (the_flow) {
-                                    that.generate_components(host.ip, ct_elem.provided_communication_port[0].port_number, src_tab, tgt_tab, that.dep_model, the_flow);
-                                    bus.emit('link-done');
-                                });
-                            } else {
-                                bus.emit('link-done');
-                            }
-                        } else {
-                            bus.emit('link-done');
-                        }
-                    }(comp_tab, ct_elem));
-                }
             }
 
 
