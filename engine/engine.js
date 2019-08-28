@@ -62,7 +62,7 @@ var engine = (function () {
         logger.log("info", "Received request to update Target model in memory " + JSON.stringify(input));
         try{
             that.target_model.change_attribute(input.name, input.attribute, input.value);
-        }catch{
+        }catch(e){
             logger.log("error", "Body not valid");
             res.end("error");
         }
