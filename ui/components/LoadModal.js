@@ -49,7 +49,7 @@ class LoadModal extends React.Component {
       dm.revive_containments(data.dm.containments);
       var tab_errors = dm.is_valid_with_errors();
       if(tab_errors.length > 0){
-        window.SiderDemo.openNotificationWithIcon('error', 'Invalid Model', tab_erros[0]);
+        window.SiderDemo.openNotificationWithIcon('error', 'Invalid Model', tab_errors[0]);
         return;
       }
       window.SiderDemo.setDM(dm);
