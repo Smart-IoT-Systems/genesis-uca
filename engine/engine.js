@@ -115,9 +115,12 @@ var engine = (function () {
                 } else if (removed[i]._type === "/internal/node_red_flow") {
                     if (!that.to_be_removed(diff, host)) {
                         var n_connector = nodered_connector();
-                        n_connector.setFlow(host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model).then(function () {
+                        /*n_connector.setFlow(host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model).then(function () {
                             logger.log("info", "Node-Red Flow Removed!");
-                        });
+                        });*/
+                        logger.log("info", "Host "+host.name);
+                        await n_connector.setFlow(host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model);
+                        logger.log("info", "Node-Red Flow Removed!");
                     }
                 } else if (that.need_ssh(removed[i])) {
                     var ssh_connection = sshc(host.ip, host.port, removed[i].ssh_resource.credentials.username, removed[i].ssh_resource.credentials.password, removed[i].ssh_resource.credentials.sshkey, removed[i].ssh_resource.credentials.agent);
@@ -516,7 +519,6 @@ var engine = (function () {
             for (var i in comp) {
                 //await that.recursive_deploy(comp[i]);
                 if (that.dep_model.is_top_component(comp[i])) {
-                    console.log(comp[i].name + "is top");
                     (function (one_component) {
                         that.recursive_deploy(one_component);
                     }(comp[i]));
