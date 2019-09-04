@@ -107,11 +107,12 @@ var engine = (function () {
         for (var i in removed) {
 
             var host = diff.old_dm.find_host_one_level_down(removed[i]);
+            var device_host=diff.old_dm.find_host(removed[i]);
 
             if (host !== null) {
                 //Need to find the host in the old model
                 if (host._type === "/infra/docker_host") {
-                    await connector.stopAndRemove(removed[i].container_id, host.ip, host.port);
+                    await connector.stopAndRemove(removed[i].container_id, device_host.ip, host.port);
                 } else if (removed[i]._type === "/internal/node_red_flow") {
                     if (!that.to_be_removed(diff, host)) {
                         var n_connector = nodered_connector();
@@ -119,11 +120,11 @@ var engine = (function () {
                             logger.log("info", "Node-Red Flow Removed!");
                         });*/
                         logger.log("info", "Host "+host.name);
-                        await n_connector.setFlow(host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model);
+                        await n_connector.setFlow(device_host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model);
                         logger.log("info", "Node-Red Flow Removed!");
                     }
                 } else if (that.need_ssh(removed[i])) {
-                    var ssh_connection = sshc(host.ip, host.port, removed[i].ssh_resource.credentials.username, removed[i].ssh_resource.credentials.password, removed[i].ssh_resource.credentials.sshkey, removed[i].ssh_resource.credentials.agent);
+                    var ssh_connection = sshc(device_host.ip, host.port, removed[i].ssh_resource.credentials.username, removed[i].ssh_resource.credentials.password, removed[i].ssh_resource.credentials.sshkey, removed[i].ssh_resource.credentials.agent);
                     await ssh_connection.execute_command(removed[i].ssh_resource.stopCommand);
                 }
             }
