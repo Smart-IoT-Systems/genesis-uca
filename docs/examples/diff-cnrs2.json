@@ -1,0 +1,1301 @@
+{
+    "dm": {
+        "name": "demo",
+        "components": [{
+            "_type": "/infra/docker_host",
+            "name": "RPiZero-101",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "b4b0eca7-4a69-42cc-8894-46010f53b199",
+            "provided_execution_port": [{
+                "name": "offerDocker",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "ip": "127.0.0.1",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "",
+                "sshkey": ""
+            },
+            "monitoring_agent": "none",
+            "_runtime": {
+                "Status": "config"
+            }
+        }, {
+            "_type": "/internal/node_red",
+            "name": "NodeRED-101",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "06fe3cb8-a716-4f35-b0e6-ceea8a93be08",
+            "provided_execution_port": [{
+                "name": "offerNodeRED",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "DockerRaspberryPiZeroGroveBaseHat",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1881": "1880",
+                    "1884": "1883"
+                }
+            },
+            "ssh_resource": {
+                "name": "7bf49149-3e7b-4393-ba5d-9b152e7a16bd",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "d64588c0-fb0a-495d-b229-5163da8bd688",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "demandDocker",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "9b3e8f2b-99e8-4eb8-8923-87e3dad32142",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1881"
+            }],
+            "required_communication_port": [{
+                "name": "88737e46-9d27-4446-aaed-b11af1509258",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1881",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "",
+            "packages": [],
+            "_runtime": {
+                "Status": "running",
+                "id": "2e8e1c0630df7daab114a9c5b26341f8256dc3d38b6cf7c1a9002eabbce74350"
+            },
+            "container_id": "2e8e1c0630df7daab114a9c5b26341f8256dc3d38b6cf7c1a9002eabbce74350"
+        }, {
+            "_type": "/internal/node_red_flow",
+            "name": "NodeRED-flow-101",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "df4e0f4f-02c6-4092-b439-fd099d1a2ad1",
+            "provided_execution_port": [{
+                "name": "f87ae491-2aa4-42c2-8fe1-6d9f8db532b8",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "181a9a69-708b-4602-b0e9-e5850d8edf77",
+                "image": "",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "96b58f0c-429e-490e-998c-2c57ce9ffc8a",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "a68c5c97-55f2-41d8-8bd1-abbd2599ff77",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "demandNodeRED",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "fb1e05b2-d878-4930-94cf-23a48347853a",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1881"
+            }],
+            "required_communication_port": [{
+                "name": "88151d4d-04e0-4c32-a9e6-1b9ea84d346f",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1881",
+                "isMandatory": false
+            }],
+            "nr_flow": [{
+                "id": "6ce6e39a.e6af9c",
+                "type": "tab",
+                "label": "Flow 1",
+                "disabled": false,
+                "info": ""
+            }, {
+                "id": "86457344.50e6b",
+                "type": "inject",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "topic": "",
+                "payload": "",
+                "payloadType": "none",
+                "repeat": "",
+                "crontab": "",
+                "once": false,
+                "x": 230,
+                "y": 180,
+                "wires": [
+                    ["9a142026.fa47f"]
+                ]
+            }, {
+                "id": "9a142026.fa47f",
+                "type": "function",
+                "z": "6ce6e39a.e6af9c",
+                "name": "add new layer",
+                "func": "msg.payload = {};\nmsg.payload.command = {};\n\nvar u = 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';\nvar o = { maxZoom: 19, attribution: '&copy; OpenStreetMap'};\n\nmsg.payload.command.map = {name:\"OSMhot\", url:u, opt:o};\nmsg.payload.command.layer = \"OSMhot\";\n\nreturn msg;",
+                "outputs": 1,
+                "noerr": 0,
+                "x": 460,
+                "y": 180,
+                "wires": [
+                    ["c643e022.1816c"]
+                ]
+            }, {
+                "id": "c643e022.1816c",
+                "type": "worldmap",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "x": 790,
+                "y": 220,
+                "wires": []
+            }, {
+                "id": "2998e233.4ba64e",
+                "type": "function",
+                "z": "6ce6e39a.e6af9c",
+                "name": "USGS Quake monitor csv re-parse",
+                "func": "msg.payload.lat = msg.payload.latitude;\nmsg.payload.lon = msg.payload.longitude;\nmsg.payload.layer = \"earthquake\";\nmsg.payload.name = msg.payload.id;\nmsg.payload.icon = \"globe\";\nmsg.payload.iconColor = \"orange\";\n\ndelete msg.payload.latitude;\ndelete msg.payload.longitude;\t\nreturn msg;",
+                "outputs": 1,
+                "noerr": 0,
+                "x": 580,
+                "y": 320,
+                "wires": [
+                    ["c643e022.1816c"]
+                ]
+            }, {
+                "id": "e72c5732.9fa198",
+                "type": "function",
+                "z": "6ce6e39a.e6af9c",
+                "name": "move and zoom",
+                "func": "msg.payload = { command:{layer:\"Esri Terrain\",lat:0,lon:0,zoom:3} };\nreturn msg;",
+                "outputs": 1,
+                "noerr": 0,
+                "x": 460,
+                "y": 220,
+                "wires": [
+                    ["c643e022.1816c"]
+                ]
+            }, {
+                "id": "12317723.589249",
+                "type": "csv",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "sep": ",",
+                "hdrin": true,
+                "hdrout": "",
+                "multi": "one",
+                "ret": "\\n",
+                "temp": "",
+                "x": 430,
+                "y": 260,
+                "wires": [
+                    ["2998e233.4ba64e"]
+                ]
+            }, {
+                "id": "10e5e5f0.8daeaa",
+                "type": "inject",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "topic": "",
+                "payload": "",
+                "payloadType": "none",
+                "repeat": "",
+                "crontab": "",
+                "once": false,
+                "x": 230,
+                "y": 290,
+                "wires": [
+                    ["e72c5732.9fa198"]
+                ]
+            }, {
+                "id": "b6917d83.d1bac",
+                "type": "http request",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "method": "GET",
+                "url": "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.csv",
+                "x": 31,
+                "y": 320,
+                "wires": [
+                    ["12317723.589249"]
+                ]
+            }, {
+                "id": "3842171.4d487e8",
+                "type": "inject",
+                "z": "6ce6e39a.e6af9c",
+                "name": "Quakes",
+                "topic": "",
+                "payload": "",
+                "payloadType": "none",
+                "repeat": "900",
+                "crontab": "",
+                "once": false,
+                "x": 240,
+                "y": 260,
+                "wires": [
+                    ["b6917d83.d1bac"]
+                ]
+            }],
+            "path_flow": "",
+            "packages": ["node-red-contrib-web-worldmap"],
+            "container_id": null,
+            "_runtime": {
+                "Status": "running",
+                "id": null
+            }
+        }, {
+            "_type": "/infra/docker_host",
+            "name": "RPiZero-102",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "9a50e93a-5aa7-407c-8da2-6727c3002ff2",
+            "provided_execution_port": [{
+                "name": "offerDocker",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "ip": "127.0.0.1",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "",
+                "sshkey": ""
+            },
+            "monitoring_agent": "none"
+        }, {
+            "_type": "/internal/node_red",
+            "name": "NodeRED-102",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "24376a13-bece-423c-9e4d-e520664a4ecb",
+            "provided_execution_port": [{
+                "name": "offerNodeRED",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "DockerRaspberryPiZeroGroveBaseHat",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1882": "1880",
+                    "1887": "1883"
+                }
+            },
+            "ssh_resource": {
+                "name": "abad4545-8697-4ab6-9b98-851f54d31cb1",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "b1e846b4-f178-4717-ac46-23a1301b7d25",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "demandDocker",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "91af4229-d1f2-438d-9a46-e226811b28bf",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1882"
+            }],
+            "required_communication_port": [{
+                "name": "67e0ccb1-a4b1-46bc-88a9-c684f88a0549",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1882",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "",
+            "packages": [],
+            "_runtime": {
+                "Status": "running",
+                "id": "58d10cf31d7f29d8167da639bb28fb4b0cfefb682425d6c9dba816aa7162cd63"
+            },
+            "container_id": "58d10cf31d7f29d8167da639bb28fb4b0cfefb682425d6c9dba816aa7162cd63"
+        }, {
+            "_type": "/internal/node_red_flow",
+            "name": "NodeRED-flow-102",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "ff087761-1766-4a17-b398-584ed1920eeb",
+            "provided_execution_port": [{
+                "name": "56ae9e3f-46a2-40b4-b173-5d3f6c08e3ec",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "6cc41709-2943-43a6-816c-18ec71efb8c3",
+                "image": "",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "47e0c3e3-7f12-4990-8ace-58ba24370dbf",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "9293288a-0393-4348-adf9-2aceedf94cf7",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "demandNodeRED",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "58888be8-43d4-427c-b883-1ef41d81401c",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1882"
+            }],
+            "required_communication_port": [{
+                "name": "cb7266aa-8e6c-458f-b139-a415b3a3f558",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1882",
+                "isMandatory": false
+            }],
+            "nr_flow": [{
+                "id": "6ce6e39a.e6af9c",
+                "type": "tab",
+                "label": "Flow 1",
+                "disabled": false,
+                "info": ""
+            }, {
+                "id": "86457344.50e6b",
+                "type": "inject",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "topic": "",
+                "payload": "",
+                "payloadType": "none",
+                "repeat": "",
+                "crontab": "",
+                "once": false,
+                "x": 230,
+                "y": 180,
+                "wires": [
+                    ["9a142026.fa47f"]
+                ]
+            }, {
+                "id": "9a142026.fa47f",
+                "type": "function",
+                "z": "6ce6e39a.e6af9c",
+                "name": "add new layer",
+                "func": "msg.payload = {};\nmsg.payload.command = {};\n\nvar u = 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';\nvar o = { maxZoom: 19, attribution: '&copy; OpenStreetMap'};\n\nmsg.payload.command.map = {name:\"OSMhot\", url:u, opt:o};\nmsg.payload.command.layer = \"OSMhot\";\n\nreturn msg;",
+                "outputs": 1,
+                "noerr": 0,
+                "x": 460,
+                "y": 180,
+                "wires": [
+                    ["c643e022.1816c"]
+                ]
+            }, {
+                "id": "c643e022.1816c",
+                "type": "worldmap",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "x": 790,
+                "y": 220,
+                "wires": []
+            }, {
+                "id": "2998e233.4ba64e",
+                "type": "function",
+                "z": "6ce6e39a.e6af9c",
+                "name": "USGS Quake monitor csv re-parse",
+                "func": "msg.payload.lat = msg.payload.latitude;\nmsg.payload.lon = msg.payload.longitude;\nmsg.payload.layer = \"earthquake\";\nmsg.payload.name = msg.payload.id;\nmsg.payload.icon = \"globe\";\nmsg.payload.iconColor = \"orange\";\n\ndelete msg.payload.latitude;\ndelete msg.payload.longitude;\t\nreturn msg;",
+                "outputs": 1,
+                "noerr": 0,
+                "x": 580,
+                "y": 320,
+                "wires": [
+                    ["c643e022.1816c"]
+                ]
+            }, {
+                "id": "e72c5732.9fa198",
+                "type": "function",
+                "z": "6ce6e39a.e6af9c",
+                "name": "move and zoom",
+                "func": "msg.payload = { command:{layer:\"Esri Terrain\",lat:0,lon:0,zoom:3} };\nreturn msg;",
+                "outputs": 1,
+                "noerr": 0,
+                "x": 460,
+                "y": 220,
+                "wires": [
+                    ["c643e022.1816c"]
+                ]
+            }, {
+                "id": "12317723.589249",
+                "type": "csv",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "sep": ",",
+                "hdrin": true,
+                "hdrout": "",
+                "multi": "one",
+                "ret": "\\n",
+                "temp": "",
+                "x": 430,
+                "y": 260,
+                "wires": [
+                    ["2998e233.4ba64e"]
+                ]
+            }, {
+                "id": "10e5e5f0.8daeaa",
+                "type": "inject",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "topic": "",
+                "payload": "",
+                "payloadType": "none",
+                "repeat": "",
+                "crontab": "",
+                "once": false,
+                "x": 230,
+                "y": 220,
+                "wires": [
+                    ["e72c5732.9fa198"]
+                ]
+            }, {
+                "id": "b6917d83.d1bac",
+                "type": "http request",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "method": "GET",
+                "url": "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.csv",
+                "x": 310,
+                "y": 300,
+                "wires": [
+                    ["12317723.589249"]
+                ]
+            }, {
+                "id": "3842171.4d487e8",
+                "type": "inject",
+                "z": "6ce6e39a.e6af9c",
+                "name": "Quakes",
+                "topic": "",
+                "payload": "",
+                "payloadType": "none",
+                "repeat": "900",
+                "crontab": "",
+                "once": false,
+                "x": 247,
+                "y": 260,
+                "wires": [
+                    ["b6917d83.d1bac"]
+                ]
+            }],
+            "path_flow": "",
+            "packages": ["node-red-contrib-web-worldmap"],
+            "container_id": null,
+            "_runtime": {
+                "Status": "running",
+                "id": null
+            }
+        }, {
+            "_type": "/infra/docker_host",
+            "name": "Docker-Application",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "ffff62ca-9dec-4b7c-9a99-9ac87c411a13",
+            "provided_execution_port": [{
+                "name": "offerDocker",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "ip": "127.0.0.1",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "",
+                "sshkey": ""
+            },
+            "monitoring_agent": "none",
+            "_runtime": {
+                "Status": "config"
+            }
+        }, {
+            "_type": "/internal/node_red",
+            "name": "NodeRED-Application",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "5f067abf-5e23-4aad-aebf-c393af095462",
+            "provided_execution_port": [{
+                "name": "offerNodeRED",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "83628673-4ec3-4023-8abb-34d92a34ab7a",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880",
+                    "1883": "1883"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "c08db154-795a-42cd-a489-c90f353ade11",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "e82c2c91-24c1-4057-885b-c560875dcd29",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "demandDocker",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "69cdea1c-1f5e-454a-874e-7355e7c8073e",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "6301b6f6-a018-47b2-be29-a50a0ce53c1e",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "",
+            "packages": [],
+            "_runtime": {
+                "Status": "running",
+                "id": "d54b1875d7f53708b2eabcd7b4d221e56e6cf35e8457f5be707c9643cb56b677"
+            },
+            "container_id": "d54b1875d7f53708b2eabcd7b4d221e56e6cf35e8457f5be707c9643cb56b677"
+        }, {
+            "_type": "/internal/node_red_flow",
+            "name": "NodeRED-flow-Application",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "04f1686f-4a3f-4b28-b43f-9ae1357201c4",
+            "provided_execution_port": [{
+                "name": "c38c377e-7769-494d-abd1-52a5b5f655c6",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "bc460472-7fca-4a17-a31d-0cde00d30d3f",
+                "image": "",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "f0ac08c0-4b3e-49ca-93b9-60a4cd83736f",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "05c21755-fe78-4174-9a4d-f9f116d641cf",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "demandNodeRED",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "436d2852-8b80-4d1c-a1bb-f9e6f2c90167",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "f53acdb3-f561-4d69-9826-8f6b396b9b61",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1880",
+                "isMandatory": false
+            }],
+            "nr_flow": [{
+                "id": "6ce6e39a.e6af9c",
+                "type": "tab",
+                "label": "Flow",
+                "disabled": false,
+                "info": ""
+            }, {
+                "id": "86457344.50e6b",
+                "type": "inject",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "topic": "",
+                "payload": "",
+                "payloadType": "none",
+                "repeat": "",
+                "crontab": "",
+                "once": false,
+                "x": 235,
+                "y": 180,
+                "wires": [
+                    ["9a142026.fa47f"]
+                ]
+            }, {
+                "id": "9a142026.fa47f",
+                "type": "function",
+                "z": "6ce6e39a.e6af9c",
+                "name": "add new layer",
+                "func": "msg.payload = {};\nmsg.payload.command = {};\n\nvar u = 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';\nvar o = { maxZoom: 19, attribution: '&copy; OpenStreetMap'};\n\nmsg.payload.command.map = {name:\"OSMhot\", url:u, opt:o};\nmsg.payload.command.layer = \"OSMhot\";\n\nreturn msg;",
+                "outputs": 1,
+                "noerr": 0,
+                "x": 467,
+                "y": 180,
+                "wires": [
+                    ["c643e022.1816c"]
+                ]
+            }, {
+                "id": "c643e022.1816c",
+                "type": "worldmap",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "x": 790,
+                "y": 220,
+                "wires": []
+            }, {
+                "id": "2998e233.4ba64e",
+                "type": "function",
+                "z": "6ce6e39a.e6af9c",
+                "name": "USGS Quake monitor csv re-parse",
+                "func": "msg.payload.lat = msg.payload.latitude;\nmsg.payload.lon = msg.payload.longitude;\nmsg.payload.layer = \"earthquake\";\nmsg.payload.name = msg.payload.id;\nmsg.payload.icon = \"globe\";\nmsg.payload.iconColor = \"orange\";\n\ndelete msg.payload.latitude;\ndelete msg.payload.longitude;\t\nreturn msg;",
+                "outputs": 1,
+                "noerr": 0,
+                "x": 580,
+                "y": 320,
+                "wires": [
+                    ["c643e022.1816c"]
+                ]
+            }, {
+                "id": "e72c5732.9fa198",
+                "type": "function",
+                "z": "6ce6e39a.e6af9c",
+                "name": "move and zoom",
+                "func": "msg.payload = { command:{layer:\"Esri Terrain\",lat:0,lon:0,zoom:3} };\nreturn msg;",
+                "outputs": 1,
+                "noerr": 0,
+                "x": 460,
+                "y": 220,
+                "wires": [
+                    ["c643e022.1816c"]
+                ]
+            }, {
+                "id": "12317723.589249",
+                "type": "csv",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "sep": ",",
+                "hdrin": true,
+                "hdrout": "",
+                "multi": "one",
+                "ret": "\\n",
+                "temp": "",
+                "x": 430,
+                "y": 260,
+                "wires": [
+                    ["2998e233.4ba64e"]
+                ]
+            }, {
+                "id": "10e5e5f0.8daeaa",
+                "type": "inject",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "topic": "",
+                "payload": "",
+                "payloadType": "none",
+                "repeat": "",
+                "crontab": "",
+                "once": false,
+                "x": 230,
+                "y": 220,
+                "wires": [
+                    ["e72c5732.9fa198"]
+                ]
+            }, {
+                "id": "b6917d83.d1bac",
+                "type": "http request",
+                "z": "6ce6e39a.e6af9c",
+                "name": "",
+                "method": "GET",
+                "url": "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.csv",
+                "x": 310,
+                "y": 320,
+                "wires": [
+                    ["12317723.589249"]
+                ]
+            }, {
+                "id": "3842171.4d487e8",
+                "type": "inject",
+                "z": "6ce6e39a.e6af9c",
+                "name": "Quakes",
+                "topic": "",
+                "payload": "",
+                "payloadType": "none",
+                "repeat": "900",
+                "crontab": "",
+                "once": false,
+                "x": 240,
+                "y": 260,
+                "wires": [
+                    ["b6917d83.d1bac"]
+                ]
+            }],
+            "path_flow": "",
+            "packages": ["node-red-contrib-web-worldmap"],
+            "container_id": null,
+            "_runtime": {
+                "Status": "running",
+                "id": null
+            }
+        }],
+        "links": [],
+        "containments": [{
+            "name": "Docker_on_RPiZero-101",
+            "properties": [],
+            "src": "/RPiZero-101/offerDocker",
+            "target": "/NodeRED-101/demandDocker"
+        }, {
+            "name": "NodeRED-flow-101_on_RPiZero-101",
+            "properties": [],
+            "src": "/NodeRED-101/offerNodeRED",
+            "target": "/NodeRED-flow-101/demandNodeRED"
+        }, {
+            "name": "Docker_on_RPiZero-102",
+            "properties": [],
+            "src": "/RPiZero-102/offerDocker",
+            "target": "/NodeRED-102/demandDocker"
+        }, {
+            "name": "NodeRED-flow-102_on_RPiZero-102",
+            "properties": [],
+            "src": "/NodeRED-102/offerNodeRED",
+            "target": "/NodeRED-flow-102/demandNodeRED"
+        }, {
+            "name": "NodeRED-Application_on_Docker-Application",
+            "properties": [],
+            "src": "/Docker-Application/offerDocker",
+            "target": "/NodeRED-Application/demandDocker"
+        }, {
+            "name": "NodeRED-flow-Application_on_NodeRED-Application",
+            "properties": [],
+            "src": "/NodeRED-Application/offerNodeRED",
+            "target": "/NodeRED-flow-Application/demandNodeRED"
+        }],
+        "type_registry": []
+    },
+    "graph": {
+        "elements": {
+            "nodes": [{
+                "data": {
+                    "id": "RPiZero-101"
+                },
+                "position": {
+                    "x": 285,
+                    "y": 190
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "NodeRED-101",
+                    "parent": "RPiZero-101"
+                },
+                "position": {
+                    "x": 285,
+                    "y": 190
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }, {
+                "data": {
+                    "id": "NodeRED-flow-101",
+                    "parent": "NodeRED-101"
+                },
+                "position": {
+                    "x": 285,
+                    "y": 190
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "RPiZero-102"
+                },
+                "position": {
+                    "x": 285,
+                    "y": 290
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "NodeRED-102",
+                    "parent": "RPiZero-102"
+                },
+                "position": {
+                    "x": 285,
+                    "y": 290
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }, {
+                "data": {
+                    "id": "NodeRED-flow-102",
+                    "parent": "NodeRED-102"
+                },
+                "position": {
+                    "x": 285,
+                    "y": 290
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "Docker-Application"
+                },
+                "position": {
+                    "x": 183.66514345708916,
+                    "y": 218.4663312166767
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "NodeRED-Application",
+                    "parent": "Docker-Application"
+                },
+                "position": {
+                    "x": 183.66514345708916,
+                    "y": 218.4663312166767
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }, {
+                "data": {
+                    "id": "NodeRED-flow-Application",
+                    "parent": "NodeRED-Application"
+                },
+                "position": {
+                    "x": 183.66514345708916,
+                    "y": 218.4663312166767
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }]
+        },
+        "style": [{
+            "selector": "node",
+            "style": {
+                "label": "data(id)",
+                "background-fit": "contain",
+                "background-image-opacity": "0.3",
+                "text-valign": "center",
+                "text-halign": "center",
+                "font-size": "4px",
+                "font-weight": "bold"
+            }
+        }, {
+            "selector": "node.container",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/docker-official.svg"
+            }
+        }, {
+            "selector": "edge",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "triangle"
+            }
+        }, {
+            "selector": "edge.control",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "circle"
+            }
+        }, {
+            "selector": ":selected",
+            "style": {
+                "background-color": "black",
+                "line-color": "black",
+                "target-arrow-color": "black",
+                "source-arrow-color": "black"
+            }
+        }, {
+            "selector": "node.questionable",
+            "style": {
+                "border-color": "#A33",
+                "background-color": "#B55",
+                "shape": "roundrectangle"
+            }
+        }, {
+            "selector": "node.node_red",
+            "style": {
+                "background-image": "./img/node-red-256.png"
+            }
+        }, {
+            "selector": "node.ansible",
+            "style": {
+                "background-image": "./img/ansible.png"
+            }
+        }, {
+            "selector": "node.orion",
+            "style": {
+                "background-color": "#ADD8E6",
+                "background-image": "./img/fiware_logo.png"
+            }
+        }, {
+            "selector": "node.thingml",
+            "style": {
+                "background-color": "#ADD8E6",
+                "background-image": "./img/thingml_short.png"
+            }
+        }, {
+            "selector": "node.device",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/device.png"
+            }
+        }, {
+            "selector": "node.vm",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/server_cloud.png"
+            }
+        }],
+        "zoomingEnabled": true,
+        "userZoomingEnabled": true,
+        "zoom": 2.0868180950658366,
+        "minZoom": 0.4,
+        "maxZoom": 6,
+        "panningEnabled": true,
+        "userPanningEnabled": true,
+        "pan": {
+            "x": 69.93992980935218,
+            "y": -224.78733875410472
+        },
+        "boxSelectionEnabled": false,
+        "renderer": {
+            "name": "canvas"
+        }
+    }
+}

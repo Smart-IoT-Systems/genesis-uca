@@ -11,7 +11,7 @@
     ],
     "scripts": {
         "build": "webpack --progress --colors",
-        "start": "concurrently \"nodemon ./app.js\" \"webpack-dev-server \"",
+        "start": "concurrently \"nodemon ./src/app.js\" \"webpack-dev-server \"",
         "client": "webpack-dev-server",
         "postinstall": "curl -L --create-dirs --output lib/thingml/ThingML2CLI.jar http://thingml.org/dist/ThingML2CLI.jar"
     },
