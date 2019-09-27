@@ -284,7 +284,7 @@ class SiderDemo extends React.Component {
                   title={<span><Icon type="cluster" /><span>Deployment <Icon type="caret-down" /></span></span>}
                 >
                   <Menu.Item key="Deploy1" onClick={this.deployModel}>Deploy model in editor</Menu.Item>
-                  <Menu.Item key="Deploy2" onClick={this.removeAll}>Remove All</Menu.Item>
+                  <Menu.Item key="Deploy2" onClick={this.removeAll}>Terminate All</Menu.Item>
                 </SubMenu>
                 <Menu.Item key="3" onClick={this.openLogs}><Icon type="ordered-list" /><span>Logs</span></Menu.Item>
             </Menu>
@@ -306,19 +306,19 @@ class SiderDemo extends React.Component {
               title={<span><Icon type="edit" /><span>Edit</span></span>}
             >
               
-              <SubMenu key="subIC" title="Infrastructure Components">
+              <SubMenu key="subIC" title={<span><Tooltip placement="top" title="An InfrastructureComponent provides hosting facilities (i.e, it provides an execution environment) to SoftwareComponents">Infrastructure Components</Tooltip> </span>}>
                 <Menu.Item onClick={() => this.showAddModal("/infra/device", false)} key="IC1"><Tooltip placement="rightTop" title="Typically used for IoT devices">Device</Tooltip></Menu.Item>
                 <Menu.Item onClick={() => this.showAddModal("/infra/vm_host", false)} key="IC2"><Tooltip placement="rightTop" title="A virtual machine in the Cloud">Virtual Machine</Tooltip></Menu.Item>
                 <Menu.Item onClick={() => this.showAddModal("/infra/docker_host", false)} key="IC3"><Tooltip placement="rightTop" title="A Host running a Docker Engine">Docker Host</Tooltip></Menu.Item>
               </SubMenu>
               
-              <SubMenu key="subSC" title="Software Components">
-                <SubMenu key="subSCI" title="Internal">
+              <SubMenu key="subSC" title={<span><Tooltip placement="top" title="A SoftwareComponent represents a piece of software to be deployed on an host. ">Software Components</Tooltip> </span>}>
+                <SubMenu key="subSCI" title={<span><Tooltip placement="top" title="A SoftwareComponent can be an InternalComponent meaning that it is managed by GeneSIS">Internal Components</Tooltip> </span>}>
                   <Menu.Item onClick={() => this.showAddModal("/internal", false)}  key="SCE1"><Tooltip placement="rightTop" title="Standard Internal Component, to create your own type">Generic Internal Component</Tooltip></Menu.Item>
                   <Menu.Item onClick={() => this.showAddModal("/internal/node_red", false)}  key="SCE2"><Tooltip placement="rightTop" title="An instance of a Node-RED container">Node-RED</Tooltip></Menu.Item>
                   {this.state.internalTypeRepo.map( (t) => <Menu.Item onClick={() => this.showAddModal(t.module._type, true)} key={t.id}>{t.id}</Menu.Item> )}
                 </SubMenu>
-                <SubMenu key="subSCE" title="External">
+                <SubMenu key="subSCE" title={<span><Tooltip placement="top" title="A software component can be an ExternalComponent meaning that it is either managed by an external provider or hosted on a blackbox device.">External Components</Tooltip> </span>}>
                     <Menu.Item onClick={() => this.showAddModal("/external", false)} key="SCE1"><Tooltip placement="rightTop" title="Standard External Component, to create your own type">Generic External Component</Tooltip></Menu.Item>
                     {this.state.externalTypeRepo.map( (et) => <Menu.Item onClick={() => this.showAddModal(et.module._type, true)} key={et.id}>{et.id}</Menu.Item>)}
                 </SubMenu>
