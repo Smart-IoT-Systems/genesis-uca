@@ -67,6 +67,7 @@ If you want to run the latest code from git, here's how to get started:
 
 4. Run
 
+        cd src
         npm start
 
 5. Access the GeneSIS web interface
