@@ -11,8 +11,8 @@ var swaggerDocument = require('./swagger.json');
 var http = require('http');
 
 app.set("port", 8000);
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb',  extended: true }))
 
 
 //Start the engine
@@ -25,7 +25,7 @@ puml.start();
 var server = app.listen(app.get('port'), '0.0.0.0', function () {
 	var port = server.address().port;
    logger.log('info','GeneSIS Engine API started on ' + port);
-});
+}); 
 
 
 //Retrieve all component types registered in the engine
