@@ -1,4 +1,4 @@
-![alt text](public/img/GeneSISLogo.png "GeneSIS")
+![alt text](src/public/img/GeneSISLogo.png "GeneSIS")
 
 
 # GeneSIS
@@ -110,5 +110,13 @@ Once GeneSIS started, you can access the GeneSIS web interface at the following 
 Once GeneSIS started, you can access the GeneSIS web interface at the following address:
 
         http://your_pi:8880
+
+### Tutorials:
+1. [Deploying Node-RED on a Docker engine](https://gitlab.com/enact/GeneSIS/tree/master/docs/tutorial/1.nodered_localhost)
+2. [Deploying a ThingML program](https://gitlab.com/enact/GeneSIS/tree/master/docs/tutorial/2.thingml_localhost)
+3. [Deploying two Node-RED on a Docker engine](https://gitlab.com/enact/GeneSIS/tree/master/docs/tutorial/3.two_nodered)
+4. [Deploying with Ansible.](https://gitlab.com/enact/GeneSIS/tree/master/docs/tutorial/4.Ansible_resources)
+5. [Deploying with SSH resources](https://gitlab.com/enact/GeneSIS/tree/master/docs/tutorial/5.SSH_resources)
+6. [The deployment agents](https://gitlab.com/enact/GeneSIS/tree/master/docs/tutorial/6.Deployment_Agent)
 
 ## Architecture
