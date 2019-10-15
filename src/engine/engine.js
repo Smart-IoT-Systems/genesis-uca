@@ -175,7 +175,6 @@ var engine = (function () {
         }
 
         var get_dhs = async () => {
-            console.log("::::>" + JSON.stringify(dhs));
             await Promise.all(dhs.map(async (item) => {
                 var host = diff.old_dm.find_host_one_level_down(item);
                 var device_host = diff.old_dm.find_host(item);
