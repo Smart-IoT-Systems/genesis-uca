@@ -97,38 +97,116 @@ var engine = (function () {
         return result;
     };
 
+    that.remove_one_component = async function (cmpt, diff) {
+        var host = diff.old_dm.find_host_one_level_down(cmpt);
+        var device_host = diff.old_dm.find_host(cmpt);
+
+        if (host !== null) {
+            //Need to find the host in the old model
+            if (host._type === "/infra/docker_host") {
+                await connector.stopAndRemove(cmpt.container_id, device_host.ip, host.port);
+            } else if (cmpt._type === "/internal/node_red_flow") {
+                if (!that.to_be_removed(diff, host)) {
+                    var n_connector = nodered_connector();
+                    /*n_connector.setFlow(host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model).then(function () {
+                        logger.log("info", "Node-Red Flow Removed!");
+                    });*/
+                    logger.log("info", "Host " + host.name);
+                    await n_connector.setFlow(device_host.ip, cmpt.required_communication_port[0].port_number, "[]", [], [], that.dep_model);
+                    logger.log("info", "Node-Red Flow Removed!");
+                }
+            } else if (that.need_ssh(cmpt)) {
+                var ssh_connection = sshc(device_host.ip, host.port, cmpt.ssh_resource.credentials.username, cmpt.ssh_resource.credentials.password, cmpt.ssh_resource.credentials.sshkey, cmpt.ssh_resource.credentials.agent);
+                await ssh_connection.execute_command(cmpt.ssh_resource.stopCommand);
+            }
+        }
+    };
+
+    /*that.recursive_remove = async function (one_cmpt, diff) {
+        var one_level = diff.old_dm.find_host_one_level_down(cpnt);
+        var one_level_remove = false;
+        for (var elem of that.diff.removed_comp) {
+            if (elem.name === one_level.name) {
+                one_level_remove = true;
+            }
+        }
+
+    };*/
+
     that.remove_containers = async function (diff) {
         var removed = diff.list_of_removed_components;
         var removed_hosts = diff.list_removed_hosts;
-        var connector = dc();
+
         if (removed.length === 0 && removed_hosts.length <= 0) {
             return;
         }
+        var dhs = [];
+        var nrfs = [];
+        var sshs = [];
         for (var i in removed) {
 
+            /*if (diff.old_dm.is_top_component(removed[i])) {
+                (function (one_component, d) {
+                    that.recursive_remove(one_component, d);
+                }(removed[i], diff));
+            }*/
             var host = diff.old_dm.find_host_one_level_down(removed[i]);
-            var device_host=diff.old_dm.find_host(removed[i]);
+            var device_host = diff.old_dm.find_host(removed[i]);
 
             if (host !== null) {
                 //Need to find the host in the old model
                 if (host._type === "/infra/docker_host") {
-                    await connector.stopAndRemove(removed[i].container_id, device_host.ip, host.port);
+                    dhs.push(removed[i]);
+                    //await connector.stopAndRemove(removed[i].container_id, device_host.ip, host.port);
                 } else if (removed[i]._type === "/internal/node_red_flow") {
                     if (!that.to_be_removed(diff, host)) {
-                        var n_connector = nodered_connector();
-                        /*n_connector.setFlow(host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model).then(function () {
-                            logger.log("info", "Node-Red Flow Removed!");
-                        });*/
+                        nrfs.push(removed[i]);
+                        /*var n_connector = nodered_connector();
                         logger.log("info", "Host "+host.name);
                         await n_connector.setFlow(device_host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model);
-                        logger.log("info", "Node-Red Flow Removed!");
+                        logger.log("info", "Node-Red Flow Removed!");*/
                     }
                 } else if (that.need_ssh(removed[i])) {
-                    var ssh_connection = sshc(device_host.ip, host.port, removed[i].ssh_resource.credentials.username, removed[i].ssh_resource.credentials.password, removed[i].ssh_resource.credentials.sshkey, removed[i].ssh_resource.credentials.agent);
-                    await ssh_connection.execute_command(removed[i].ssh_resource.stopCommand);
+                    sshs.push(removed[i]);
+                    //var ssh_connection = sshc(device_host.ip, host.port, removed[i].ssh_resource.credentials.username, removed[i].ssh_resource.credentials.password, removed[i].ssh_resource.credentials.sshkey, removed[i].ssh_resource.credentials.agent);
+                    //await ssh_connection.execute_command(removed[i].ssh_resource.stopCommand);
                 }
             }
         }
+
+        var get_dhs = async () => {
+            console.log("::::>" + JSON.stringify(dhs));
+            await Promise.all(dhs.map(async (item) => {
+                var host = diff.old_dm.find_host_one_level_down(item);
+                var device_host = diff.old_dm.find_host(item);
+                var connector = dc();
+                await connector.stopAndRemove(item.container_id, device_host.ip, host.port)
+            }));
+        }
+
+        var get_nrfs = async () => {
+            await Promise.all(nrfs.map(async (item) => {
+                var host = diff.old_dm.find_host_one_level_down(item);
+                var device_host = diff.old_dm.find_host(item);
+                var n_connector = nodered_connector();
+                logger.log("info", "Host " + host.name);
+                await n_connector.setFlow(device_host.ip, item.required_communication_port[0].port_number, "[]", [], [], that.dep_model);
+                logger.log("info", "Node-Red Flow Removed!");
+            }));
+        }
+
+        var get_sshs = async () => {
+            await Promise.all(sshs.map(async (item) => {
+                var host = diff.old_dm.find_host_one_level_down(item);
+                var device_host = diff.old_dm.find_host(item);
+                var ssh_connection = sshc(device_host.ip, host.port, item.ssh_resource.credentials.username, item.ssh_resource.credentials.password, item.ssh_resource.credentials.sshkey, item.ssh_resource.credentials.agent);
+                await ssh_connection.execute_command(item.ssh_resource.stopCommand);
+            }));
+        }
+
+        await get_sshs();
+        await get_nrfs();
+        await get_dhs();
 
         for (var j in removed_hosts) {
             if (removed_hosts[j]._type.indexOf('infra') >= 0) { //Only infra have monitoring agents so far
