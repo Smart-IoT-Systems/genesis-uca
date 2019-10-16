@@ -1,8 +1,8 @@
 # This file is a template, and might need editing before it works on your project.
 # Official framework image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/node/tags/
-#image: docker:latest
-image: nicolasferry/node-red-contrib-thingml:latest
+image: docker:latest
+#image: nicolasferry/node-red-contrib-thingml:latest
 
 
 # Pick zero or more services to be used on all builds.
@@ -27,9 +27,9 @@ build:
   script:
     - docker build ./Dockerfiles
 
-test:
-  script:
-   - npm install
+#test:
+#  script:
+#   - npm install
 #   - npm start
 
 #test_db:
