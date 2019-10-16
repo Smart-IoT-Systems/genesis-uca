@@ -122,17 +122,6 @@ var engine = (function () {
         }
     };
 
-    /*that.recursive_remove = async function (one_cmpt, diff) {
-        var one_level = diff.old_dm.find_host_one_level_down(cpnt);
-        var one_level_remove = false;
-        for (var elem of that.diff.removed_comp) {
-            if (elem.name === one_level.name) {
-                one_level_remove = true;
-            }
-        }
-
-    };*/
-
     that.remove_containers = async function (diff) {
         var removed = diff.list_of_removed_components;
         var removed_hosts = diff.list_removed_hosts;

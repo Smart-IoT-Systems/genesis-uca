@@ -22,10 +22,10 @@ cache:
   paths:
   - node_modules/
 
-#build:
-#  stage: build
-#  script:
-#    - docker build -t test ./Dockerfiles
+build:
+  stage: build
+  script:
+    - docker build ./Dockerfiles
 
 test:
   script:
