@@ -26,12 +26,9 @@ build:
   stage: build
   script:
     - docker build -t enactproject/genesis:latest ./Dockerfiles
-
-push:
-  stage: push
-  script: 
     - echo "$CI_REGISTRY_PASS" | docker login -u "$CI_REGISTRY_LOG" --password-stdin
     - docker push enactproject/genesis:latest
+
 
 #test:
 #  script:
