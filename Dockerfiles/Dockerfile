@@ -101,7 +101,7 @@ RUN apt-get update
 RUN apt-get install -y git 
 
 RUN git clone https://gitlab.com/enact/GeneSIS.git
-WORKDIR "/GeneSIS"
+WORKDIR "/GeneSIS/src"
 RUN npm install
 
 RUN apt-get purge -y --auto-remove git
