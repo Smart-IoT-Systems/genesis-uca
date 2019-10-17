@@ -100,11 +100,11 @@ Once GeneSIS started, you can access the GeneSIS web interface at the following 
 ### From the public Docker image:
 1. Pull the image:
 
-        docker pull nicolasferry/genesis
+        docker pull enactproject/genesis:latest
 
 2. Run the docker container (Depending on how you plan to use GeneSIS, remember to open the proper ports, cf. https://docs.docker.com/engine/reference/run/).
 
-        docker run -p 8880:8880 genesis
+        docker run -p 8880:8880 enactproject/genesis
 
 3. Access the GeneSIS web interface
 
