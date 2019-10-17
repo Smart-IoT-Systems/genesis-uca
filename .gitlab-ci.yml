@@ -25,9 +25,9 @@ cache:
 build:
   stage: build
   script:
-    - docker build -t enactproject/genesis:slim -f ./Dockerfiles/light_version/Dockerfile .
+#    - docker build -t enactproject/genesis:slim -f ./Dockerfiles/light_version/Dockerfile .
     - echo "$CI_REGISTRY_PASS" | docker login -u "$CI_REGISTRY_LOG" --password-stdin
-    - docker push enactproject/genesis:slim
+#    - docker push enactproject/genesis:slim
     - docker build -t enactproject/genesis:latest ./Dockerfiles
     - docker push enactproject/genesis:latest
     
