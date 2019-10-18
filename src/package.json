@@ -29,7 +29,6 @@
         "morgan": "~1.8.1",
         "mqtt": "^2.18.8",
         "node-ansible-wrapper": "^0.5.6",
-        "node-plantuml": "~0.8.1",
         "path": "~0.12.7",
         "pkgcloud": "1.4.0",
         "react": "^16.5.2",
@@ -62,6 +61,7 @@
         "style-loader": "^0.23.0",
         "webpack": "^4.19.1",
         "webpack-cli": "^3.1.1",
+        "node-plantuml": "~0.8.1",
         "webpack-dev-server": "^3.1.8"
     }
 }
