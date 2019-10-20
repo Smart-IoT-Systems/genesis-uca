@@ -147,6 +147,17 @@ cy.on('cxttap', 'edge', function (evt) {
     window.EditLink.showDrawer(target_link, elem);
 });
 
+cy.on("viewport", onViewport);
+
+function onViewport(e) {
+    let zoomFactor = cy.zoom();
+    let defaultZoom = 2;
+    document.getElementById("cy").style.backgroundSize = defaultZoom * zoomFactor + "vh " + defaultZoom * zoomFactor + "vh";
+
+    let panPos = cy.pan();
+    document.getElementById("cy").style.backgroundPosition = panPos.x + "px " + panPos.y + "px";
+}
+
 
 var graph_factory = function (name) {
     //var name = $("#ctx_name").val();

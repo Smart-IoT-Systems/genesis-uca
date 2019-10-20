@@ -341,10 +341,10 @@ class SiderDemo extends React.Component {
             <DrawerEdit />
             <EditContainment />
             <EditLink />
-            <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
+            <div style={{ padding: 0, background: '#fff', minHeight: 360 }}>
               <Tabs onChange={this.handleChangeTab} tabPosition='right'>
-                <TabPane tab={<span><Icon type="share-alt" />Graph View</span>} key="1"><div style={{minHeight: 600, minWidth: '100px'}} id="cy"/></TabPane>
-                <TabPane forceRender={true} tab={<span><Icon type="codepen" />JSON View</span>} key="2">
+                <TabPane tab={<span><Icon type="share-alt" />Graph View</span>} key="1"><div id="cy"/></TabPane>
+                <TabPane style={{ padding: 24 }} forceRender={true} tab={<span><Icon type="codepen" />JSON View</span>} key="2">
                   <div>
                     <button id="saveJSON">Save</button>
                     <div id="jsoneditor" style={{
@@ -353,15 +353,15 @@ class SiderDemo extends React.Component {
                     }}></div>
                   </div>
                 </TabPane>
-                <TabPane tab={<span><Icon type="unordered-list" />List View</span>} key="3">
+                <TabPane style={{ padding: 24 }} tab={<span><Icon type="unordered-list" />List View</span>} key="3">
                   <ListView />
                 </TabPane>
               </Tabs>
             </div>
             <Notification/>
           </Content>
-          <Footer style={{ textAlign: 'center' }}>
-            ENACT ©2018
+          <Footer style={{ textAlign: 'center'}}>
+            ENACT ©2018-2019 Created by SINTEF
           </Footer>
         </Layout>
         </Layout>
