@@ -27,7 +27,7 @@ var docker_connector = function () {
         });
     };
 
-    that.buildAndDeploy = function (endpoint, port, port_bindings, devices, command, image, mounts, links, compo_name, host_id) {
+    that.buildAndDeploy = function (endpoint, port, port_bindings, devices, command, image, mounts, links, compo_name, host_id, environment) {
         return new Promise(async function (resolve, reject) {
             that.docker = new Docker({
                 host: endpoint,
@@ -44,14 +44,14 @@ var docker_connector = function () {
                             end: true
                         });
                         stream.on('end', function () {
-                            that.createContainerAndStart(port_bindings, command, image, devices, mounts, links).then(function (id) {
+                            that.createContainerAndStart(port_bindings, command, image, devices, mounts, links, environment).then(function (id) {
                                 resolve(id);
                             }).catch(function (err) {
                                 reject(err);
                             });
                         });
                     } else {
-                        that.createContainerAndStart(port_bindings, command, image, devices, mounts, links).then(function (id) {
+                        that.createContainerAndStart(port_bindings, command, image, devices, mounts, links, environment).then(function (id) {
                             resolve(id);
                         }).catch(function (err) {
                             reject(err);
@@ -67,7 +67,7 @@ var docker_connector = function () {
         });
     }
 
-    that.createContainerAndStart = function (port_bindings, command, image, devices, mounts, links) {
+    that.createContainerAndStart = function (port_bindings, command, image, devices, mounts, links, environment) {
         //Create a container from an image
         return new Promise(async function (resolve, reject) {
             bus.emit('container-config', that.comp_name);
@@ -102,6 +102,10 @@ var docker_connector = function () {
                 }else{
                     options.Cmd = ['/bin/bash', '-c', command];
                 }
+            }
+
+            if(environment !==  undefined && environment !== ""){
+                options.Env=environment;
             }
 
             options.HostConfig = {};

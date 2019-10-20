@@ -328,7 +328,7 @@ var engine = (function () {
             if (comp.docker_resource.image !== docker_image_nr && comp.docker_resource.image !== "") {
                 docker_image_nr = comp.docker_resource.image;
             }
-            connector.buildAndDeploy(host.ip, host.port, comp.docker_resource.port_bindings, comp.docker_resource.devices, "", docker_image_nr, comp.docker_resource.mounts, comp.docker_resource.links, comp.name, host.name).then(function (id) {
+            connector.buildAndDeploy(host.ip, host.port, comp.docker_resource.port_bindings, comp.docker_resource.devices, "", docker_image_nr, comp.docker_resource.mounts, comp.docker_resource.links, comp.name, host.name, comp.docker_resource.environment).then(function (id) {
                 if ((comp.nr_flow !== undefined && comp.nr_flow !== "") ||
                     (comp.path_flow !== "" && comp.path_flow !== undefined)) { //if there is a flow to load with the nodered node
                     let noderedconnector = nodered_connector();
@@ -429,7 +429,7 @@ var engine = (function () {
                         } else {
                             //Manage simple docker
                             var connector = dc();
-                            var id = await connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.docker_resource.links, compo.name, host.name);
+                            var id = await connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.docker_resource.links, compo.name, host.name, compo.docker_resource.environment);
                             bus.emit('node-started', id, compo.name);
                         }
                     }
