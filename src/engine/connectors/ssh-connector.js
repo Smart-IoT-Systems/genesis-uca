@@ -1,36 +1,42 @@
 var Client = require('ssh2').Client;
 var fs = require('fs');
 var logger = require('../logger.js');
-const SSH2Utils = require('ssh2-utils');
+var tar = require('tar');
 
 var ssh_connector = function (ip, port, username, passwd, key, agent) {
 
     var that = {};
-    that.options={
+    that.options = {
         host: ip,
         port: parseInt(port),
         username: username
     };
-    if(key !== ""){
-        that.options.privateKey= fs.readFileSync(key);
-    } else if (agent !== "") {
-        that.options.agent=agent;
-    }else{
-        that.options.password=passwd;
+    if (key !== "") {
+        that.options.privateKey = fs.readFileSync(key);
+    } else if (agent !== "" && agent !== undefined) {
+        that.options.agent = agent;
+    } else {
+        that.options.password = passwd;
     }
 
 
-    that.upload_directory= function(src_dir, target_dir){
+    that.upload_directory = function (src_dir, target_dir) {
         return new Promise(function (resolve, reject) {
-            var sftp_util = new SSH2Utils();
-            sftp_util.putDir(that.options,src_dir,target_dir, function(err){
-                if(err) {
-                    logger.log('error',err);
-                        reject(err);
-                        throw err;
-                }else{
-                    resolve(target_dir);
-                }
+            tar.c( // or tar.create
+                {
+                  gzip: true
+                },
+                [src_dir]
+              ).pipe(fs.createWriteStream(src_dir+'.tgz'))
+
+            that.upload_file(src_dir + '.tgz', target_dir+'.tgz').then(function () {
+                that.execute_command("tar xf " + target_dir + '.tgz').then(function () {
+                    resolve();
+                }).catch(function (e) {
+                    reject(e)
+                });
+            }).catch(function (e) {
+                reject(e)
             });
         });
     };
@@ -41,7 +47,7 @@ var ssh_connector = function (ip, port, username, passwd, key, agent) {
             conn.on('ready', function () {
                 conn.sftp(function (err, sftp) {
                     if (err) {
-                        logger.log('error',err);
+                        logger.log('error', err);
                         reject(err);
                         throw err;
                     };
@@ -68,8 +74,8 @@ var ssh_connector = function (ip, port, username, passwd, key, agent) {
             var conn = new Client();
             conn.on('ready', function () {
                 conn.exec(command, function (err, stream) {
-                    if (err){
-                        logger.log('error',err);
+                    if (err) {
+                        logger.log('error', err);
                         reject(err);
                         throw err;
                     };

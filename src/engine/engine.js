@@ -304,14 +304,15 @@ var engine = (function () {
                     logger.log("error", "mvn clean install failed: " + err);
                 });
             }
-            if (comp[i].target_language === 'nodejs') {
+            if (comp.target_language === 'nodejs') {
                 logger.log("info", process.cwd() + "/generated_" + comp.name);
                 var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
-                sc.upload_directory("./generated_" + comp[i].name, '/home/' + comp.ssh_resource.credentials.username + '/generated_' + comp.name).then(function (file_path_tgt) {
-                    sc.execute_command(comp.ssh_resource.startCommand);
+                sc.upload_directory("./generated_" + comp.name, '/home/' + comp.ssh_resource.credentials.username + '/generated_' + comp.name).then(function (file_path_tgt) {
                     bus.emit('ssh-started', host.name);
-                    bus.emit('ssh-started', comp.name);
-                    bus.emit('node-started', "", comp.name);
+                    sc.execute_command(comp.ssh_resource.startCommand).then(function(){
+                        bus.emit('ssh-started', comp.name);
+                        bus.emit('node-started', "", comp.name);
+                    });
                 }).catch(function (err) {
                     logger.log("error", err);
                 });;

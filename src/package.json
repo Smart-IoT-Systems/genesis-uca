@@ -11,7 +11,7 @@
     ],
     "scripts": {
         "build": "webpack --progress --colors",
-        "start": "concurrently \"nodemon ./app.js\" \"webpack-dev-server \"",
+        "start": "concurrently \"nodemon --config nodemon.json ./app.js\" \"webpack-dev-server \"",
         "client": "webpack-dev-server",
         "postinstall": "curl -L --create-dirs --output lib/thingml/ThingML2CLI.jar http://thingml.org/dist/ThingML2CLI.jar"
     },
@@ -36,7 +36,7 @@
         "react-hot-loader": "^4.3.11",
         "serve-favicon": "~2.4.2",
         "ssh2": "0.6.1",
-        "ssh2-utils": "^1.0.28",
+        "scp2": "^0.5.0",
         "uuid": "3.1.0",
         "walk": "2.3.9",
         "websocket-stream": "^5.1.2",
@@ -49,7 +49,10 @@
         "ip": "^1.1.5",
         "swagger-ui-express": "2.0.6",
         "node-plantuml": "~0.8.1",
-        "lodash": "4.17.11"
+        "lodash": "4.17.11",
+        "zlib": "1.0.5",
+        "tar": "^5.0.5",
+        "fstream": "^1.0.12"
     },
     "devDependencies": {
         "@babel/cli": "^7.1.0",
