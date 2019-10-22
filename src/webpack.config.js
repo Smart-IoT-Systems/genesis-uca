@@ -2,15 +2,16 @@ const path = require("path");
 const webpack = require("webpack");
 
 module.exports = {
-  entry: __dirname+"/ui/index.js",
+  entry: __dirname + "/ui/index.js",
   mode: "development",
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.(js|jsx)$/,
         exclude: /(node_modules|bower_components)/,
         loader: "babel-loader",
-        options: { presets: ["@babel/env"] }
+        options: {
+          presets: ["@babel/env"]
+        }
       },
       {
         test: /\.css$/,
@@ -18,7 +19,9 @@ module.exports = {
       }
     ]
   },
-  resolve: { extensions: ["*", ".js", ".jsx"] },
+  resolve: {
+    extensions: ["*", ".js", ".jsx"]
+  },
   output: {
     path: path.resolve(__dirname, "dist/"),
     publicPath: "/dist/",
@@ -31,11 +34,12 @@ module.exports = {
     publicPath: "http://0.0.0.0:8880/dist/",
     hotOnly: true,
     proxy: {
-        '/genesis/*': {
-            target: 'http://0.0.0.0:8000',
-                secure: false,
-                changeOrigin: true,
-        }
+      '/genesis/**': {
+        target: 'http://127.0.0.1:8000',
+        secure: false,
+        changeOrigin: true,
+        logLevel: 'debug'
+      }
     }
   },
   plugins: [new webpack.HotModuleReplacementPlugin()]
