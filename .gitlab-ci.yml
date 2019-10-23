@@ -25,9 +25,9 @@ cache:
 build:
   stage: build
   script:
-#    - docker build -t enactproject/genesis:slim -f ./Dockerfiles/light_version/Dockerfile .
+    - docker build -t enactproject/genesis:test -f ./Dockerfiles/test_version/Dockerfile .
     - echo "$CI_REGISTRY_PASS" | docker login -u "$CI_REGISTRY_LOG" --password-stdin
-#    - docker push enactproject/genesis:slim
+    - docker push enactproject/genesis:test
     - docker build -t enactproject/genesis:latest ./Dockerfiles
     - docker push enactproject/genesis:latest
     
@@ -35,7 +35,7 @@ build:
 
 test:
   stage: test
-  image: enactproject/genesis:latest
+  image: enactproject/genesis:latest  
   script: 
     - npm --path=./docs/tutorial/1.nodered_localhost/model.json test
 #  script:
