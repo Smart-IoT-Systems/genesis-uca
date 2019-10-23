@@ -246,7 +246,7 @@ var engine = (function () {
                 nb_deployers++;
                 var con_docker = dc();
                 var c = that.dep_model.find_node_named(cfg);
-                con_docker.stopAndRemove(c.container_id, map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
+                con_docker.stopAndRemove(c.container_id, that.map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
                     bus.emit('node-error', c.container_id, cfg);
                 });
                 if (nb_deployers >= links_deployer_tab.length) {
