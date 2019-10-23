@@ -2,6 +2,7 @@
 *.pid
 *.seed
 *.pid.lock
+*.tgz
 bower_components
 node_modules/
 jspm_packages/

@@ -9,7 +9,7 @@
             "provided_execution_port": [{
                 "name": "offerJava"
             }],
-            "ip": "192.168.1.16",
+            "ip": "192.168.1.40",
             "port": ["22"],
             "credentials": {
                 "username": "ubuntu",
@@ -40,14 +40,14 @@
             },
             "ssh_resource": {
                 "name": "a3e2cb2d-0f17-4346-971c-d8a5ea18f9dc",
-                "startCommand": "cd ./generated_hello/ && npm install && node main.js",
+                "startCommand": "cd ./generated_Hello/ && npm install && node main.js",
                 "downloadCommand": "",
                 "installCommand": "",
                 "configureCommand": "",
                 "credentials": {
                     "username": "pi",
-                    "password": "",
-                    "sshkey": "/Users/ferrynico/Documents/Code/TestCloudMLasLibrary/cloudml.pem"
+                    "password": "raspberry",
+                    "sshkey": ""
                 }
             },
             "ansible_resource": {
