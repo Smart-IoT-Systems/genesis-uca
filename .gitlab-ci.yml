@@ -36,7 +36,7 @@ build:
 test:
   stage: test
   script: 
-    - npm --path=./docs/tutorial/1.nodered_localhost/model_with_flow.json test
+    - npm --path=./docs/tutorial/1.nodered_localhost/model.json test
 #  script:
 #   - npm install
 #   - npm start
