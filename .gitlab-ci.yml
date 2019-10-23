@@ -37,7 +37,7 @@ test:
   stage: test
   image: enactproject/genesis:test  
   script: 
-    - npm --path=../docs/tutorial/1.nodered_localhost/model.json test
+    - cd /GeneSIS/src && npm --path=../docs/tutorial/1.nodered_localhost/model.json test
 #  script:
 #   - npm install
 #   - npm start
