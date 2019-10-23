@@ -35,6 +35,7 @@ build:
 
 test:
   stage: test
+  image: enactproject/genesis:latest
   script: 
     - npm --path=./docs/tutorial/1.nodered_localhost/model.json test
 #  script:
