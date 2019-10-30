@@ -31,7 +31,7 @@ var indra_connector_amqp = function (deployment_model) {
         // Consumer
         open.then(function (conn) {
             console.log("Connected!");
-            that.trigger_deployment();
+            //that.trigger_deployment();
             return conn.createChannel();
         }).then(function (ch) {
             return ch.assertQueue(q).then(function (ok) {
@@ -39,7 +39,7 @@ var indra_connector_amqp = function (deployment_model) {
                     if (msg !== null) {
                         console.log(msg.content.toString());
                         ch.ack(msg);
-                        //trigger_deployment();
+                        //that.trigger_deployment();
                     }
                 });
             });
