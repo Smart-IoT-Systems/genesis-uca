@@ -27,10 +27,10 @@ build:
   script:
     - docker build -t enactproject/genesis:test -f ./Dockerfiles/test_version/Dockerfile .
     - echo "$CI_LOG"
-#    - echo "$CI_REGISTRY_PASS" | docker login -u "$CI_REGISTRY_LOG" --password-stdin
-#    - docker push enactproject/genesis:test
-#    - docker build -t enactproject/genesis:latest ./Dockerfiles
-#    - docker push enactproject/genesis:latest
+    - echo "$CI_REGISTRY_PASS" | docker login -u "$CI_REGISTRY_LOG" --password-stdin
+    - docker push enactproject/genesis:test
+    - docker build -t enactproject/genesis:latest ./Dockerfiles
+    - docker push enactproject/genesis:latest
     
 
 
