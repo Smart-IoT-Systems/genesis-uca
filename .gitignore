@@ -12,3 +12,4 @@ lib/
 package-lock.json
 generated_*/
 hosts
+src/external_services/config_indra.json
