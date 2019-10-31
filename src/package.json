@@ -13,7 +13,7 @@
         "build": "webpack --progress --colors",
         "start": "concurrently \"nodemon --config nodemon.json ./app.js\" \"webpack-dev-server \"",
         "client": "webpack-dev-server",
-        "test": "node ./indra_connector_amqp.js",
+        "test": "node ./external_services/indra_connector_amqp.js",
         "postinstall": "curl -L --create-dirs --output lib/thingml/ThingML2CLI.jar http://thingml.org/dist/ThingML2CLI.jar"
     },
     "dependencies": {
