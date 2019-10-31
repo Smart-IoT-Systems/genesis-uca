@@ -1,0 +1,38 @@
+{
+    "ServiceID": 102999,
+    "Root": {
+        "Gateway": 0,
+        "Source": 0,
+        "TimeStamp": 0
+    },
+    "Nodes": [{
+        "Safety": true,
+        "NodeID": 1,
+        "TimeStamp": 1536230820,
+        "TimeAccuracy": 143567890,
+        "Sensors-Actuators": [{
+            "SensorID": 3300,
+            "TimeStamp": 1536230220,
+            "TimeAccuracy": 143567890,
+            "Resources": {
+                "5700": 0
+            }
+        }, {
+            "SensorID": 3300,
+            "TimeStamp": 1536230220,
+            "TimeAccuracy": 143567890,
+            "Resources": {
+                "5700": 143567890
+            }
+        }, {
+            "SensorID": 3300,
+            "TimeStamp": 1536230220,
+            "TimeAccuracy": 143567890,
+            "Resources": {
+                "5700": 0
+            }
+        }],
+        "CRC": 2436129697
+    }],
+    "CRC": 3702912851
+}

@@ -1,0 +1,8 @@
+{
+    "login":"nicolas",
+    "passwd":"ENACT9012",
+    "ip": "54.154.144.55",
+    "KEY": "/Users/ferrynico/Documents/Code/INDRAMQTT/private_key/nicolas.key.pem",
+    "cert":"/Users/ferrynico/Documents/Code/INDRAMQTT/public_key/nicolas.cert.pem", 
+    "CAfile":"/Users/ferrynico/Documents/Code/INDRAMQTT/public_key/extca-chain.cert.pem"
+}
