@@ -15,3 +15,6 @@ hosts
 src/external_services/config_indra.json
 ./src/external_services/config_indra.json
 ./src/external_services/indra_connector_mqtt.js
+
+# Emacs
+*~

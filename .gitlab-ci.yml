@@ -23,17 +23,30 @@ cache:
   - node_modules/
 
 build:
-  stage: build
-  script:
-    - docker build -t enactproject/genesis:test -f ./Dockerfiles/test_version/Dockerfile .
-    - echo "$CI_LOG"
-    - echo "$CI_REGISTRY_PASS" | docker login -u "$CI_REGISTRY_LOG" --password-stdin
-    - docker push enactproject/genesis:test
-    - docker build -t enactproject/genesis:latest ./Dockerfiles
-    - docker push enactproject/genesis:latest
+ stage: build
+ script:
+   - docker build -t enactproject/genesis:test -f ./Dockerfiles/test_version/Dockerfile .
+   - echo "$CI_LOG"
+   - echo "$CI_REGISTRY_PASS" | docker login -u "$CI_REGISTRY_LOG" --password-stdin
+   - docker push enactproject/genesis:test
+   - docker build -t enactproject/genesis:latest ./Dockerfiles
+   - docker push enactproject/genesis:latest
     
 
+# Deploy the documentation online
+pages:
+  stage: deploy
+  script:
+  - mkdir .public
+  - cp -r ./docs/* .public
+  - mv .public public
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
 
+    
 #test:
 #  stage: test
 #  image: enactproject/genesis:test  
