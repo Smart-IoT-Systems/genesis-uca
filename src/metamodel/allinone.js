@@ -512,6 +512,7 @@ var deployment_model = function (spec) {
                 //Then let's check capabilities
                 var tgt_port = that.find_target_port_of_link(elem);
                 var src_port = that.find_src_port_of_link(elem);
+
                 if (tgt_port.capabilities !== undefined && tgt_port.capabilities.length > 0) {
                     if (src_port.capabilities !== undefined && src_port.capabilities.length > 0) {
                         errors.push("Capability " + elem.name + " is not satisfied!");
