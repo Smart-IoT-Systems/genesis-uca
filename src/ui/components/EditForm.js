@@ -34,7 +34,11 @@ class FormEdit extends React.Component {
     handleChange(event){
         event.preventDefault();
         var newElem=this.state.element;
-        newElem[event.target.name]=event.target.value;
+        if(event.target.type === "checkbox"){
+            newElem[event.target.name]=event.target.checked;
+        }else{
+            newElem[event.target.name]=event.target.value;
+        }
     }
   
     render() {  

@@ -47,6 +47,12 @@ var cy = window.cy = cytoscape({
                 'curve-style': 'bezier',
                 'target-arrow-shape': 'circle'
             }
+        },{
+            selector: 'edge.isdeployer',
+            css: {
+                'curve-style': 'bezier',
+                'target-arrow-shape': 'triangle-tee'
+            }
         },
         {
             selector: ':selected',
@@ -99,6 +105,24 @@ var cy = window.cy = cytoscape({
                 'font-weight': 'normal',
                 'shape': 'rectangle',
                 'background-image': './img/device.png'
+            }
+        },{
+            selector: 'node.devicelocal',
+            css: {
+                'padding-top': '10px',
+                'padding-left': '10px',
+                'padding-bottom': '10px',
+                'padding-right': '10px',
+                'text-valign': 'top',
+                'text-halign': 'center',
+                'background-color': '#FFF',
+                'font-size': '8px',
+                'font-weight': 'normal',
+                'shape': 'roundrectangle',
+                'border-width': 1,
+                'border-color': '#333',
+                'border-style': 'dashed',
+                'background-image': './img/devicelocal.png'
             }
         }, {
             selector: 'node.vm',
@@ -177,11 +201,13 @@ var graph_factory = function (name) {
     this.create_edge = function (type) {
         if (type === 'control') {
             edge.classes = 'control';
+        } else if(type === 'isdeployer'){
+            edge.classes = 'isdeployer';
         }
         return edge;
     }
 
-    this.create_node = function (type) {
+    this.create_node = function (type, customization) {
         if (type === "external_host") {
             node.classes = 'container';
         } else if (type === "/infra/vm_host") {
@@ -195,7 +221,11 @@ var graph_factory = function (name) {
         } else if (type === "/internal") {
 
         } else if (type === "/infra/device") {
-            node.classes = 'device';
+            if(customization === 'needDeployer'){
+                node.classes = 'devicelocal';
+            }else{
+                node.classes = 'device';
+            }
         } else if (type === 'ansible') {
             node.classes = 'ansible';
         } else if (type === '/internal/orion') {

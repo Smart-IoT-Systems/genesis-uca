@@ -87,6 +87,7 @@ class CAddLinkModal extends React.Component {
         
                     this.state.checkedList.forEach(e => {
                         if (e === 'isDeployer') {
+                            edge.classes = 'isdeployer';
                             l.isDeployer = true;
                         }
                         if (e === 'isMandatory') {

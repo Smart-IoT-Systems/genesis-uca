@@ -25,6 +25,11 @@ class AddModal extends React.Component {
     handleOk = (e) => {
         var fac = graph_factory(window.FormEdit.state.element.name);
         var node = fac.create_node(window.FormEdit.state.element._type);
+        if(window.FormEdit.state.element._type === '/infra/device'){
+            if(window.FormEdit.state.element.needDeployer){
+                node = fac.create_node(window.FormEdit.state.element._type, 'needDeployer');
+            }
+        }
         cy.add(node);
         for (var prop in this.state.elem) {
             if(window.FormEdit.state.element[prop]){
