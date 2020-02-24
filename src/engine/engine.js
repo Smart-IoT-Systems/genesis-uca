@@ -246,7 +246,7 @@ var engine = (function () {
                 nb_deployers++;
                 var con_docker = dc();
                 var c = that.dep_model.find_node_named(cfg);
-                con_docker.stopAndRemove(c.container_id, that.map_host_agent[c.container_id].ip, map_host_agent[c.container_id].port).then(function () {
+                con_docker.stopAndRemove(c.container_id, that.map_host_agent[c.container_id].ip, that.map_host_agent[c.container_id].port).then(function () {
                     bus.emit('node-error', c.container_id, cfg);
                 });
                 if (nb_deployers >= links_deployer_tab.length) {
@@ -355,8 +355,14 @@ var engine = (function () {
 
     that.deploy_ssh = function (comp, host) {
         return new Promise(function (resolve, reject) {
-            var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
+            var ssh_port=host.port;
+            if (host._type === "/infra/docker_host") {
+                ssh_port="22";
+            }
+            var sc = sshc(host.ip, ssh_port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
+
             //just for fun 0o' let's try the most crappy code ever!
+            //Actually this is not fun :'(
             sc.execute_command(comp.ssh_resource.downloadCommand).then(function () {
                 logger.log("info", "Download command executed");
                 sc.execute_command(comp.ssh_resource.installCommand).then(function () {
@@ -429,8 +435,10 @@ var engine = (function () {
                             await that.deploy_nodered(compo, host);
                         } else {
                             //Manage simple docker
-                            var connector = dc();
-                            var id = await connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.docker_resource.links, compo.name, host.name, compo.docker_resource.environment);
+                            if(compo.docker_resource.image !== ""){
+                                var connector = dc();
+                                var id = await connector.buildAndDeploy(host.ip, host.port, compo.docker_resource.port_bindings, compo.docker_resource.devices, compo.docker_resource.command, compo.docker_resource.image, compo.docker_resource.mounts, compo.docker_resource.links, compo.name, host.name, compo.docker_resource.environment);
+                            }         
                             bus.emit('node-started', id, compo.name);
                         }
                     }
@@ -449,7 +457,7 @@ var engine = (function () {
 
                     //Manage component via ssh
                     if (that.need_ssh(compo)) {
-                        logger.log('info', 'Deploy via SSH');
+                        logger.log('info', 'Deploy via SSH '+compo.name);
                         await that.deploy_ssh(compo, host);
                     }
                 }

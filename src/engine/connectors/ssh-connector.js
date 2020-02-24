@@ -69,6 +69,17 @@ var ssh_connector = function (ip, port, username, passwd, key, agent) {
         });
     };
 
+    that.set_env_var = function(var_name, value){
+        return new Promise(function (resolve, reject) {
+            var caommad="sudo sh -c 'echo export "+var_name+"="+value+" >> /etc/environment'";
+            that.execute_command(caommad).then(function(){
+                resolve(signal);
+            }).catch(function(err){
+                reject(err);
+            });
+        });
+    };
+
     that.execute_command = function (command) {
         return new Promise(function (resolve, reject) {
             var conn = new Client();
