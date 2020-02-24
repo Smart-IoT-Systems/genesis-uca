@@ -1,0 +1,398 @@
+{
+    "dm": {
+        "name": "demo",
+        "components": [{
+            "_type": "/infra/device",
+            "name": "a_component",
+            "properties": [],
+            "id": "18621912-414c-4c6d-b08f-c7fbbe2b8da8",
+            "provided_execution_port": [{
+                "name": "offerJava"
+            }],
+            "ip": "192.168.1.16",
+            "port": ["22"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "",
+                "sshkey": ""
+            },
+            "physical_port": "/dev/null",
+            "device_type": "arduino",
+            "isLocal": false
+        }, {
+            "_type": "/internal/thingml",
+            "name": "Hello",
+            "properties": [],
+            "id": "656b3492-fb5c-4270-9f7b-45842edc15ae",
+            "provided_execution_port": [],
+            "docker_resource": {
+                "name": "7d91b6dc-74ef-4c3a-ab90-61717a91f328",
+                "image": "ubuntu",
+                "command": "",
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "a3e2cb2d-0f17-4346-971c-d8a5ea18f9dc",
+                "startCommand": "java -jar hello-1.0.0-jar-with-dependencies.jar",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "credentials": {
+                    "username": "pi",
+                    "password": "",
+                    "sshkey": "/Users/ferrynico/Documents/Code/TestCloudMLasLibrary/cloudml.pem"
+                }
+            },
+            "ansible_resource": {
+                "name": "1853ecc1-139e-491c-889b-bd223afb5ee1",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "requiresJava",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "e35eddf4-db75-4b1f-9749-97f711d6ea15",
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "a08bbb84-176c-4303-b113-13f10735ffbb",
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_description": "",
+            "file": "/Users/ferrynico/Downloads/hello_ard.thingml",
+            "src": "",
+            "cpu": "atmega",
+            "libraries": [],
+            "target_language": "arduino"
+        }, {
+            "_type": "/infra/docker_host",
+            "name": "RPI2",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "c2bda4dd-9b18-4891-8148-33719327e866",
+            "provided_execution_port": [{
+                "name": "678615c8-63b6-48c3-a9b9-f1c9ffedce05",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "ip": "127.0.0.1",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "",
+                "sshkey": "",
+                "agent": ""
+            },
+            "monitoring_agent": "none"
+        }, {
+            "_type": "/internal/node_red",
+            "name": "nr",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "969d331b-e9a7-4cc9-a0fb-c7d4a35fcc14",
+            "provided_execution_port": [{
+                "name": "480037e1-b70a-4b3b-ab0b-33b867e7f0cb",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "5bdc6bf9-6fca-47cd-90f0-cfc466852071",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "a82d4310-b28e-420f-8961-2e34994263b1",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "ce032808-0873-4831-942d-2e4e147d39c8",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "7576c1e9-1fe2-4727-b93c-6d9c7c268413",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "d6d3cc8e-0a0f-48aa-8a3d-458c1a65b5d6",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "6bb9a880-66df-4b40-b3bf-3cf27446a7b9",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "",
+            "packages": []
+        }],
+        "links": [{
+            "name": "nrToar",
+            "properties": [],
+            "src": "/nr/d6d3cc8e-0a0f-48aa-8a3d-458c1a65b5d6",
+            "target": "/Hello/a08bbb84-176c-4303-b113-13f10735ffbb",
+            "isControl": false,
+            "isDeployer": true
+        }],
+        "containments": [{
+            "name": "a",
+            "properties": [],
+            "src": "/a_component/offerJava",
+            "target": "/Hello/requiresJava"
+        }, {
+            "name": "nrtoar",
+            "properties": [],
+            "src": "/RPI2/678615c8-63b6-48c3-a9b9-f1c9ffedce05",
+            "target": "/nr/7576c1e9-1fe2-4727-b93c-6d9c7c268413"
+        }],
+        "type_registry": []
+    },
+    "graph": {
+        "elements": {
+            "nodes": [{
+                "data": {
+                    "id": "a_component"
+                },
+                "position": {
+                    "x": 571.4064615899929,
+                    "y": 102.52052184605796
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "device"
+            }, {
+                "data": {
+                    "id": "Hello",
+                    "parent": "a_component"
+                },
+                "position": {
+                    "x": 571.4064615899929,
+                    "y": 102.52052184605796
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "RPI2"
+                },
+                "position": {
+                    "x": 408.56713426920084,
+                    "y": 113.42496313353928
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "nr",
+                    "parent": "RPI2"
+                },
+                "position": {
+                    "x": 408.56713426920084,
+                    "y": 113.42496313353926
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }],
+            "edges": [{
+                "data": {
+                    "id": "nrToar",
+                    "source": "nr",
+                    "target": "Hello"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "control"
+            }]
+        },
+        "style": [{
+            "selector": "node",
+            "style": {
+                "label": "data(id)",
+                "background-fit": "contain",
+                "background-image-opacity": "0.3",
+                "text-valign": "center",
+                "text-halign": "center",
+                "font-size": "4px",
+                "font-weight": "bold"
+            }
+        }, {
+            "selector": "node.container",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/docker-official.svg"
+            }
+        }, {
+            "selector": "edge",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "triangle"
+            }
+        }, {
+            "selector": "edge.control",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "circle"
+            }
+        }, {
+            "selector": ":selected",
+            "style": {
+                "background-color": "black",
+                "line-color": "black",
+                "target-arrow-color": "black",
+                "source-arrow-color": "black"
+            }
+        }, {
+            "selector": "node.questionable",
+            "style": {
+                "border-color": "#A33",
+                "background-color": "#B55",
+                "shape": "roundrectangle"
+            }
+        }, {
+            "selector": "node.node_red",
+            "style": {
+                "background-image": "./img/node-red-256.png"
+            }
+        }, {
+            "selector": "node.ansible",
+            "style": {
+                "background-image": "./img/ansible.png"
+            }
+        }, {
+            "selector": "node.device",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/device.png"
+            }
+        }, {
+            "selector": "node.vm",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/server_cloud.png"
+            }
+        }],
+        "zoomingEnabled": true,
+        "userZoomingEnabled": true,
+        "zoom": 2.6061535499989015,
+        "minZoom": 0.4,
+        "maxZoom": 6,
+        "panningEnabled": true,
+        "userPanningEnabled": true,
+        "pan": {
+            "x": -705.5060826404094,
+            "y": -57.795332776918556
+        },
+        "boxSelectionEnabled": false,
+        "renderer": {
+            "name": "canvas"
+        }
+    }
+}
