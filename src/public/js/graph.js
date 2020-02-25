@@ -20,6 +20,13 @@ var cy = window.cy = cytoscape({
             }
         },
         {
+            selector: 'node.host',
+            css: {
+                'text-valign': 'top',
+                'text-halign': 'center',
+            }
+        },
+        {
             selector: 'node.container',
             css: {
                 'padding-top': '10px',

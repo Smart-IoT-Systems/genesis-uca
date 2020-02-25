@@ -62,6 +62,8 @@ class CAddContainmentModal extends React.Component {
                     node.move({
                         parent: selectedTargetComp
                     });
+                    var parent = cy.getElementById(selectedTargetComp);
+                    parent.addClass('host');
                 
                     //update model
                     var m_m=window.SiderDemo.getMM();
