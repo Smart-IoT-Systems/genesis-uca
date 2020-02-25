@@ -117,6 +117,13 @@ var notifier = (function (client, dm) {
             bus.emit('node-started2', container_id, comp_name);
         });
 
+        bus.on('runtime-info', function(comp_name, status){
+            var s = {
+                node: comp_name,
+                status: status
+            };
+            that.MQTTClient.publish("/Status", JSON.stringify(s));
+        });
     }
 
 

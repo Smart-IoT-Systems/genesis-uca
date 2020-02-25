@@ -48,6 +48,8 @@ app.post("/genesis/push_model", runtime.update_target_model);
 app.get("/genesis/get_target_model", runtime.get_targetDM);
 //Description of the GeneSIS API
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+//Trigger runtime info update
+app.get('/genesis/runtime_info', runtime.getRuntime_info);
 
 function getLogs(req, res){
     var contents = fs.readFileSync(__dirname+'/genesis.log', 'utf8');

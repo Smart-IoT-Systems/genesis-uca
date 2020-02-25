@@ -172,7 +172,11 @@ class SiderDemo extends React.Component {
         //Then we update the graph
         cy.json(data.graph);
         //Including runtime status
-        
+        fetch("/genesis/runtime_info")
+        .then(response => response.json())
+        .then(data => {
+          
+        });
       });
   }
 
@@ -231,7 +235,8 @@ class SiderDemo extends React.Component {
 			body: JSON.stringify(dm)
 		}).then(response => response.json())
 			.then(response => { 
-        console.log(JSON.stringify(response))
+        console.log(JSON.stringify(response));
+        
         this.openNotificationWithIcon('success', 'Model Pushed', 'Model sent!');
       });
   };

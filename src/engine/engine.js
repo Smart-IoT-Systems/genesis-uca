@@ -46,6 +46,14 @@ var engine = (function () {
         res.end(JSON.stringify(all_in_one));
     }
 
+    that.getRuntime_info = function(req, res){
+        //Update runtime info
+        that.dep_model.components.forEach(element => {
+            bus.emit('runtime-info', element.name, element._runtime.Status);
+        });
+        res.end(JSON.stringify(that.dep_model));
+    }
+
     that.getDM = function (req, res) {
         res.end(JSON.stringify(that.dep_model));
     }
@@ -82,6 +90,14 @@ var engine = (function () {
         that.target_model.revive_components(data.components);
         that.target_model.revive_links(data.links);
         that.target_model.revive_containments(data.containments);
+
+        //Update runtime info
+        that.dep_model.components.forEach(element => {
+            if(that.target_model.find_node_named(element.name) !== undefined){
+                bus.emit('runtime-info', element.name, element._runtime.Status);
+            }
+        });
+        
         res.end(JSON.stringify(that.target_model));
     };
 

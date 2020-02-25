@@ -29,7 +29,7 @@ var runtime_observer = function (dm) {
         });
 
         bus.on('host-config', function (comp_name) {
-            that.setRuntimeInfo(comp_name, "Status", "config");
+            that.setRuntimeInfo(comp_name, "Status", "running");
         });
 
         bus.on('ansible-started', function (comp_name) {
@@ -49,7 +49,7 @@ var runtime_observer = function (dm) {
             that.setRuntimeInfo(comp_name, "id", container_id);
         });
 
-        bus.on('node-started', function (container_id, comp_name) {
+        bus.on('node-started', function (container_id, comp_name){
             that.setRuntimeInfo(comp_name, "Status", "running");
             that.setRuntimeInfo(comp_name, "id", container_id);
         });
