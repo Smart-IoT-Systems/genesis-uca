@@ -209,6 +209,33 @@ class SiderDemo extends React.Component {
     });
   }
 
+  deploy = () => {
+
+    load.loading('Deployment in progress..', 0);
+    this.openNotificationWithIcon('success', 'Deployment Started', 'Model sent!');
+
+    fetch("/genesis/deploy_model")
+    .then(response => response.json())
+    .then(response => { 
+      console.log(JSON.stringify(response))
+    });
+  };
+
+  pushModel = () => {
+    fetch('/genesis/push_model', {
+			method: 'POST',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(dm)
+		}).then(response => response.json())
+			.then(response => { 
+        console.log(JSON.stringify(response))
+        this.openNotificationWithIcon('success', 'Model Pushed', 'Model sent!');
+      });
+  };
+
   deployModel = () => {
 
     load.loading('Deployment in progress..', 0);
@@ -284,7 +311,11 @@ class SiderDemo extends React.Component {
                   title={<span><Icon type="cluster" /><span>Deployment <Icon type="caret-down" /></span></span>}
                 >
                   <Menu.Item key="Deploy1" onClick={this.deployModel}>Deploy model in editor</Menu.Item>
-                  <Menu.Item key="Deploy2" onClick={this.removeAll}>Terminate All</Menu.Item>
+                  <Menu.Divider></Menu.Divider>
+                  <Menu.Item key="Deploy2" onClick={this.pushModel}>Push model to server</Menu.Item>
+                  <Menu.Item key="Deploy3" onClick={this.deploy}>Deploy model on server</Menu.Item>
+                  <Menu.Divider></Menu.Divider>
+                  <Menu.Item key="Deploy4" onClick={this.removeAll}>Terminate All</Menu.Item>
                 </SubMenu>
                 <Menu.Item key="3" onClick={this.openLogs}><Icon type="ordered-list" /><span>Logs</span></Menu.Item>
             </Menu>
