@@ -79,8 +79,8 @@
 						"1880": "1880"
 					},
 					"devices": {
-						"PathOnHost": "",
-						"PathInContainer": "",
+						"PathOnHost": "/dev/ttyACM0",
+						"PathInContainer": "/dev/ttyACM0",
 						"CgroupPermissions": "rwm"
 					}
 				},
@@ -143,14 +143,104 @@
 					}
 				],
 				"nr_flow": [{
+						"id": "3d956af5.aa82f6",
+						"type": "tab",
+						"label": "Flow 1",
+						"disabled": false,
+						"info": ""
+					}, {
 						"id": "c0212f40.997c2",
 						"type": "serial out",
-						"z": "33017bc9.a30e4c",
-						"name": "",
+						"z": "3d956af5.aa82f6",
+						"name": "Arduino Serial In",
 						"serial": "cdc94e36.864e68",
-						"x": 660,
-						"y": 40,
+						"x": 910,
+						"y": 80,
 						"wires": []
+					}, {
+						"id": "6ff55296.17576c",
+						"type": "serial in",
+						"z": "3d956af5.aa82f6",
+						"name": "Arduino Serial out",
+						"serial": "cdc94e36.864e68",
+						"x": 140,
+						"y": 80,
+						"wires": [["29fa93fe.fd1fb4"]]
+					}, {
+						"id": "29fa93fe.fd1fb4",
+						"type": "switch",
+						"z": "3d956af5.aa82f6",
+						"name": "",
+						"property": "payload",
+						"propertyType": "msg",
+						"rules": [{
+								"t": "regex",
+								"v": "BTN",
+								"vt": "str",
+								"case": false
+							}, {
+								"t": "regex",
+								"v": "RFID",
+								"vt": "str",
+								"case": false
+							}
+						],
+						"checkall": "true",
+						"repair": false,
+						"outputs": 2,
+						"x": 310,
+						"y": 80,
+						"wires": [["a76de3dc.0f59e"], ["34a1b9dd.d03f9e"]]
+					}, {
+						"id": "a76de3dc.0f59e",
+						"type": "function",
+						"z": "3d956af5.aa82f6",
+						"name": "Button Press",
+						"func": "matches = msg.payload.match(/(\\d+)/);\nif (matches)\n    msg.payload = matches[0];\nreturn msg;",
+						"outputs": 1,
+						"noerr": 0,
+						"x": 450,
+						"y": 40,
+						"wires": [["d8a9b85b.aeb87"]]
+					}, {
+						"id": "34a1b9dd.d03f9e",
+						"type": "function",
+						"z": "3d956af5.aa82f6",
+						"name": "RFID Read",
+						"func": "val = msg.payload.substring(5, msg.payload.length - 1);\nif (val.length == 14)\n    msg.payload = val;\nreturn msg;",
+						"outputs": 1,
+						"noerr": 0,
+						"x": 450,
+						"y": 120,
+						"wires": [["9953ac1e.dafb1"]]
+					}, {
+						"id": "d8a9b85b.aeb87",
+						"type": "function",
+						"z": "3d956af5.aa82f6",
+						"name": "Locker",
+						"func": "if (msg.payload == \"1\")\n    msg.payload = \"LED:0:0:0\";\nelse\n    msg.payload = \"LED:0:255:0\";\nreturn msg;",
+						"outputs": 1,
+						"noerr": 0,
+						"x": 610,
+						"y": 40,
+						"wires": [["c0212f40.997c2"]]
+					}, {
+						"id": "9953ac1e.dafb1",
+						"type": "trigger",
+						"z": "3d956af5.aa82f6",
+						"op1": "LED:0:255:0",
+						"op2": "LED:0:0:0",
+						"op1type": "str",
+						"op2type": "str",
+						"duration": "2",
+						"extend": false,
+						"units": "s",
+						"reset": "",
+						"bytopic": "all",
+						"name": "",
+						"x": 620,
+						"y": 120,
+						"wires": [["c0212f40.997c2"]]
 					}, {
 						"id": "cdc94e36.864e68",
 						"type": "serial-port",
