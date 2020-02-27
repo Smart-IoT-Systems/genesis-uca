@@ -1,0 +1,507 @@
+{
+	"dm": {
+		"name": "demo",
+		"components": [{
+				"_type": "/infra/docker_host",
+				"name": "Raspberry_Gateway",
+				"properties": [],
+				"version": "0.0.1",
+				"id": "8a8df2ad-d208-4809-9fb9-b43d392860e3",
+				"provided_execution_port": [{
+						"name": "50f978a6-1ec3-4fa6-b635-e16d35a2bd12",
+						"capabilities": {
+							"_type": "/capability/security_capability",
+							"name": "a_capability",
+							"control_id": "",
+							"description": ""
+						}
+					}
+				],
+				"ip": "192.168.43.2",
+				"port": ["2376"],
+				"credentials": {
+					"username": "pi",
+					"password": "raspberry",
+					"sshkey": "",
+					"agent": ""
+				},
+				"monitoring_agent": "none"
+			}, {
+				"_type": "/infra/device",
+				"name": "Arduino_Door1",
+				"properties": [],
+				"version": "0.0.1",
+				"id": "4dc5e297-b578-4218-9c8e-8c42bd2260be",
+				"provided_execution_port": [{
+						"name": "59a6c687-c28d-4e6e-a1c3-92123509159c",
+						"capabilities": {
+							"_type": "/capability/security_capability",
+							"name": "a_capability",
+							"control_id": "",
+							"description": ""
+						}
+					}
+				],
+				"ip": "127.0.0.1",
+				"port": ["80", "22"],
+				"credentials": {
+					"username": "ubuntu",
+					"password": "",
+					"sshkey": "",
+					"agent": ""
+				},
+				"monitoring_agent": "none",
+				"physical_port": "/dev/ttyACM0",
+				"device_type": "arduino",
+				"needDeployer": false
+			}, {
+				"_type": "/internal/node_red",
+				"name": "ACS1",
+				"properties": [],
+				"version": "0.0.1",
+				"id": "2539726d-2219-47d0-a65f-c7eb03b31ce7",
+				"provided_execution_port": [{
+						"name": "f0666698-328a-459b-ba15-b423ccc51f3e",
+						"capabilities": {
+							"_type": "/capability/security_capability",
+							"name": "a_capability",
+							"control_id": "",
+							"description": ""
+						}
+					}
+				],
+				"docker_resource": {
+					"name": "b2db7cee-17fe-4b8c-b3fe-ee0b1d3f8494",
+					"image": "nicolasferry/multiarch-node-red-thingml:latest",
+					"command": "",
+					"links": [],
+					"port_bindings": {
+						"1880": "1880"
+					},
+					"devices": {
+						"PathOnHost": "",
+						"PathInContainer": "",
+						"CgroupPermissions": "rwm"
+					}
+				},
+				"ssh_resource": {
+					"name": "691ddc0e-1004-43c8-8ff6-ee9798ea91b3",
+					"startCommand": "",
+					"downloadCommand": "",
+					"installCommand": "",
+					"configureCommand": "",
+					"stopCommand": "",
+					"credentials": {
+						"username": "ubuntu",
+						"password": "",
+						"sshkey": "",
+						"agent": ""
+					}
+				},
+				"ansible_resource": {
+					"name": "32e4c82a-0a3c-4b25-9c3e-07458ce00063",
+					"playbook_path": "",
+					"playbook_host": "",
+					"credentials": {
+						"username": "ubuntu",
+						"password": "",
+						"sshkey": "",
+						"agent": ""
+					}
+				},
+				"required_execution_port": {
+					"name": "602912a7-5fe8-4664-891a-58ab845256d1",
+					"capabilities": {
+						"_type": "/capability/security_capability",
+						"name": "a_capability",
+						"control_id": "",
+						"description": ""
+					},
+					"needDeployer": false
+				},
+				"provided_communication_port": [{
+						"name": "cb38f65f-0c1c-48bb-b4a3-3c002e296570",
+						"capabilities": {
+							"_type": "/capability/security_capability",
+							"name": "a_capability",
+							"control_id": "",
+							"description": ""
+						},
+						"port_number": "1880"
+					}
+				],
+				"required_communication_port": [{
+						"name": "3173ac59-4e23-4b0e-bc33-231c200922db",
+						"capabilities": {
+							"_type": "/capability/security_capability",
+							"name": "a_capability",
+							"control_id": "",
+							"description": ""
+						},
+						"port_number": "80",
+						"isMandatory": false
+					}
+				],
+				"nr_flow": [{
+						"id": "c0212f40.997c2",
+						"type": "serial out",
+						"z": "33017bc9.a30e4c",
+						"name": "",
+						"serial": "cdc94e36.864e68",
+						"x": 660,
+						"y": 40,
+						"wires": []
+					}, {
+						"id": "cdc94e36.864e68",
+						"type": "serial-port",
+						"z": "",
+						"serialport": "/dev/ttyACM0",
+						"serialbaud": "9600",
+						"databits": "8",
+						"parity": "none",
+						"stopbits": "1",
+						"waitfor": "",
+						"newline": "\\n",
+						"bin": "false",
+						"out": "char",
+						"addchar": "",
+						"responsetimeout": "10000"
+					}
+				],
+				"path_flow": "",
+				"packages": []
+			}, {
+				"_type": "/internal/arduino",
+				"name": "Code_Door1",
+				"properties": [],
+				"version": "0.0.1",
+				"id": "6bd61452-c654-4cbe-8a7b-8d2144f38425",
+				"provided_execution_port": [{
+						"name": "0f00eee4-1a07-4aaa-aaee-4ace1f15687e",
+						"capabilities": {
+							"_type": "/capability/security_capability",
+							"name": "a_capability",
+							"control_id": "",
+							"description": ""
+						}
+					}
+				],
+				"docker_resource": {
+					"name": "01c72ed7-8d53-4f46-86ea-3f682d33c30d",
+					"image": "ubuntu",
+					"command": "",
+					"links": [],
+					"port_bindings": {
+						"1880": "1880"
+					},
+					"devices": {
+						"PathOnHost": "",
+						"PathInContainer": "",
+						"CgroupPermissions": "rwm"
+					}
+				},
+				"ssh_resource": {
+					"name": "841458db-64ee-49b3-8f44-2a6b2422329a",
+					"startCommand": "",
+					"downloadCommand": "",
+					"installCommand": "",
+					"configureCommand": "",
+					"stopCommand": "",
+					"credentials": {
+						"username": "ubuntu",
+						"password": "",
+						"sshkey": "",
+						"agent": ""
+					}
+				},
+				"ansible_resource": {
+					"name": "f21dd1eb-93f0-41e7-b67c-c09f6c67240a",
+					"playbook_path": "",
+					"playbook_host": "",
+					"credentials": {
+						"username": "ubuntu",
+						"password": "",
+						"sshkey": "",
+						"agent": ""
+					}
+				},
+				"required_execution_port": {
+					"name": "addbf433-2086-4446-95b8-65eb7f6ebc31",
+					"capabilities": {
+						"_type": "/capability/security_capability",
+						"name": "a_capability",
+						"control_id": "",
+						"description": ""
+					},
+					"needDeployer": false
+				},
+				"provided_communication_port": [{
+						"name": "0d2a6096-fd86-4b16-995e-de6a12fd145a",
+						"capabilities": {
+							"_type": "/capability/security_capability",
+							"name": "a_capability",
+							"control_id": "",
+							"description": ""
+						},
+						"port_number": "80"
+					}
+				],
+				"required_communication_port": [{
+						"name": "9a68bc88-28b2-4d07-9a2f-fb0602e56be3",
+						"capabilities": {
+							"_type": "/capability/security_capability",
+							"name": "a_capability",
+							"control_id": "",
+							"description": ""
+						},
+						"port_number": "80",
+						"isMandatory": false
+					}
+				],
+				"nr_description": "",
+				"sketch": "D:\\Dev\\contrats\\ENACT\\actuation_conflict_manager\\demos\\hackathon\\lock.ino",
+				"libraries": ["Grove - Chainable RGB LED"]
+			}
+		],
+		"links": [{
+				"name": "Com_NodeRED_Arduino1",
+				"properties": [],
+				"src": "/ACS1/cb38f65f-0c1c-48bb-b4a3-3c002e296570",
+				"target": "/Code_Door1/9a68bc88-28b2-4d07-9a2f-fb0602e56be3",
+				"isControl": false,
+				"isDeployer": true
+			}
+		],
+		"containments": [{
+				"name": "Code_Arduino_Door1",
+				"properties": [],
+				"src": "/Arduino_Door1/59a6c687-c28d-4e6e-a1c3-92123509159c",
+				"target": "/Code_Door1/addbf433-2086-4446-95b8-65eb7f6ebc31"
+			}, {
+				"name": "NodeRED_Raspberry_ACS1",
+				"properties": [],
+				"src": "/Raspberry_Gateway/50f978a6-1ec3-4fa6-b635-e16d35a2bd12",
+				"target": "/ACS1/602912a7-5fe8-4664-891a-58ab845256d1"
+			}
+		],
+		"type_registry": []
+	},
+	"graph": {
+		"elements": {
+			"nodes": [{
+					"data": {
+						"id": "Raspberry_Gateway"
+					},
+					"position": {
+						"x": -82.90011517809843,
+						"y": 152.2969013995875
+					},
+					"group": "nodes",
+					"removed": false,
+					"selected": false,
+					"selectable": true,
+					"locked": false,
+					"grabbable": true,
+					"classes": "container host"
+				}, {
+					"data": {
+						"id": "Arduino_Door1"
+					},
+					"position": {
+						"x": 30.75770235679741,
+						"y": 130.72680464114018
+					},
+					"group": "nodes",
+					"removed": false,
+					"selected": false,
+					"selectable": true,
+					"locked": false,
+					"grabbable": true,
+					"classes": "device host"
+				}, {
+					"data": {
+						"id": "Code_Door1",
+						"parent": "Arduino_Door1"
+					},
+					"position": {
+						"x": 30.75770235679741,
+						"y": 130.72680464114018
+					},
+					"group": "nodes",
+					"removed": false,
+					"selected": false,
+					"selectable": true,
+					"locked": false,
+					"grabbable": true,
+					"classes": ""
+				}, {
+					"data": {
+						"id": "ACS1",
+						"parent": "Raspberry_Gateway"
+					},
+					"position": {
+						"x": -82.90011517809843,
+						"y": 152.2969013995875
+					},
+					"group": "nodes",
+					"removed": false,
+					"selected": false,
+					"selectable": true,
+					"locked": false,
+					"grabbable": true,
+					"classes": "node_red"
+				}
+			],
+			"edges": [{
+					"data": {
+						"id": "Com_NodeRED_Arduino1",
+						"source": "ACS1",
+						"target": "Code_Door1"
+					},
+					"position": {},
+					"group": "edges",
+					"removed": false,
+					"selected": false,
+					"selectable": true,
+					"locked": false,
+					"grabbable": true,
+					"classes": "isdeployer"
+				}
+			]
+		},
+		"style": [{
+				"selector": "node",
+				"style": {
+					"label": "data(id)",
+					"background-fit": "contain",
+					"background-image-opacity": "0.3",
+					"text-valign": "center",
+					"text-halign": "center",
+					"font-size": "4px",
+					"font-weight": "bold"
+				}
+			}, {
+				"selector": "node.container",
+				"style": {
+					"padding": "10px",
+					"text-valign": "top",
+					"text-halign": "center",
+					"background-color": "#DDD",
+					"font-size": "8px",
+					"font-weight": "normal",
+					"shape": "rectangle",
+					"background-image": "./img/docker-official.svg"
+				}
+			}, {
+				"selector": "edge",
+				"style": {
+					"curve-style": "bezier",
+					"target-arrow-shape": "triangle"
+				}
+			}, {
+				"selector": "edge.control",
+				"style": {
+					"curve-style": "bezier",
+					"target-arrow-shape": "circle"
+				}
+			}, {
+				"selector": "edge.isdeployer",
+				"style": {
+					"curve-style": "bezier",
+					"target-arrow-shape": "triangle-tee"
+				}
+			}, {
+				"selector": ":selected",
+				"style": {
+					"background-color": "black",
+					"line-color": "black",
+					"target-arrow-color": "black",
+					"source-arrow-color": "black"
+				}
+			}, {
+				"selector": "node.questionable",
+				"style": {
+					"border-color": "#A33",
+					"background-color": "#B55",
+					"shape": "roundrectangle"
+				}
+			}, {
+				"selector": "node.node_red",
+				"style": {
+					"background-image": "./img/node-red-256.png"
+				}
+			}, {
+				"selector": "node.ansible",
+				"style": {
+					"background-image": "./img/ansible.png"
+				}
+			}, {
+				"selector": "node.orion",
+				"style": {
+					"background-color": "#ADD8E6",
+					"background-image": "./img/fiware_logo.png"
+				}
+			}, {
+				"selector": "node.thingml",
+				"style": {
+					"background-color": "#ADD8E6",
+					"background-image": "./img/thingml_short.png"
+				}
+			}, {
+				"selector": "node.device",
+				"style": {
+					"padding": "10px",
+					"text-valign": "top",
+					"text-halign": "center",
+					"background-color": "#DDD",
+					"font-size": "8px",
+					"font-weight": "normal",
+					"shape": "rectangle",
+					"background-image": "./img/device.png"
+				}
+			}, {
+				"selector": "node.devicelocal",
+				"style": {
+					"padding": "10px",
+					"text-valign": "top",
+					"text-halign": "center",
+					"background-color": "#FFF",
+					"font-size": "8px",
+					"font-weight": "normal",
+					"shape": "roundrectangle",
+					"border-width": "1px",
+					"border-color": "#333",
+					"border-style": "dashed",
+					"background-image": "./img/devicelocal.png"
+				}
+			}, {
+				"selector": "node.vm",
+				"style": {
+					"padding": "10px",
+					"text-valign": "top",
+					"text-halign": "center",
+					"background-color": "#DDD",
+					"font-size": "8px",
+					"font-weight": "normal",
+					"shape": "rectangle",
+					"background-image": "./img/server_cloud.png"
+				}
+			}
+		],
+		"zoomingEnabled": true,
+		"userZoomingEnabled": true,
+		"zoom": 2.4107448650936396,
+		"minZoom": 0.4,
+		"maxZoom": 6,
+		"panningEnabled": true,
+		"userPanningEnabled": true,
+		"pan": {
+			"x": 453.10981799731826,
+			"y": -151.15248027813777
+		},
+		"boxSelectionEnabled": false,
+		"renderer": {
+			"name": "canvas"
+		}
+	}
+}
