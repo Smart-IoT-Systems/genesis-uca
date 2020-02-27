@@ -23,7 +23,7 @@ var deployment_agent = function (host, host_target, deployment_target) {
 
 
     that.compute_ip_address = function () {
-        var os = require('os');
+        /*var os = require('os');
         var networkInterfaces = os.networkInterfaces();
         var result = null;
         for (var i in networkInterfaces) {
@@ -32,7 +32,11 @@ var deployment_agent = function (host, host_target, deployment_target) {
             if (splitted[0] === splitted2[0] && splitted[1] === splitted2[1] && splitted[2] === splitted2[2]) {
                 result = networkInterfaces[i][0].address;
             }
-        }
+        }*/
+        const internalIp = require('internal-ip');
+        var result= internalIp.v4.sync();
+        console.log(internalIp.v4.sync());
+
         return result;
     };
 
