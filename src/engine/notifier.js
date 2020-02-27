@@ -124,6 +124,14 @@ var notifier = (function (client, dm) {
             };
             that.MQTTClient.publish("/Status", JSON.stringify(s));
         });
+
+        bus.on('removed', function(comp_name){
+            var s = {
+                node: comp_name,
+                status: 'config'
+            };
+            that.MQTTClient.publish("/Status", JSON.stringify(s));
+        });
     }
 
 

@@ -184,6 +184,7 @@ var engine = (function () {
                 var host = diff.old_dm.find_host_one_level_down(item);
                 var device_host = diff.old_dm.find_host(item);
                 var connector = dc();
+                bus.emit('removed', item.name);
                 await connector.stopAndRemove(item.container_id, device_host.ip, host.port)
             }));
         }
