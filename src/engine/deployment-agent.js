@@ -145,20 +145,22 @@ var deployment_agent = function (host, host_target, deployment_target) {
         req.end();
     };
 
-    that.install = async function () {
+    that.install = async function (port_mapping) {
         var connector = dc();
+        var mapping = {};
+        mapping[port_mapping] = "1880";
+        console.log(JSON.stringify(mapping));
+
         //We start Node-red
-        var id = await connector.buildAndDeploy(that.host.ip, that.host.port, {
-            "1889": "1880"
-        }, {
+        var id = await connector.buildAndDeploy(that.host.ip, that.host.port, mapping, {
             "PathOnHost": that.host_target.physical_port,
             "PathInContainer": that.host_target.physical_port,
             "CgroupPermissions": "rwm"
         }, "", "nicolasferry/multiarch-node-red-thingml:latest", "", "", that.deployment_target.name, that.host.name);
 
-        var readyToGo = await that.untilConnect(that.host.ip, 1889);
+        var readyToGo = await that.untilConnect(that.host.ip, port_mapping);
         if (readyToGo) {
-            that.setFlow(that.host.ip, 1889, that.flow);
+            that.setFlow(that.host.ip, port_mapping, that.flow);
         }
         return id;
     };

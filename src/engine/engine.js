@@ -230,6 +230,8 @@ var engine = (function () {
             logger.log("info", "Starting deployment of deployment agents");
             var nb_deployers = 0;
 
+            let port_for_mapping = 1889;
+
             for (var l in links_deployer_tab) {
                 var tgt_agent_name = that.dep_model.get_comp_name_from_port_id(links_deployer_tab[l].target);
                 var tgt_agent = that.dep_model.find_node_named(tgt_agent_name);
@@ -240,10 +242,11 @@ var engine = (function () {
 
                 var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
                 await d_agent.prepare();
-                var cont_id = await d_agent.install();
+                var cont_id = await d_agent.install(port_for_mapping);
                 bus.emit('node-started', "", tgt_agent_host.name);
                 that.map_host_agent[cont_id] = src_agent_host;
                 tgt_agent.container_id = cont_id;
+                port_for_mapping++;
             }
 
             bus.on('d_agent_success', function (cfg) {
