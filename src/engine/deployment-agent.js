@@ -149,7 +149,6 @@ var deployment_agent = function (host, host_target, deployment_target) {
         var connector = dc();
         var mapping = {};
         mapping[port_mapping] = "1880";
-        console.log(JSON.stringify(mapping));
 
         //We start Node-red
         var id = await connector.buildAndDeploy(that.host.ip, that.host.port, mapping, {

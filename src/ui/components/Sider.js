@@ -175,7 +175,7 @@ class SiderDemo extends React.Component {
         fetch("/genesis/runtime_info")
         .then(response => response.json())
         .then(data => {
-          
+
         });
       });
   }
@@ -203,6 +203,9 @@ class SiderDemo extends React.Component {
 			.then(response => { 
         if (response.started) {
           cy.elements().remove();
+          dm = mm.deployment_model({
+            name: 'demo'
+          });
         }});
   }
 
