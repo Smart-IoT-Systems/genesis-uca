@@ -102,12 +102,39 @@ class EditLink extends React.Component {
         var selectedTargetPort = selectedTarget.split(',')[1];
 
 
-        //First we update the graph
+        //First we update the model
+        this.state.elem_model.src='/'+selectedSrcComp+'/'+selectedSrcPort;
+        this.state.elem_model.target='/'+selectedTargetComp+'/'+selectedTargetPort;
+        this.state.elem_model.name=this.state.name;
+
+        this.state.elem_model.isDeployer = false;
+        this.state.elem_model.isMandatory = false;
+        this.state.elem_model.isControl = false;
+
+        this.state.checkedList.forEach(e => {
+            if (e === 'isDeployer') {
+                this.state.elem_model.isDeployer = true;
+            }
+            if (e === 'isMandatory') {
+                this.state.elem_model.isMandatory = true;
+            }
+            if (e === 'isControl') {
+                this.state.elem_model.isControl = true;
+            }
+        });
+
+        //Then we update the graph
         var target_link=this.state.elem;
         if (!this.state.elem_model.isControl) {
             cy.$('#' + target_link.id()).removeClass('control');
         }else{
-            cy.$('#' + target_link.name).classes = 'control';
+            cy.$('#' + target_link.id()).addClass('control');
+        }
+
+        if (!this.state.elem_model.isDeployer) {
+            cy.$('#' + target_link.id()).removeClass('isdeployer');
+        }else{
+            cy.$('#' + target_link.id()).addClass('isdeployer');
         }
 
         if (target_link.data().source !== selectedSrcComp || target_link.data().target !== selectedTargetComp) {
@@ -128,26 +155,7 @@ class EditLink extends React.Component {
             cy.add(edge_modified);
         }
 
-        //Then we update the model
-        this.state.elem_model.src='/'+selectedSrcComp+'/'+selectedSrcPort;
-        this.state.elem_model.target='/'+selectedTargetComp+'/'+selectedTargetPort;
-        this.state.elem_model.name=this.state.name;
-
-        this.state.elem_model.isDeployer = false;
-        this.state.elem_model.isMandatory = false;
-        this.state.elem_model.isControl = false;
-
-        this.state.checkedList.forEach(e => {
-            if (e === 'isDeployer') {
-                this.state.elem_model.isDeployer = true;
-            }
-            if (e === 'isMandatory') {
-                this.state.elem_model.isMandatory = true;
-            }
-            if (e === 'isControl') {
-                this.state.elem_model.isControl = true;
-            }
-        });
+        
 
         window.SiderDemo.openNotificationWithIcon('success', 'Model updated!', 'The deployment model has been successfully updated!');
         this.setState({

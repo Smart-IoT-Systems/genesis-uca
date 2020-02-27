@@ -103,9 +103,21 @@ class DrawerEdit extends React.Component {
               cy.remove("#" + target_node.id());
           }
 
+          if(window.FormEdit.state.element.needDeployer !== undefined){
+            if(window.FormEdit.state.element.needDeployer){
+              cy.$('#' + window.FormEdit.state.element.name).removeClass('device');
+              cy.$('#' + window.FormEdit.state.element.name).addClass('devicelocal');
+            }else{
+              cy.$('#' + window.FormEdit.state.element.name).removeClass('devicelocal');
+              cy.$('#' + window.FormEdit.state.element.name).addClass('device');
+            }
+          }
+          
+
+
       //Finally, we update the model
       for (var prop in this.state.elem_model) {
-        if(window.FormEdit.state.element[prop]){
+        if(window.FormEdit.state.element[prop] !== undefined){
           if(prop === 'name'){
             var tmp=window.SiderDemo.getDM();
             tmp.change_name(window.FormEdit.state.element[prop], this.state.elem_model);

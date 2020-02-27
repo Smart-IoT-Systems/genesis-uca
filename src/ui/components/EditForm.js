@@ -4,9 +4,11 @@ import {
     Checkbox, Form, Icon, Input, Tooltip, Row, Col, Collapse
 } from 'antd';
 
+const CheckboxGroup = Checkbox.Group;
 const Panel = Collapse.Panel;
 
 const { TextArea } = Input;
+const plainOptions = ['needDeployer'];
 
 let id=0;
 
@@ -14,8 +16,14 @@ class FormEdit extends React.Component {
     
     constructor(props){
       super();
+      var tmp_elem = JSON.parse(JSON.stringify(props.elem));
+      var check = [];
+      if (tmp_elem.needDeployer) {
+        check.push('needDeployer');
+      }
       this.state = { 
-        element: JSON.parse(JSON.stringify(props.elem)),
+        element: tmp_elem,
+        checkedList: check,
       };
       window.FormEdit=this;
       this.handleChange = this.handleChange.bind(this);
@@ -39,6 +47,20 @@ class FormEdit extends React.Component {
         }else{
             newElem[event.target.name]=event.target.value;
         }
+    }
+
+    onChangeCheckList = (check) => {
+        this.setState({
+            checkedList: check,
+        });
+
+        this.state.element.needDeployer = false;
+        check.forEach(e => {
+            if (e === 'needDeployer') {
+                this.state.element.needDeployer = true;
+
+            }
+        });
     }
   
     render() {  
@@ -65,7 +87,8 @@ class FormEdit extends React.Component {
         for (var p in props) { // We generate the form from the component's properties
             var item_value = props[p];
             if (typeof elem[item_value] === 'boolean') {
-                result.push(<Form.Item key={id++}><Checkbox onChange={this.handleChange} name={item_value}>{item_value}</Checkbox></Form.Item>);
+                //result.push(<Form.Item key={id++}><Checkbox onChange={this.handleChange} name={item_value}>{item_value}</Checkbox></Form.Item>);
+                result.push(<Form.Item key={id++}><CheckboxGroup options={plainOptions} value={this.state.checkedList} onChange={this.onChangeCheckList} /></Form.Item>);
             }else{
                 if(item_value !== 'name' && item_value !== '_type' && item_value !== 'id'  && !(item_value.startsWith("_", 0))){
                     if (typeof elem[item_value] === 'object') {
