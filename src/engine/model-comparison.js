@@ -99,6 +99,24 @@ var comparator = function (dm) {
                         result.list_of_removed_links.push(tmp_link[i]);
                         if (target_links[i].isDeployer) {
                             result.list_of_added_links_deployer.push(target_links[i]);
+                            //Need to update the other side of the link
+                            /*let other = dm.get_comp_name_from_port_id(target_links[i].src);
+                            console.log(">>>>>>"+JSON.stringify(target_links[i]));
+                            if(dm.get_comp_name_from_port_id(target_links[i].src) === c.name){
+                                other = dm.get_comp_name_from_port_id(target_links[i].target);
+                            }
+                            let node_to_be_redeployed=dm.find_node_named(other);
+                            let in_removed=false;
+                            for (var i in result.list_of_removed_components) {
+                                if(result.list_of_removed_components[i].name === node_to_be_redeployed.name){
+                                    in_removed=true;
+                                }
+                            }
+                            if(!in_removed){
+                                result.list_of_removed_components.push(node_to_be_redeployed);
+                                result.list_of_added_hosted_components.push(node_to_be_redeployed);
+                                result.list_of_added_components.push(node_to_be_redeployed);
+                            }*/
                         } else {
                             result.list_of_added_links.push(target_links[i]);
                         }
