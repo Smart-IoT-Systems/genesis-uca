@@ -80,7 +80,7 @@ class DrawerEdit extends React.Component {
                       elem.move({
                           parent: window.FormEdit.state.element.name
                       });
-                      var component_tmp = dm.find_node_named(elem.id());
+                      var component_tmp = window.SiderDemo.getDM().find_node_named(elem.id());
                       component_tmp.id_host = window.FormEdit.state.element.name;
                   });
               }
@@ -116,14 +116,20 @@ class DrawerEdit extends React.Component {
 
 
       //Finally, we update the model
+      var tmp=window.SiderDemo.getDM();
       for (var prop in this.state.elem_model) {
         if(window.FormEdit.state.element[prop] !== undefined){
           if(prop === 'name'){
-            var tmp=window.SiderDemo.getDM();
             tmp.change_name(window.FormEdit.state.element[prop], this.state.elem_model);
           }else{
             if(typeof this.state.elem_model[prop] === 'object' && typeof window.FormEdit.state.element[prop] !== 'object'){
-              this.state.elem_model[prop]=JSON.parse(window.FormEdit.state.element[prop]);
+              var new_prop=JSON.parse(window.FormEdit.state.element[prop]);
+              if(prop.indexOf('_port') >= 0){
+                for(var g in new_prop){
+                  tmp.change_port_name_in_links('/'+window.FormEdit.state.element['name']+'/'+this.state.elem_model[prop][g].name, '/'+window.FormEdit.state.element['name']+'/'+new_prop[g].name);
+                }
+              }
+              this.state.elem_model[prop]=new_prop;
             }else{
               this.state.elem_model[prop]=window.FormEdit.state.element[prop];
             }
