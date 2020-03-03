@@ -11,7 +11,6 @@ var http = require('http');
 var logger = require('./logger.js');
 var bus = require('./event-bus.js');
 var fs = require('fs');
-//var ip = require('ip');
 
 var deployment_agent = function (host, host_target, deployment_target) {
     var that = {};
@@ -24,16 +23,11 @@ var deployment_agent = function (host, host_target, deployment_target) {
 
     that.compute_ip_address = function () {
         return new Promise(function (resolve, reject) {
-            const internalIp = require('internal-ip');
-            var result= internalIp.v4.sync();
-
-            if(result.indexOf("172.") >= 0){
-                const dns = require('dns');
-                dns.lookup('host.docker.internal', function(err, r) {
-                    console.log(r);
-                    resolve(r);
-                });
+            if(process.env.IP_GENESIS !== undefined){
+                resolve(process.env.IP_GENESIS);
             }else{
+                const internalIp = require('internal-ip');
+                var result= internalIp.v4.sync();
                 resolve(result);
             }
         });
