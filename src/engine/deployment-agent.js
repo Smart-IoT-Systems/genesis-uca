@@ -35,7 +35,6 @@ var deployment_agent = function (host, host_target, deployment_target) {
         }*/
         const internalIp = require('internal-ip');
         var result= internalIp.v4.sync();
-        console.log(internalIp.v4.sync());
 
         return result;
     };

@@ -244,7 +244,7 @@ var engine = (function () {
                 var d_agent = agent(src_agent_host, tgt_agent_host, tgt_agent);
                 await d_agent.prepare();
                 var cont_id = await d_agent.install(port_for_mapping);
-                bus.emit('node-started', "", tgt_agent_host.name);
+                bus.emit('host-config', "", tgt_agent_host.name);
                 that.map_host_agent[cont_id] = src_agent_host;
                 tgt_agent.container_id = cont_id;
                 port_for_mapping++;
@@ -538,6 +538,36 @@ var engine = (function () {
             var tmp = 0;
             var tmp_link = 0;
 
+            bus.on('node-error2', function (container_id, comp_name) {
+                tmp++;
+                if (tmp >= comp.length) {
+                    tmp = 0;
+
+                    manage_links(diff.list_of_added_hosted_components);
+                }
+            });
+
+            //We collect all the started events, once they are all received we generate the flow skeleton based on the links
+            bus.on('node-started2', function (container_id, comp_name) {
+                tmp++;
+                //Add container id to the component
+                var compon = that.dep_model.find_node_named(comp_name);
+                compon.container_id = container_id;
+
+                if (tmp >= comp.length) {
+                    tmp = 0;
+                    manage_links(diff.list_of_added_hosted_components);
+                }
+            });
+
+            bus.on('link-done', function () {
+                tmp_link++;
+                if (tmp_link >= diff.list_of_added_links.length) {
+                    tmp_link = 0;
+                    resolve(tmp_link);
+                }
+            });
+
             //Deployment agent
             var links_deployer_tab = diff.list_of_added_links_deployer;
             if (links_deployer_tab.length > 0) {
@@ -579,36 +609,6 @@ var engine = (function () {
                 }
             }
 
-
-            bus.on('node-error2', function (container_id, comp_name) {
-                tmp++;
-                if (tmp >= comp.length) {
-                    tmp = 0;
-
-                    manage_links(diff.list_of_added_hosted_components);
-                }
-            });
-
-            //We collect all the started events, once they are all received we generate the flow skeleton based on the links
-            bus.on('node-started2', function (container_id, comp_name) {
-                tmp++;
-                //Add container id to the component
-                var compon = that.dep_model.find_node_named(comp_name);
-                compon.container_id = container_id;
-
-                if (tmp >= comp.length) {
-                    tmp = 0;
-                    manage_links(diff.list_of_added_hosted_components);
-                }
-            });
-
-            bus.on('link-done', function () {
-                tmp_link++;
-                if (tmp_link >= diff.list_of_added_links.length) {
-                    tmp_link = 0;
-                    resolve(tmp_link);
-                }
-            });
 
             that.compo_already_deployed = [];
 

@@ -14,7 +14,6 @@ var notifier = (function (client, dm) {
             if (topic === '/deployment_agent') {
                 var content = JSON.parse(message);
                 if(content.data.status === "success"){
-                    console.log("agent sucess event");
                     bus.emit('d_agent_success', content.target_name);
                 }else{
                     bus.emit('d_agent_error', content.target_name);

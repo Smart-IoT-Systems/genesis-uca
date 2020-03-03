@@ -397,6 +397,30 @@ var deployment_model = function (spec) {
         }
     };
 
+
+    that.change_port_name_in_links = function(old_id, new_id){
+
+        var l = that.find_link_of_provided_port(old_id);
+        if (l !== null) {
+            l.src = new_id;
+        }
+
+        var l = that.find_link_of_required_port(old_id);
+        if (l !== null) {
+            l.target = new_id;
+        }
+
+        var ch = that.find_containment_of_required_port(old_id);
+        if (ch !== null) {
+            ch.target = new_id;
+        }
+
+        var c = that.find_containment_of_provided_port(old_id);
+        if (c !== null) {
+            c.src = new_id;
+        }
+    };
+
     that.change_name = function (name, comp) {
         if (that.is_valid_name(name)) {
             var oldname = comp.name;
