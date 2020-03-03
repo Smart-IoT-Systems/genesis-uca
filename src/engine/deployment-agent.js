@@ -23,22 +23,28 @@ var deployment_agent = function (host, host_target, deployment_target) {
 
 
     that.compute_ip_address = function () {
-        const internalIp = require('internal-ip');
-        var result= internalIp.v4.sync();
+        return new Promise(function (resolve, reject) {
+            const internalIp = require('internal-ip');
+            var result= internalIp.v4.sync();
 
-        if(result.indexOf("172.") >= 0){
-            const dns = require('dns');
-            dns.lookup('host.docker.internal', function(err, r) {
-                result = r;
-            });
-        }
-        return result;
+            if(result.indexOf("172.") >= 0){
+                const dns = require('dns');
+                dns.lookup('host.docker.internal', function(err, r) {
+                    console.log(r);
+                    resolve(r);
+                });
+            }else{
+                resolve(result);
+            }
+        });
     };
 
-    that.ip = that.compute_ip_address();
 
     //We need to identify what should be in the deployment agent
     that.prepare = async function () {
+
+        that.ip = await that.compute_ip_address();
+
         that.flow = '[{"id":"dac41de7.a03033","type":"tab","label":"Deployment Flow"}';
         if (host_target._type === "/infra/device") {
             var id_deployer_node_in_agent = uuidv4();
