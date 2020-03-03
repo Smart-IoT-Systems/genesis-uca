@@ -12,6 +12,7 @@ var logger = require('./logger.js');
 var bus = require('./event-bus.js');
 var fs = require('fs');
 //var ip = require('ip');
+var nslookup = require('nslookup');
 
 var deployment_agent = function (host, host_target, deployment_target) {
     var that = {};
