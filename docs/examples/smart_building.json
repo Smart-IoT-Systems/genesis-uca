@@ -184,7 +184,7 @@
             "ssh_resource": {
                 "name": "52a12bfa-0-44d9-9358-f55b9dcc36e5",
                 "uploadCommand": ["/Users/ferrynico/Downloads/20200106_GeneSIS4SP_Code/apigw/config/gateway.config.yml", "/home/pi/gateway.config.yml"],
-                "startCommand": "cd ./APIG && nohup npm start",
+                "startCommand": "cd ./APIG && nohup npm start&",
                 "downloadCommand": "wget -L https://www.dropbox.com/s/6kgfusgxolp2bnm/APIGW.zip?dl=0 -O APIGW.zip",
                 "installCommand": "unzip APIGW.zip -d ./APIG && cd ./APIG && npm install",
                 "configureCommand": "mv /home/pi/gateway.config.yml /home/pi/APIG/config",
