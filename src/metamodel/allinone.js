@@ -837,6 +837,7 @@ var ssh_resource = function (spec) {
     that.installCommand = spec.installCommand || "";
     that.configureCommand = spec.configureCommand || "";
     that.stopCommand = spec.stopCommand || "";
+    that.uploadCommand = spec.uploadCommand || [];
     that.credentials = spec.credentials || credentials({});
 
     return that;

@@ -383,32 +383,41 @@ var engine = (function () {
 
             //just for fun 0o' let's try the most crappy code ever!
             //Actually this is not fun :'(
-            sc.execute_command(comp.ssh_resource.downloadCommand).then(function () {
-                logger.log("info", "Download command executed");
-                sc.execute_command(comp.ssh_resource.installCommand).then(function () {
-                    logger.log("info", "Install command executed");
-                    sc.execute_command(comp.ssh_resource.configureCommand).then(function () {
-                        logger.log("info", "Configure command executed");
-                        sc.execute_command(comp.ssh_resource.startCommand).then(function () {
-                            logger.log("info", "Start command executed");
-                            bus.emit('ssh-started', host.name);
-                            bus.emit('ssh-started', comp.name);
-                            bus.emit('node-started', "", comp.name);
-                            resolve(true);
+            let src_upload = comp.ssh_resource.uploadCommand[0];
+            let tgt_upload = comp.ssh_resource.uploadCommand[1];
+
+            sc.upload_file(src_upload, tgt_upload).then(function () {
+                logger.log("info", "Upload command executed");
+                sc.execute_command(comp.ssh_resource.downloadCommand).then(function () {
+                    logger.log("info", "Download command executed");
+                    sc.execute_command(comp.ssh_resource.installCommand).then(function () {
+                        logger.log("info", "Install command executed");
+                        sc.execute_command(comp.ssh_resource.configureCommand).then(function () {
+                            logger.log("info", "Configure command executed");
+                            sc.execute_command(comp.ssh_resource.startCommand).then(function () {
+                                logger.log("info", "Start command executed");
+                                bus.emit('ssh-started', host.name);
+                                bus.emit('ssh-started', comp.name);
+                                bus.emit('node-started', "", comp.name);
+                                resolve(true);
+                            }).catch(function (err) {
+                                logger.log("error", "Start command error " + err);
+                                reject(err);
+                            });
                         }).catch(function (err) {
-                            logger.log("error", "Start command error " + err);
+                            logger.log("error", "Configure command error " + err);
                             reject(err);
                         });
                     }).catch(function (err) {
-                        logger.log("error", "Configure command error " + err);
+                        logger.log("error", "Install command error " + err);
                         reject(err);
                     });
                 }).catch(function (err) {
-                    logger.log("error", "Install command error " + err);
+                    logger.log("error", "Download command error " + err);
                     reject(err);
                 });
             }).catch(function (err) {
-                logger.log("error", "Download command error " + err);
+                logger.log("error", "Upload command error " + err);
                 reject(err);
             });
         });
