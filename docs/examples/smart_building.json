@@ -148,7 +148,7 @@
                 "isMandatory": false
             }],
             "nr_description": "",
-            "file": "/Users/ferrynico/Downloads/smool_enact-master/ENACTConsumer/thingml/smool.thingml",
+            "file": "/Users/ferrynico/Downloads/smool_enact-master/ENACTConsumer/thingml/JavaSmoolKP_Producer.thingml",
             "src": "",
             "libraries": [],
             "target_language": "java"

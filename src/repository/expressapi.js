@@ -3,7 +3,7 @@ var mm = require('../metamodel/allinone.js');
 /******************************/
 /* Specific ExpressAPIGateway */
 /******************************/
-var mqtt = function (spec) {
+var expressapi = function (spec) {
     var that = mm.software_node(spec);
     that._type += "/expressapi";
     that.name = spec.name || "ExpressAPI";
@@ -26,4 +26,4 @@ var mqtt = function (spec) {
     return that;
 };
 
-module.exports = mqtt;
+module.exports = expressapi;

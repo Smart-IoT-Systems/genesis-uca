@@ -447,13 +447,18 @@ var engine = (function () {
     };
 
     that.deploy_one_component = async function (compo) { //We wrap in a closure so that each comp deployment comes with its own context        
+        //Functions provided by the component itself
+        if(compo._configure !== undefined){
+            await compo._configure();
+        }
+
         //if not to be deployed by a deployment agent
         if (!that.dep_model.need_deployment_agent(compo)) {
             var host = that.dep_model.find_host_one_level_down(compo);
             //And if there is an host to deploy on
             if (host !== undefined) {
                 //Manage ThingML nodes
-                if (compo._type === "/internal/thingml") {
+                if (compo._type.startsWith("/internal/thingml")) {
                     await that.deploy_thingml(compo, host);
                 } else {
                     //Manage component on docker
