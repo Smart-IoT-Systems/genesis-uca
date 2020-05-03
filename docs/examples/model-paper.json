@@ -1,0 +1,1851 @@
+{
+    "dm": {
+        "name": "demo",
+        "components": [{
+            "_type": "/infra/docker_host",
+            "name": "RPI1-(APP_Server)",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "6d18a051-4a35-41c1-86e1-2a3d7848d102",
+            "provided_execution_port": [{
+                "name": "47e76e88-d53e-4138-b5ef-f9fa96aa9ebf",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "ip": "192.168.1.40",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "",
+                "sshkey": "",
+                "agent": ""
+            },
+            "monitoring_agent": "none"
+        }, {
+            "_type": "/infra/docker_host",
+            "name": "RPI3-(BuildingControl)",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "70edb556-36eb-48e2-84c5-d8b10f805cf5",
+            "provided_execution_port": [{
+                "name": "7afe7080-c4c3-4505-9b58-d5bf2cc1b229",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "ip": "192.168.1.40",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "",
+                "sshkey": "",
+                "agent": ""
+            },
+            "monitoring_agent": "none"
+        }, {
+            "_type": "/infra/docker_host",
+            "name": "RPI2-(IoT_Smart_Space)",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "ab0dd79b-117e-4d53-bbb1-f36789c39db7",
+            "provided_execution_port": [{
+                "name": "9e1d9d63-59e6-4d03-9d08-39ecc6275f33",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "ip": "127.0.0.1",
+            "port": ["2376"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "",
+                "sshkey": "",
+                "agent": ""
+            },
+            "monitoring_agent": "none"
+        }, {
+            "_type": "/infra/device",
+            "name": "arduino1",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "a75c99d2-95bb-4d94-8f5b-2edb1ed93c19",
+            "provided_execution_port": [{
+                "name": "a0bfe966-a952-47e4-8580-c36dc288e57d",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "ip": "127.0.0.1",
+            "port": ["80", "22"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "",
+                "sshkey": "",
+                "agent": ""
+            },
+            "monitoring_agent": "none",
+            "physical_port": "/dev/ttyACM0",
+            "device_type": "arduino",
+            "isLocal": true
+        }, {
+            "_type": "/infra/device",
+            "name": "arduino2",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "2d264ea0-8868-40d2-9121-842331fa9eac",
+            "provided_execution_port": [{
+                "name": "0bb276b1-f2b3-4709-b017-d9c883b71713",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "ip": "127.0.0.1",
+            "port": ["80", "22"],
+            "credentials": {
+                "username": "ubuntu",
+                "password": "",
+                "sshkey": "",
+                "agent": ""
+            },
+            "monitoring_agent": "none",
+            "physical_port": "/dev/ttyACM0",
+            "device_type": "arduino",
+            "isLocal": true
+        }, {
+            "_type": "/internal/arduino",
+            "name": "TempAndHumidityReader",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "9bf94b12-cfd5-4398-8487-85f711605287",
+            "provided_execution_port": [{
+                "name": "c13172a0-814d-4bfe-9f72-bf7e959c402a",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "c3d620ac-d859-491b-a6a9-05c42656534b",
+                "image": "ubuntu",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "2d03f32f-1e94-4ed4-8342-7209307a16e3",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "513fdbbb-465b-47b9-b484-ae18297ab84d",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "559202c3-05a4-4a68-a91b-b469f2a5e405",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "4f6d3b59-7720-4faa-9fcb-597b260ceb50",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "16826ee6-980f-4349-894b-66cbfbbe5284",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_description": "",
+            "sketch": "/Users/ferrynico/Downloads/20200106_GeneSIS4SP_Code/TempAndHumiditySensorReader.ino",
+            "libraries": []
+        }, {
+            "_type": "/internal/thingml",
+            "name": "WindowBlindControl",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "5c229197-74e0-4b8a-b647-1c503684a95b",
+            "provided_execution_port": [{
+                "name": "1a79a797-d888-4606-b2c1-34e48f4ee879",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "b5b18b91-79da-4db2-aa17-53bc329e5695",
+                "image": "ubuntu",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "a3f09040-b7c9-4eaa-8ed4-84b2424ffe9e",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "9a247347-682f-4810-9a5c-9f85d4feb022",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "d1118612-1f7b-4f8a-b1e9-0a2f92be88e9",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "0659458d-09ee-49cb-a6ae-87720416120c",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "66645db8-0e13-4e9e-9592-a3b989ea5809",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_description": "",
+            "file": "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/docker-node-red-thingml/doc/examples/LightSensorApp/LightSensorApp.thingml",
+            "src": "",
+            "libraries": [],
+            "target_language": "arduino"
+        }, {
+            "_type": "/internal",
+            "name": "ProxyController",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "90598a22-9b50-4df2-827b-4c490ed2a304",
+            "provided_execution_port": [{
+                "name": "8cd0a7ad-d348-42de-9282-fa9ce1c46786",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "21f6e3da-dffb-41ed-b296-ee71bf4ce14e",
+                "image": "",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "539b3d33-89f9-406d-8b5e-e4727270c1d4",
+                "startCommand": "nohup node ProxyController.js &",
+                "downloadCommand": "wget -L https://www.dropbox.com/s/ya8lamefkyyq5q7/ProxyController.js?dl=0 -O ProxyController.js",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "pi",
+                    "password": "raspberry",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "da4e0a0a-db96-4aa9-87d2-a1b3f41b7510",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "8699e3a0-0f72-42f3-a1d4-ba7df369b735",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "53a937cd-ce99-492c-a1d8-dc2ea16d8154",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "16dbdc81-bef2-478f-ba61-f6cd05095725",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }]
+        }, {
+            "_type": "/internal/mqtt",
+            "name": "MQTTBroker",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "53f8ac74-3192-4ed8-b355-cc7456b57985",
+            "provided_execution_port": [{
+                "name": "6c4b4d0d-d9d7-4e70-98e8-0e9f3b302285"
+            }],
+            "docker_resource": {
+                "name": "f3e3feba-056e26a7-9225-5b9edf5f1820",
+                "image": "eclipse-mosquitto:1.6.8",
+                "command": "",
+                "port_bindings": {
+                    "1883": "1883",
+                    "9001": "9001"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "35fbs67fc-3536-49ce-a601-e0f06f66dec4",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "fe800ss97b-18ba-4a22-addd-345455696a19",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "80c0d0cb-421f-411d-8c75-bd01e56d29fd",
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "bd3provf-f691-4a46-b9cd-14bab0f9a8e0",
+                "port_number": "1883",
+                "isMandatory": false
+            }],
+            "required_communication_port": [{
+                "name": "bd3f34af-f691-4a46-b9cd-14bab0f9a8e0",
+                "port_number": "1883",
+                "isMandatory": false
+            }]
+        }, {
+            "_type": "/internal/node_red",
+            "name": "SmartEnergyApp",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "0a07db6d-6cd8-4864-bcc5-7e9ab119d624",
+            "provided_execution_port": [{
+                "name": "005baf28-c4d3-425a-9443-2146334d94a2",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "725a7152-36be-47f1-8a89-272541b5846a",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "7645bc4d-91d3-447b-a91f-6a4fba9bf9c5",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "2137f890-6041-4fd8-a259-51e523f189ef",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "7cec4014-7581-4a05-83c5-4c243faecb00",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "fe1fdedf-2736-4c1e-97ee-a4584852bf4d",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "AC1",
+                    "description": "External services can only access the app when authenticated"
+                },
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "c7fb7525-bc5b-4c1d-b396-620ddd148fda",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "access_control",
+                    "control_id": "AC1",
+                    "description": "External services can only access the app when authenticated"
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "",
+            "packages": []
+        }, {
+            "_type": "/internal/node_red",
+            "name": "SmartComfortApp",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "2a7d213a-3e1d-4bfe-bd93-68124fe54048",
+            "provided_execution_port": [{
+                "name": "eeaeee44-087d-4648-b0a2-8fe409638674",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "8e35d0c2-0fe8-4cc5-936b-b1a396c81ac1",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1881": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "f7aeb57c-f877-4554-b32d-ddd5bc7502fc",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "16c44325-5f1e-4a2d-8d36-4c128e4effb1",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "a53b4b69-1d21-4c27-b272-d44517c195f0",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "6d2310bb-e256-4823-a889-704c853fd7f6",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "AC1",
+                    "description": "External services can only access the app when authenticated"
+                },
+                "port_number": "1881"
+            }],
+            "required_communication_port": [{
+                "name": "1bf9fa13-b725-4222-bbc8-d8dae7892db4",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "AC1",
+                    "description": "External services can only access the app when authenticated"
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "",
+            "packages": []
+        }, {
+            "_type": "/internal/thingml",
+            "name": "SecurityEnforcer",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "cf11ef3e-e2b9-46cc-8190-781d27e2aeb1",
+            "provided_execution_port": [{
+                "name": "be3bbdfb-b487-42c2-91a0-75fbe9a2bad6",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "5f9096c2-f69f-45d5-a1bb-4d21e6949ae4",
+                "image": "",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "55dc2acf-4e7a-475d-94a0-15ea2300ca63",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "3fd5c4bf-e88b-491b-8708-905871534b92",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "220121d1-4763-4a61-967a-5dd1266f6bba",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "ff471ca6-6a88-4548-9ed4-8ac8dc7633c2",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "971dcb8c-9afc-4487-b42e-4262165a6a2e",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_description": "",
+            "file": "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/docker-node-red-thingml/doc/examples/LightSensorApp/LightSensorApp.thingml",
+            "src": "",
+            "libraries": [],
+            "target_language": "java"
+        }, {
+            "_type": "/internal",
+            "name": "ExpressGateway",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "047fc444-c211-4fca-a3b1-a624e22e102d",
+            "provided_execution_port": [{
+                "name": "4ea962b7-9f2f-4e51-a0e5-9a6dbd54ce20",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "AC1",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "043e7092-0562-4409-b93e-5ae65b8236a8",
+                "image": "",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "52a12bfa-075f-44d9-9358-f55b9dcc36e5",
+                "startCommand": "nohup npm start",
+                "downloadCommand": "wget -L https://www.dropbox.com/s/6kgfusgxolp2bnm/APIGW.zip?dl=0 -O APIGW.zip",
+                "installCommand": "unzip APIGW.zip && npm install",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "pi",
+                    "password": "raspberry",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "7719988c-4d94-45f9-a900-99ba6f8bc26b",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "afac7e3d-1520-4408-9a96-e4612ce462ea",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "3549dd3c-91d1-4f70-ab16-e710ada22b64",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "8ded08d1-ea90-42e4-afc2-5f3c40a3251d",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }]
+        }, {
+            "_type": "/external",
+            "name": "SMOOL",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "3c08124b-fae2-4a1e-b02c-47a7f0cb858d",
+            "provided_execution_port": [{
+                "name": "ca3c2947-3ce7-4e95-bee6-9647ccef405e",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "ip": "smool.tecnalia.com",
+            "provided_communication_port": [{
+                "name": "034cada9-6a0a-4e16-93bc-730b84830823",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "55e5fe4e-a032-4215-a9bf-b0fd51fbed57",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }]
+        }, {
+            "_type": "/external",
+            "name": "PLC",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "6c334025-f49b-4bce-9056-5124303801c2",
+            "provided_execution_port": [{
+                "name": "44d410fd-31dc-41d6-bed7-bb19ee6124a5",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "ip": "127.0.0.1",
+            "provided_communication_port": [{
+                "name": "3dbb5af3-7255-4270-9102-f0555f790e8d",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "84920269-ced6-4ec2-9eeb-126c578fd4d0",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }]
+        }, {
+            "_type": "/internal/node_red",
+            "name": "SensorService",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "50f02799-06e5-4ac4-8c2b-0be6bdc56e4b",
+            "provided_execution_port": [{
+                "name": "a8740ad9-48ca-4e47-9124-b459cd81b506",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "31fc80d9-dcb2-4f22-a675-7a43a52c907f",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "271d2617-d817-4a7c-9401-df2803383ec4",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "f6da2ecb-e5b6-445a-a587-ab3baddb8143",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "584f2212-a741-4aeb-87f1-db7c0643bb87",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "4c610b19-e39c-4cde-bf2b-ad450ba151aa",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "fa94e029-faa1-4938-b587-7e135acedb28",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "",
+            "packages": []
+        }, {
+            "_type": "/internal/node_red",
+            "name": "ActuatorService",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "08a4e101-808c-4a1e-bb78-0d2d70c9d9fd",
+            "provided_execution_port": [{
+                "name": "768e8dc9-7b58-444a-bf4f-fa43b39957c2",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "89e6f4bc-99f2-46e2-b5e9-9d9b690c163e",
+                "image": "nicolasferry/multiarch-node-red-thingml:latest",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "8005b383-708e-45b9-b6f4-f8c3a0bb9c59",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "d08ff2c4-8806-43f6-a26c-1fcf09210c95",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "89767c9b-5f1e-4ed6-8fdb-844edd37d213",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "edddaea6-8130-43d9-9e98-86aebe011860",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "1880"
+            }],
+            "required_communication_port": [{
+                "name": "99ec06ba-ac42-41d6-b1f8-5fa8cdf24df0",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_flow": [],
+            "path_flow": "",
+            "packages": []
+        }],
+        "links": [{
+            "name": "EGComm",
+            "properties": [],
+            "src": "/ExpressGateway/3549dd3c-91d1-4f70-ab16-e710ada22b64",
+            "target": "/SmartEnergyApp/c7fb7525-bc5b-4c1d-b396-620ddd148fda",
+            "isControl": true,
+            "isDeployer": false
+        }, {
+            "name": "EGComm2",
+            "properties": [],
+            "src": "/ExpressGateway/3549dd3c-91d1-4f70-ab16-e710ada22b64",
+            "target": "/SmartComfortApp/1bf9fa13-b725-4222-bbc8-d8dae7892db4",
+            "isControl": true,
+            "isDeployer": false
+        }, {
+            "name": "PCComm",
+            "properties": [],
+            "src": "/ProxyController/53a937cd-ce99-492c-a1d8-dc2ea16d8154",
+            "target": "/TempAndHumidityReader/16826ee6-980f-4349-894b-66cbfbbe5284",
+            "isControl": true,
+            "isDeployer": false
+        }, {
+            "name": "MQtoPC",
+            "properties": [],
+            "src": "/MQTTBroker/bd3provf-f691-4a46-b9cd-14bab0f9a8e0",
+            "target": "/ProxyController/16dbdc81-bef2-478f-ba61-f6cd05095725",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "PCtoMQ",
+            "properties": [],
+            "src": "/ProxyController/53a937cd-ce99-492c-a1d8-dc2ea16d8154",
+            "target": "/MQTTBroker/bd3f34af-f691-4a46-b9cd-14bab0f9a8e0",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "SMOOLtoKP",
+            "properties": [],
+            "src": "/SMOOL/034cada9-6a0a-4e16-93bc-730b84830823",
+            "target": "/SecurityEnforcer/971dcb8c-9afc-4487-b42e-4262165a6a2e",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "KPtoSMOOL",
+            "properties": [],
+            "src": "/SecurityEnforcer/ff471ca6-6a88-4548-9ed4-8ac8dc7633c2",
+            "target": "/SMOOL/55e5fe4e-a032-4215-a9bf-b0fd51fbed57",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "SMOOLtoApp1",
+            "properties": [],
+            "src": "/SMOOL/034cada9-6a0a-4e16-93bc-730b84830823",
+            "target": "/SmartEnergyApp/c7fb7525-bc5b-4c1d-b396-620ddd148fda",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "APP1toSMOOL",
+            "properties": [],
+            "src": "/SmartEnergyApp/fe1fdedf-2736-4c1e-97ee-a4584852bf4d",
+            "target": "/SMOOL/55e5fe4e-a032-4215-a9bf-b0fd51fbed57",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "SMOOLtoApp2",
+            "properties": [],
+            "src": "/SMOOL/034cada9-6a0a-4e16-93bc-730b84830823",
+            "target": "/SmartComfortApp/1bf9fa13-b725-4222-bbc8-d8dae7892db4",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "APP2toSMOOL",
+            "properties": [],
+            "src": "/SmartComfortApp/6d2310bb-e256-4823-a889-704c853fd7f6",
+            "target": "/SMOOL/55e5fe4e-a032-4215-a9bf-b0fd51fbed57",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "toPLC",
+            "properties": [],
+            "src": "/ProxyController/53a937cd-ce99-492c-a1d8-dc2ea16d8154",
+            "target": "/PLC/84920269-ced6-4ec2-9eeb-126c578fd4d0",
+            "isControl": true,
+            "isDeployer": false
+        }, {
+            "name": "asToIno",
+            "properties": [],
+            "src": "/SensorService/4c610b19-e39c-4cde-bf2b-ad450ba151aa",
+            "target": "/TempAndHumidityReader/16826ee6-980f-4349-894b-66cbfbbe5284",
+            "isControl": false,
+            "isDeployer": true
+        }, {
+            "name": "asToBlind",
+            "properties": [],
+            "src": "/ActuatorService/edddaea6-8130-43d9-9e98-86aebe011860",
+            "target": "/WindowBlindControl/66645db8-0e13-4e9e-9592-a3b989ea5809",
+            "isControl": false,
+            "isDeployer": true
+        }, {
+            "name": "ssToSE",
+            "properties": [],
+            "src": "/SensorService/4c610b19-e39c-4cde-bf2b-ad450ba151aa",
+            "target": "/SecurityEnforcer/971dcb8c-9afc-4487-b42e-4262165a6a2e",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "seToas",
+            "properties": [],
+            "src": "/SecurityEnforcer/ff471ca6-6a88-4548-9ed4-8ac8dc7633c2",
+            "target": "/ActuatorService/99ec06ba-ac42-41d6-b1f8-5fa8cdf24df0",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "seToas",
+            "properties": [],
+            "src": "/SecurityEnforcer/ff471ca6-6a88-4548-9ed4-8ac8dc7633c2",
+            "target": "/ActuatorService/99ec06ba-ac42-41d6-b1f8-5fa8cdf24df0",
+            "isControl": false,
+            "isDeployer": false
+        }],
+        "containments": [{
+            "name": "progArdui2",
+            "properties": [],
+            "src": "/arduino2/0bb276b1-f2b3-4709-b017-d9c883b71713",
+            "target": "/TempAndHumidityReader/559202c3-05a4-4a68-a91b-b469f2a5e405"
+        }, {
+            "name": "progArdui1",
+            "properties": [],
+            "src": "/arduino1/a0bfe966-a952-47e4-8580-c36dc288e57d",
+            "target": "/WindowBlindControl/d1118612-1f7b-4f8a-b1e9-0a2f92be88e9"
+        }, {
+            "name": "PControlRPI1",
+            "properties": [],
+            "src": "/RPI3-(BuildingControl)/7afe7080-c4c3-4505-9b58-d5bf2cc1b229",
+            "target": "/ProxyController/8699e3a0-0f72-42f3-a1d4-ba7df369b735"
+        }, {
+            "name": "mbRPI1",
+            "properties": [],
+            "src": "/RPI3-(BuildingControl)/7afe7080-c4c3-4505-9b58-d5bf2cc1b229",
+            "target": "/MQTTBroker/80c0d0cb-421f-411d-8c75-bd01e56d29fd"
+        }, {
+            "name": "app1",
+            "properties": [],
+            "src": "/RPI1-(APP_Server)/47e76e88-d53e-4138-b5ef-f9fa96aa9ebf",
+            "target": "/SmartEnergyApp/7cec4014-7581-4a05-83c5-4c243faecb00"
+        }, {
+            "name": "app2",
+            "properties": [],
+            "src": "/RPI1-(APP_Server)/47e76e88-d53e-4138-b5ef-f9fa96aa9ebf",
+            "target": "/SmartComfortApp/a53b4b69-1d21-4c27-b272-d44517c195f0"
+        }, {
+            "name": "KP",
+            "properties": [],
+            "src": "/RPI2-(IoT_Smart_Space)/9e1d9d63-59e6-4d03-9d08-39ecc6275f33",
+            "target": "/SecurityEnforcer/220121d1-4763-4a61-967a-5dd1266f6bba"
+        }, {
+            "name": "EG",
+            "properties": [],
+            "src": "/RPI1-(APP_Server)/47e76e88-d53e-4138-b5ef-f9fa96aa9ebf",
+            "target": "/ExpressGateway/afac7e3d-1520-4408-9a96-e4612ce462ea"
+        }, {
+            "name": "ssOnRPI2",
+            "properties": [],
+            "src": "/RPI2-(IoT_Smart_Space)/9e1d9d63-59e6-4d03-9d08-39ecc6275f33",
+            "target": "/SensorService/584f2212-a741-4aeb-87f1-db7c0643bb87"
+        }, {
+            "name": "asOnRPI2",
+            "properties": [],
+            "src": "/RPI2-(IoT_Smart_Space)/9e1d9d63-59e6-4d03-9d08-39ecc6275f33",
+            "target": "/ActuatorService/89767c9b-5f1e-4ed6-8fdb-844edd37d213"
+        }],
+        "type_registry": []
+    },
+    "graph": {
+        "elements": {
+            "nodes": [{
+                "data": {
+                    "id": "RPI1-(APP_Server)"
+                },
+                "position": {
+                    "x": 169.85964890458476,
+                    "y": 232.17142892289525
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "RPI3-(BuildingControl)"
+                },
+                "position": {
+                    "x": 369.9724968836655,
+                    "y": 303.147631794103
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "RPI2-(IoT_Smart_Space)"
+                },
+                "position": {
+                    "x": 374.31964950464214,
+                    "y": 182.9272885306312
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "container"
+            }, {
+                "data": {
+                    "id": "arduino1"
+                },
+                "position": {
+                    "x": 480.65607517630644,
+                    "y": 164.61267038724426
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "device"
+            }, {
+                "data": {
+                    "id": "arduino2"
+                },
+                "position": {
+                    "x": 485.13575283770575,
+                    "y": 225.45320760404667
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "device"
+            }, {
+                "data": {
+                    "id": "TempAndHumidityReader",
+                    "parent": "arduino2"
+                },
+                "position": {
+                    "x": 485.13575283770575,
+                    "y": 225.45320760404667
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "WindowBlindControl",
+                    "parent": "arduino1"
+                },
+                "position": {
+                    "x": 480.65607517630644,
+                    "y": 164.61267038724426
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "thingml"
+            }, {
+                "data": {
+                    "id": "ProxyController",
+                    "parent": "RPI3-(BuildingControl)"
+                },
+                "position": {
+                    "x": 403.6436778371428,
+                    "y": 323.30291616766334
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "MQTTBroker",
+                    "parent": "RPI3-(BuildingControl)"
+                },
+                "position": {
+                    "x": 336.3013159301882,
+                    "y": 282.99234742054267
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "SmartEnergyApp",
+                    "parent": "RPI1-(APP_Server)"
+                },
+                "position": {
+                    "x": 200.38377111036112,
+                    "y": 180.1256118405997
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }, {
+                "data": {
+                    "id": "SmartComfortApp",
+                    "parent": "RPI1-(APP_Server)"
+                },
+                "position": {
+                    "x": 199.4611359612404,
+                    "y": 284.21724600519076
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }, {
+                "data": {
+                    "id": "ExpressGateway",
+                    "parent": "RPI1-(APP_Server)"
+                },
+                "position": {
+                    "x": 138.75816184792913,
+                    "y": 231.57638564130366
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "SMOOL"
+                },
+                "position": {
+                    "x": 277.43047739483603,
+                    "y": 183.900356830656
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "SecurityEnforcer",
+                    "parent": "RPI2-(IoT_Smart_Space)"
+                },
+                "position": {
+                    "x": 333.8334377011334,
+                    "y": 165.32884505050598
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "thingml"
+            }, {
+                "data": {
+                    "id": "PLC"
+                },
+                "position": {
+                    "x": 480.27701328880426,
+                    "y": 332.31351388760817
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "SensorService",
+                    "parent": "RPI2-(IoT_Smart_Space)"
+                },
+                "position": {
+                    "x": 407.2437475587267,
+                    "y": 214.22725955780732
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }, {
+                "data": {
+                    "id": "ActuatorService",
+                    "parent": "RPI2-(IoT_Smart_Space)"
+                },
+                "position": {
+                    "x": 415.30586130815084,
+                    "y": 151.62731750345506
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "node_red"
+            }],
+            "edges": [{
+                "data": {
+                    "id": "KPtoSMOOL",
+                    "source": "SecurityEnforcer",
+                    "target": "SMOOL"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "EGComm",
+                    "source": "ExpressGateway",
+                    "target": "SmartEnergyApp"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "control"
+            }, {
+                "data": {
+                    "id": "EGComm2",
+                    "source": "ExpressGateway",
+                    "target": "SmartComfortApp"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "control"
+            }, {
+                "data": {
+                    "id": "SMOOLtoApp2",
+                    "source": "SMOOL",
+                    "target": "SmartComfortApp"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "APP2toSMOOL",
+                    "source": "SmartComfortApp",
+                    "target": "SMOOL"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "MQtoPC",
+                    "source": "MQTTBroker",
+                    "target": "ProxyController"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "PCtoMQ",
+                    "source": "ProxyController",
+                    "target": "MQTTBroker"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "MQTTtoKP",
+                    "source": "MQTTBroker",
+                    "target": "SecurityEnforcer"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "KPtoMQTT",
+                    "source": "SecurityEnforcer",
+                    "target": "MQTTBroker"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "SMOOLtoKP",
+                    "source": "SMOOL",
+                    "target": "SecurityEnforcer"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "SMOOLtoApp1",
+                    "source": "SMOOL",
+                    "target": "SmartEnergyApp"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "APP1toSMOOL",
+                    "source": "SmartEnergyApp",
+                    "target": "SMOOL"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "toPLC",
+                    "source": "ProxyController",
+                    "target": "PLC"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "control"
+            }, {
+                "data": {
+                    "id": "asToIno",
+                    "source": "SensorService",
+                    "target": "TempAndHumidityReader"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "control"
+            }, {
+                "data": {
+                    "id": "asToBlind",
+                    "source": "ActuatorService",
+                    "target": "WindowBlindControl"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "control"
+            }, {
+                "data": {
+                    "id": "ssToSE",
+                    "source": "SensorService",
+                    "target": "SecurityEnforcer"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "seToas",
+                    "source": "SecurityEnforcer",
+                    "target": "ActuatorService"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }]
+        },
+        "style": [{
+            "selector": "node",
+            "style": {
+                "label": "data(id)",
+                "background-fit": "contain",
+                "background-image-opacity": "0.3",
+                "text-valign": "center",
+                "text-halign": "center",
+                "font-size": "4px",
+                "font-weight": "bold"
+            }
+        }, {
+            "selector": "node.container",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/docker-official.svg"
+            }
+        }, {
+            "selector": "edge",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "triangle"
+            }
+        }, {
+            "selector": "edge.control",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "circle"
+            }
+        }, {
+            "selector": ":selected",
+            "style": {
+                "background-color": "black",
+                "line-color": "black",
+                "target-arrow-color": "black",
+                "source-arrow-color": "black"
+            }
+        }, {
+            "selector": "node.questionable",
+            "style": {
+                "border-color": "#A33",
+                "background-color": "#B55",
+                "shape": "roundrectangle"
+            }
+        }, {
+            "selector": "node.node_red",
+            "style": {
+                "background-image": "./img/node-red-256.png"
+            }
+        }, {
+            "selector": "node.ansible",
+            "style": {
+                "background-image": "./img/ansible.png"
+            }
+        }, {
+            "selector": "node.orion",
+            "style": {
+                "background-color": "#ADD8E6",
+                "background-image": "./img/fiware_logo.png"
+            }
+        }, {
+            "selector": "node.thingml",
+            "style": {
+                "background-color": "#ADD8E6",
+                "background-image": "./img/thingml_short.png"
+            }
+        }, {
+            "selector": "node.device",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/device.png"
+            }
+        }, {
+            "selector": "node.vm",
+            "style": {
+                "padding": "10px",
+                "text-valign": "top",
+                "text-halign": "center",
+                "background-color": "#DDD",
+                "font-size": "8px",
+                "font-weight": "normal",
+                "shape": "rectangle",
+                "background-image": "./img/server_cloud.png"
+            }
+        }],
+        "zoomingEnabled": true,
+        "userZoomingEnabled": true,
+        "zoom": 2.108628149933292,
+        "minZoom": 0.4,
+        "maxZoom": 6,
+        "panningEnabled": true,
+        "userPanningEnabled": true,
+        "pan": {
+            "x": -171.08994934868213,
+            "y": -230.10132712275603
+        },
+        "boxSelectionEnabled": false,
+        "renderer": {
+            "name": "canvas"
+        }
+    }
+}
