@@ -303,6 +303,25 @@ var engine = (function () {
             if (comp.target_language === 'java') {
 
                 logger.log("info", process.cwd() + "/generated_" + comp.name);
+
+                //if smool_kp then we need to move the config repo
+                if(comp._type.indexOf("smoolkp") > 0){
+                    let config_dir=process.cwd() + "/generated_" + comp.name+"/src/main/resources";
+                    try{
+                        if (!fs.existsSync(config_dir)){
+                            fs.mkdirSync(config_dir);
+                            fs.mkdirSync(config_dir+"/config");
+                            logger.log("info", '++++++++++Config folder successfully created!');
+                        }
+                        fs.renameSync(process.cwd() + "/generated_" + comp.name + "/src/main/java/config/mapping.properties", config_dir+"/config/mapping.properties", function (err) {
+                            if (err) throw err;
+                            logger.log("info", '+++++++++++++++++Config files successfully moved!');
+                        })
+                    }catch(err) {
+                        console.error(err);
+                    }
+                }
+
                 var mb = mvn_builder.create({
                     cwd: process.cwd() + "/generated_" + comp.name
                 });
@@ -311,8 +330,8 @@ var engine = (function () {
                 }).then(function () {
                     //TODO: make it more generic
                     //as a start we connect and deploy via SSH
-                    var sc = sshc(host.ip, host.port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
-                    sc.upload_file("./generated_" + comp.name + '/target/' + comp.name + '-1.0.0-jar-with-dependencies.jar', '/home/' + comp.ssh_resource.credentials.username + '/' + comp.name + '-1.0.0-jar-with-dependencies.jar').then(function (file_path_tgt) {
+                    var sc = sshc(host.ip, "22", comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
+                    sc.upload_file("./generated_" + comp.name + '/target/' + comp.config_name + '-1.0.0-jar-with-dependencies.jar', '/home/' + comp.ssh_resource.credentials.username + '/' + comp.config_name + '-1.0.0-jar-with-dependencies.jar').then(function (file_path_tgt) {
                         sc.execute_command(comp.ssh_resource.startCommand);
                         bus.emit('ssh-started', host.name);
                         bus.emit('ssh-started', comp.name);

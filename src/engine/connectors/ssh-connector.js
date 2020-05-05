@@ -42,6 +42,7 @@ var ssh_connector = function (ip, port, username, passwd, key, agent) {
     };
 
     that.upload_file = function (file_path_src, file_path_tgt) {
+        console.log(">>>>>>>>"+ file_path_src + "  ::: "+JSON.stringify(that.options));
         return new Promise(function (resolve, reject) {
             if(file_path_src !== undefined && file_path_tgt !== undefined){
                 var conn = new Client();
@@ -52,6 +53,7 @@ var ssh_connector = function (ip, port, username, passwd, key, agent) {
                             reject(err);
                             throw err;
                         };
+                        console.log(">>>>>>>>"+ file_path_src + "  ::: "+that.options);
                         var readStream = fs.createReadStream(file_path_src);
                         var writeStream = sftp.createWriteStream(file_path_tgt);
     
