@@ -311,11 +311,9 @@ var engine = (function () {
                         if (!fs.existsSync(config_dir)){
                             fs.mkdirSync(config_dir);
                             fs.mkdirSync(config_dir+"/config");
-                            logger.log("info", '++++++++++Config folder successfully created!');
                         }
                         fs.renameSync(process.cwd() + "/generated_" + comp.name + "/src/main/java/config/mapping.properties", config_dir+"/config/mapping.properties", function (err) {
                             if (err) throw err;
-                            logger.log("info", '+++++++++++++++++Config files successfully moved!');
                         })
                     }catch(err) {
                         console.error(err);
