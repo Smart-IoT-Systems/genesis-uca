@@ -1,0 +1,3653 @@
+[
+    {
+        "id": "690b881c.9de788",
+        "type": "tab",
+        "label": "Broker",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "246169f.c6abe96",
+        "type": "tab",
+        "label": "Sensors MQTT",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "945969ce.9abb18",
+        "type": "tab",
+        "label": "Actuators MQTT",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "1bab800f.1f0f4",
+        "type": "tab",
+        "label": "Power",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "38e70bac.f51564",
+        "type": "subflow",
+        "name": "Open all A ",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 300,
+                "y": 160,
+                "wires": [
+                    {
+                        "id": "ac3c66bc.b031b8"
+                    },
+                    {
+                        "id": "74fb0df3.5c4214"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": []
+    },
+    {
+        "id": "492dab97.6f0344",
+        "type": "subflow",
+        "name": "Close all A",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 100,
+                "y": 180,
+                "wires": [
+                    {
+                        "id": "bf4d7c83.743aa"
+                    },
+                    {
+                        "id": "ec3c4641.6a0808"
+                    },
+                    {
+                        "id": "9d70e171.a6122"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": []
+    },
+    {
+        "id": "2f913c89.183994",
+        "type": "subflow",
+        "name": "50% Open Shade A",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 80,
+                "y": 140,
+                "wires": [
+                    {
+                        "id": "575414c3.13b77c"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": []
+    },
+    {
+        "id": "1f3ef240.55aa7e",
+        "type": "subflow",
+        "name": "50% Close Shade A",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 40,
+                "y": 220,
+                "wires": [
+                    {
+                        "id": "1560edec.cf69e2"
+                    }
+                ]
+            }
+        ],
+        "out": [],
+        "env": []
+    },
+    {
+        "id": "95ade9df.d52718",
+        "type": "subflow",
+        "name": "Open all A",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 60,
+                "wires": [
+                    {
+                        "id": "a8052c.fe667ad8"
+                    },
+                    {
+                        "id": "fc5ed68.2cd8028"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 620,
+                "y": 60,
+                "wires": [
+                    {
+                        "id": "a8052c.fe667ad8",
+                        "port": 0
+                    },
+                    {
+                        "id": "3d6d1864.c48218",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 620,
+                "y": 120,
+                "wires": [
+                    {
+                        "id": "a8052c.fe667ad8",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": []
+    },
+    {
+        "id": "66050a7a.a36d44",
+        "type": "subflow",
+        "name": "Close all A (2)",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 60,
+                "y": 40,
+                "wires": [
+                    {
+                        "id": "41d9b8f8.f79cf8"
+                    },
+                    {
+                        "id": "8b4127e1.b023b8"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 640,
+                "y": 40,
+                "wires": [
+                    {
+                        "id": "41d9b8f8.f79cf8",
+                        "port": 0
+                    },
+                    {
+                        "id": "3a05108e.2917a",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 640,
+                "y": 100,
+                "wires": [
+                    {
+                        "id": "41d9b8f8.f79cf8",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": []
+    },
+    {
+        "id": "6952671a.ed8d08",
+        "type": "subflow",
+        "name": "50% Open Shade A (2)",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 40,
+                "y": 220,
+                "wires": [
+                    {
+                        "id": "a0850e7d.ef916"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 840,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "49bc204.587b3e",
+                        "port": 0
+                    },
+                    {
+                        "id": "f57328da.794778",
+                        "port": 0
+                    },
+                    {
+                        "id": "1904a5d2.bf6ada",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 840,
+                "y": 220,
+                "wires": [
+                    {
+                        "id": "49bc204.587b3e",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": []
+    },
+    {
+        "id": "19603698.044e09",
+        "type": "subflow",
+        "name": "50% Close Shade A (2)",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 40,
+                "y": 280,
+                "wires": [
+                    {
+                        "id": "65294c2a.e35e94"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 800,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "705d9ac1.365d94",
+                        "port": 0
+                    },
+                    {
+                        "id": "ca844298.09853",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 800,
+                "y": 200,
+                "wires": [
+                    {
+                        "id": "a5bf563f.27e708",
+                        "port": 0
+                    },
+                    {
+                        "id": "705d9ac1.365d94",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": []
+    },
+    {
+        "id": "b64f0472.b3c0a8",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "76f12e8b.04b5",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-light",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#0094CE",
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#fafafa",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#1bbfff",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0094ce",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey"
+            }
+        },
+        "site": {
+            "name": "Node-RED Dashboard",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
+    },
+    {
+        "id": "c84d000.e06d1",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "",
+        "broker": "127.0.0.1",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "df90fd4b.eab1",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Room A",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "7fef53e.e0b89ac",
+        "type": "ui_group",
+        "z": "",
+        "name": "Temp",
+        "tab": "df90fd4b.eab1",
+        "order": 4,
+        "disp": true,
+        "width": "6",
+        "collapse": true
+    },
+    {
+        "id": "184922b3.4386fd",
+        "type": "ui_group",
+        "z": "",
+        "name": "General",
+        "tab": "df90fd4b.eab1",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": true
+    },
+    {
+        "id": "4d90c1c3.22061",
+        "type": "ui_group",
+        "z": "",
+        "name": "Power",
+        "tab": "df90fd4b.eab1",
+        "order": 5,
+        "disp": true,
+        "width": "6",
+        "collapse": true
+    },
+    {
+        "id": "c003145e.7cd908",
+        "type": "ui_group",
+        "z": "",
+        "name": "Light Sensors",
+        "tab": "df90fd4b.eab1",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": true
+    },
+    {
+        "id": "416ee484.55b63c",
+        "type": "ui_spacer",
+        "name": "spacer",
+        "group": "469a1f2b.d5ee2",
+        "order": 3,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "469a1f2b.d5ee2",
+        "type": "ui_group",
+        "z": "",
+        "name": "Light",
+        "tab": "df90fd4b.eab1",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": true
+    },
+    {
+        "id": "81b77a66.fa6588",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-light",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#0094CE",
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#fafafa",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#1bbfff",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0094ce",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey"
+            }
+        },
+        "site": {
+            "name": "HomeIO Management",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "true",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
+    },
+    {
+        "id": "982ead91.2d941",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "",
+        "broker": "127.0.0.1",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "36502660.5daa5a",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Home I/O - Room A",
+        "icon": "home",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "11ec7b80.136285",
+        "type": "ui_group",
+        "z": "",
+        "name": "Automated Temperature",
+        "tab": "7414bcc6.127484",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": true
+    },
+    {
+        "id": "d0c325ef.2e12f8",
+        "type": "ui_group",
+        "z": "",
+        "name": "General",
+        "tab": "36502660.5daa5a",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": true
+    },
+    {
+        "id": "833d5a84.a18c08",
+        "type": "ui_group",
+        "z": "",
+        "name": "Power Management",
+        "tab": "36502660.5daa5a",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": true
+    },
+    {
+        "id": "d7c31f08.a2d05",
+        "type": "ui_group",
+        "z": "",
+        "name": "Light Sensors",
+        "tab": "7476383.21d6ec8",
+        "order": 3,
+        "disp": true,
+        "width": "10",
+        "collapse": true
+    },
+    {
+        "id": "1190908b.cc6dff",
+        "type": "ui_group",
+        "z": "",
+        "name": "Manual Lighting",
+        "tab": "7476383.21d6ec8",
+        "order": 2,
+        "disp": true,
+        "width": "12",
+        "collapse": true
+    },
+    {
+        "id": "7476383.21d6ec8",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Lighting Management",
+        "icon": "lightbulb_outline",
+        "order": 2,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "7414bcc6.127484",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Temperature Managment",
+        "icon": "whatshot",
+        "order": 3,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "68be8638.7202f8",
+        "type": "ui_group",
+        "z": "",
+        "name": "Automated Ligthing",
+        "tab": "7476383.21d6ec8",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": true
+    },
+    {
+        "id": "bdbbef42.65fc",
+        "type": "ui_group",
+        "z": "",
+        "name": "Manual Settings",
+        "tab": "7414bcc6.127484",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "5204b30e.b15cec",
+        "type": "ui_group",
+        "z": "",
+        "name": "Sensor",
+        "tab": "7414bcc6.127484",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "6eedb703.364b48",
+        "type": "ui_spacer",
+        "name": "spacer",
+        "group": "5204b30e.b15cec",
+        "order": 2,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "26c9d835.1abac8",
+        "type": "ui_spacer",
+        "name": "spacer",
+        "group": "5204b30e.b15cec",
+        "order": 3,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "9a9225a5.d24ae8",
+        "type": "ui_spacer",
+        "name": "spacer",
+        "group": "5204b30e.b15cec",
+        "order": 4,
+        "width": 1,
+        "height": 1
+    },
+    {
+        "id": "74fb0df3.5c4214",
+        "type": "delay",
+        "z": "38e70bac.f51564",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 430,
+        "y": 200,
+        "wires": [
+            [
+                "1bcb466c.c4327a"
+            ]
+        ]
+    },
+    {
+        "id": "700ae18a.7539a",
+        "type": "mqtt out",
+        "z": "38e70bac.f51564",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_1_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 990,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "8218c90e.503558",
+        "type": "mqtt out",
+        "z": "38e70bac.f51564",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_1_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1060,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "ac3c66bc.b031b8",
+        "type": "change",
+        "z": "38e70bac.f51564",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 460,
+        "y": 120,
+        "wires": [
+            [
+                "8218c90e.503558",
+                "f17ddd14.e704e",
+                "83ca5f13.b1a1f",
+                "21298e2.4834972",
+                "fb2d313f.8cd93",
+                "803c90fe.c4367",
+                "e4d590a6.61018",
+                "700ae18a.7539a"
+            ]
+        ]
+    },
+    {
+        "id": "1bcb466c.c4327a",
+        "type": "change",
+        "z": "38e70bac.f51564",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 420,
+        "y": 260,
+        "wires": [
+            [
+                "700ae18a.7539a",
+                "e4d590a6.61018",
+                "803c90fe.c4367",
+                "fb2d313f.8cd93"
+            ]
+        ]
+    },
+    {
+        "id": "e4d590a6.61018",
+        "type": "mqtt out",
+        "z": "38e70bac.f51564",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_2_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 990,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "803c90fe.c4367",
+        "type": "mqtt out",
+        "z": "38e70bac.f51564",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_3_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 990,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "fb2d313f.8cd93",
+        "type": "mqtt out",
+        "z": "38e70bac.f51564",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_4_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 990,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "f17ddd14.e704e",
+        "type": "mqtt out",
+        "z": "38e70bac.f51564",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_2_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1080,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "83ca5f13.b1a1f",
+        "type": "mqtt out",
+        "z": "38e70bac.f51564",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_3_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1080,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "21298e2.4834972",
+        "type": "mqtt out",
+        "z": "38e70bac.f51564",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_4_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1080,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "8f73061d.c78ef8",
+        "type": "mqtt out",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_1_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 930,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "71a7c1fa.1a8b6",
+        "type": "mqtt out",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_1_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1000,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "bf4d7c83.743aa",
+        "type": "change",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 120,
+        "wires": [
+            [
+                "71a7c1fa.1a8b6",
+                "ac0da16d.5491c",
+                "c7ca38e8.1045d8",
+                "b5d3ac2.29cff5",
+                "182bcbc0.cae684",
+                "2a62826.04eca7e",
+                "c57c095f.0bc598",
+                "8f73061d.c78ef8"
+            ]
+        ]
+    },
+    {
+        "id": "d559e037.911a4",
+        "type": "change",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 220,
+        "wires": [
+            [
+                "8f73061d.c78ef8",
+                "c57c095f.0bc598",
+                "2a62826.04eca7e",
+                "182bcbc0.cae684"
+            ]
+        ]
+    },
+    {
+        "id": "c57c095f.0bc598",
+        "type": "mqtt out",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_2_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 930,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "2a62826.04eca7e",
+        "type": "mqtt out",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_3_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 930,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "182bcbc0.cae684",
+        "type": "mqtt out",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_4_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 930,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "ac0da16d.5491c",
+        "type": "mqtt out",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_2_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1020,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "c7ca38e8.1045d8",
+        "type": "mqtt out",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_3_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1020,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "b5d3ac2.29cff5",
+        "type": "mqtt out",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_4_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1020,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "ec3c4641.6a0808",
+        "type": "delay",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 170,
+        "y": 240,
+        "wires": [
+            [
+                "d559e037.911a4"
+            ]
+        ]
+    },
+    {
+        "id": "2075b18f.09074e",
+        "type": "change",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 500,
+        "y": 560,
+        "wires": [
+            [
+                "71a7c1fa.1a8b6",
+                "ac0da16d.5491c",
+                "c7ca38e8.1045d8",
+                "b5d3ac2.29cff5"
+            ]
+        ]
+    },
+    {
+        "id": "5a48394.d4805c8",
+        "type": "mqtt in",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "topic": "/home/A/Input/float/Roller_Shades_1_(Openness)",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "c84d000.e06d1",
+        "x": 220,
+        "y": 480,
+        "wires": [
+            [
+                "ffa78175.39167"
+            ]
+        ]
+    },
+    {
+        "id": "9d70e171.a6122",
+        "type": "change",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "closing",
+                "pt": "flow",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 180,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d8ecca80.98db88",
+        "type": "switch",
+        "z": "492dab97.6f0344",
+        "name": "If closing",
+        "property": "closing",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 120,
+        "y": 560,
+        "wires": [
+            [
+                "9dd737b0.f8a638"
+            ]
+        ]
+    },
+    {
+        "id": "9dd737b0.f8a638",
+        "type": "change",
+        "z": "492dab97.6f0344",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "closing",
+                "pt": "flow",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 300,
+        "y": 560,
+        "wires": [
+            [
+                "2075b18f.09074e"
+            ]
+        ]
+    },
+    {
+        "id": "ffa78175.39167",
+        "type": "switch",
+        "z": "492dab97.6f0344",
+        "name": "If closed",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 520,
+        "y": 480,
+        "wires": [
+            [
+                "d8ecca80.98db88"
+            ]
+        ]
+    },
+    {
+        "id": "1720fe07.48eff2",
+        "type": "delay",
+        "z": "2f913c89.183994",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 370,
+        "y": 240,
+        "wires": [
+            [
+                "ac2aa5b8.fec1a8"
+            ]
+        ]
+    },
+    {
+        "id": "9c88e869.e8e638",
+        "type": "mqtt out",
+        "z": "2f913c89.183994",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_1_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 930,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "a8499648.1b4218",
+        "type": "mqtt out",
+        "z": "2f913c89.183994",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_1_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1000,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "d8367dda.15fcf",
+        "type": "change",
+        "z": "2f913c89.183994",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 160,
+        "wires": [
+            [
+                "a8499648.1b4218",
+                "6100cc07.f61be4",
+                "47d3a018.360d5",
+                "8cad2f55.6ff34",
+                "2d6dba44.ce8ca6",
+                "4fc6c942.255fa8",
+                "4356886f.517dc8",
+                "9c88e869.e8e638"
+            ]
+        ]
+    },
+    {
+        "id": "ac2aa5b8.fec1a8",
+        "type": "change",
+        "z": "2f913c89.183994",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 360,
+        "y": 300,
+        "wires": [
+            [
+                "9c88e869.e8e638",
+                "4356886f.517dc8",
+                "4fc6c942.255fa8",
+                "2d6dba44.ce8ca6"
+            ]
+        ]
+    },
+    {
+        "id": "4356886f.517dc8",
+        "type": "mqtt out",
+        "z": "2f913c89.183994",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_2_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 930,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "4fc6c942.255fa8",
+        "type": "mqtt out",
+        "z": "2f913c89.183994",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_3_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 930,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "2d6dba44.ce8ca6",
+        "type": "mqtt out",
+        "z": "2f913c89.183994",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_4_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 930,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "6100cc07.f61be4",
+        "type": "mqtt out",
+        "z": "2f913c89.183994",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_2_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1020,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "47d3a018.360d5",
+        "type": "mqtt out",
+        "z": "2f913c89.183994",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_3_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1020,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "8cad2f55.6ff34",
+        "type": "mqtt out",
+        "z": "2f913c89.183994",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_4_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1020,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "8ae01883.b30498",
+        "type": "change",
+        "z": "2f913c89.183994",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 360,
+        "wires": [
+            [
+                "9c88e869.e8e638",
+                "4356886f.517dc8",
+                "4fc6c942.255fa8",
+                "2d6dba44.ce8ca6"
+            ]
+        ]
+    },
+    {
+        "id": "6b286894.cfdb88",
+        "type": "switch",
+        "z": "2f913c89.183994",
+        "name": "",
+        "property": "shade",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "gte",
+                "v": "5",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 210,
+        "y": 380,
+        "wires": [
+            [
+                "8ae01883.b30498"
+            ],
+            [
+                "c0da9a00.8e0cb8"
+            ]
+        ]
+    },
+    {
+        "id": "c0da9a00.8e0cb8",
+        "type": "delay",
+        "z": "2f913c89.183994",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 210,
+        "y": 540,
+        "wires": [
+            [
+                "6b286894.cfdb88"
+            ]
+        ]
+    },
+    {
+        "id": "2cc5910f.41a70e",
+        "type": "change",
+        "z": "2f913c89.183994",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "shade",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 500,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d0414878.ec2998",
+        "type": "function",
+        "z": "2f913c89.183994",
+        "name": "toFloat",
+        "func": "msg.payload = msg.payload.replace(',', '.')\nmsg.payload = parseFloat(msg.payload)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 330,
+        "y": 680,
+        "wires": [
+            [
+                "2cc5910f.41a70e"
+            ]
+        ]
+    },
+    {
+        "id": "79cbcd0b.250844",
+        "type": "mqtt in",
+        "z": "2f913c89.183994",
+        "name": "",
+        "topic": "/home/A/Input/float/Roller_Shades_1_(Openness)",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "c84d000.e06d1",
+        "x": 200,
+        "y": 620,
+        "wires": [
+            [
+                "d0414878.ec2998"
+            ]
+        ]
+    },
+    {
+        "id": "a37239d8.93aa68",
+        "type": "delay",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 490,
+        "y": 180,
+        "wires": [
+            [
+                "622ed58b.3202ac"
+            ]
+        ]
+    },
+    {
+        "id": "afc7a274.7f51",
+        "type": "mqtt out",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_1_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1050,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "62001cde.0901e4",
+        "type": "mqtt out",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_1_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1120,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "c5648211.815",
+        "type": "change",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 520,
+        "y": 100,
+        "wires": [
+            [
+                "62001cde.0901e4",
+                "389acee3.cfd842",
+                "c467defc.94c2f",
+                "55822d53.a903d4",
+                "82d1d85b.fdd218",
+                "cbcf0b9a.b242d8",
+                "64ded587.c4c46c",
+                "afc7a274.7f51"
+            ]
+        ]
+    },
+    {
+        "id": "622ed58b.3202ac",
+        "type": "change",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 480,
+        "y": 240,
+        "wires": [
+            [
+                "afc7a274.7f51",
+                "64ded587.c4c46c",
+                "cbcf0b9a.b242d8",
+                "82d1d85b.fdd218"
+            ]
+        ]
+    },
+    {
+        "id": "64ded587.c4c46c",
+        "type": "mqtt out",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_2_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1050,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "cbcf0b9a.b242d8",
+        "type": "mqtt out",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_3_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1050,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "82d1d85b.fdd218",
+        "type": "mqtt out",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_4_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1050,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "389acee3.cfd842",
+        "type": "mqtt out",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_2_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1140,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "c467defc.94c2f",
+        "type": "mqtt out",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_3_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1140,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "55822d53.a903d4",
+        "type": "mqtt out",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_4_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "c84d000.e06d1",
+        "x": 1140,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "f5bebac8.c04448",
+        "type": "change",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 520,
+        "y": 300,
+        "wires": [
+            [
+                "62001cde.0901e4",
+                "389acee3.cfd842",
+                "c467defc.94c2f",
+                "55822d53.a903d4"
+            ]
+        ]
+    },
+    {
+        "id": "b95dfc33.09191",
+        "type": "switch",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "property": "shade",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "lte",
+                "v": "5",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 330,
+        "y": 320,
+        "wires": [
+            [
+                "f5bebac8.c04448"
+            ],
+            [
+                "6a78cc4d.cce104"
+            ]
+        ]
+    },
+    {
+        "id": "6a78cc4d.cce104",
+        "type": "delay",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 330,
+        "y": 480,
+        "wires": [
+            [
+                "b95dfc33.09191"
+            ]
+        ]
+    },
+    {
+        "id": "a5786aed.14edc8",
+        "type": "change",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "shade",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 620,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a0a518b.0b16ae8",
+        "type": "function",
+        "z": "1f3ef240.55aa7e",
+        "name": "toFloat",
+        "func": "msg.payload = msg.payload.replace(',', '.')\nmsg.payload = parseFloat(msg.payload)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 450,
+        "y": 620,
+        "wires": [
+            [
+                "a5786aed.14edc8"
+            ]
+        ]
+    },
+    {
+        "id": "b6c4f233.b678e",
+        "type": "mqtt in",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "topic": "/home/A/Input/float/Roller_Shades_1_(Openness)",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "c84d000.e06d1",
+        "x": 320,
+        "y": 560,
+        "wires": [
+            [
+                "a0a518b.0b16ae8"
+            ]
+        ]
+    },
+    {
+        "id": "1560edec.cf69e2",
+        "type": "switch",
+        "z": "1f3ef240.55aa7e",
+        "name": "",
+        "property": "shade",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "btwn",
+                "v": "4",
+                "vt": "num",
+                "v2": "6",
+                "v2t": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 170,
+        "y": 220,
+        "wires": [
+            [],
+            [
+                "a37239d8.93aa68",
+                "c5648211.815",
+                "b95dfc33.09191"
+            ]
+        ]
+    },
+    {
+        "id": "575414c3.13b77c",
+        "type": "switch",
+        "z": "2f913c89.183994",
+        "name": "",
+        "property": "shade",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "btwn",
+                "v": "4",
+                "vt": "num",
+                "v2": "6",
+                "v2t": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 170,
+        "y": 240,
+        "wires": [
+            [],
+            [
+                "d8367dda.15fcf",
+                "1720fe07.48eff2",
+                "6b286894.cfdb88"
+            ]
+        ]
+    },
+    {
+        "id": "fc5ed68.2cd8028",
+        "type": "delay",
+        "z": "95ade9df.d52718",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 250,
+        "y": 100,
+        "wires": [
+            [
+                "3d6d1864.c48218"
+            ]
+        ]
+    },
+    {
+        "id": "a8052c.fe667ad8",
+        "type": "change",
+        "z": "95ade9df.d52718",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 260,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3d6d1864.c48218",
+        "type": "change",
+        "z": "95ade9df.d52718",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "41d9b8f8.f79cf8",
+        "type": "change",
+        "z": "66050a7a.a36d44",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3a05108e.2917a",
+        "type": "change",
+        "z": "66050a7a.a36d44",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8b4127e1.b023b8",
+        "type": "delay",
+        "z": "66050a7a.a36d44",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 210,
+        "y": 100,
+        "wires": [
+            [
+                "3a05108e.2917a"
+            ]
+        ]
+    },
+    {
+        "id": "7e951047.619d",
+        "type": "ui_gauge",
+        "z": "1bab800f.1f0f4",
+        "name": "Power consomption gauge",
+        "group": "833d5a84.a18c08",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "donut",
+        "title": "Power consumption",
+        "label": "W",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "2500",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "x": 420,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "db5c2fda.9bc6c",
+        "type": "ui_slider",
+        "z": "1bab800f.1f0f4",
+        "name": "Max power value slider",
+        "label": "Max power value",
+        "tooltip": "",
+        "group": "833d5a84.a18c08",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "outs": "end",
+        "topic": "",
+        "min": 0,
+        "max": "2500",
+        "step": "50",
+        "x": 300,
+        "y": 100,
+        "wires": [
+            [
+                "1b28b37e.a893ad"
+            ]
+        ]
+    },
+    {
+        "id": "1b28b37e.a893ad",
+        "type": "change",
+        "z": "1bab800f.1f0f4",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "maxP",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 560,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7fad0380.3452bc",
+        "type": "change",
+        "z": "1bab800f.1f0f4",
+        "name": "set current power",
+        "rules": [
+            {
+                "t": "set",
+                "p": "currentP",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 530,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7c551432.24d7bc",
+        "type": "function",
+        "z": "1bab800f.1f0f4",
+        "name": "toFloat",
+        "func": "msg.payload = msg.payload.replace(',', '.')\nmsg.payload = parseFloat(msg.payload)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 360,
+        "y": 300,
+        "wires": [
+            [
+                "7fad0380.3452bc"
+            ]
+        ]
+    },
+    {
+        "id": "72d876e2.cde818",
+        "type": "link in",
+        "z": "1bab800f.1f0f4",
+        "name": "Power",
+        "links": [
+            "99eab098.2fc71"
+        ],
+        "x": 210,
+        "y": 280,
+        "wires": [
+            [
+                "7e951047.619d",
+                "7c551432.24d7bc"
+            ]
+        ],
+        "l": true
+    },
+    {
+        "id": "5f186cd0.659474",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/E/Output/bool/Siren",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 1140,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "11e2bd9.35cc142",
+        "type": "link in",
+        "z": "945969ce.9abb18",
+        "name": "Siren",
+        "links": [
+            "b21d44a0.730388"
+        ],
+        "x": 910,
+        "y": 80,
+        "wires": [
+            [
+                "5f186cd0.659474"
+            ]
+        ],
+        "l": true
+    },
+    {
+        "id": "d3bd0b1b.a30908",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/A/Output/float/Lights_(Analog)",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 470,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "67c2d76b.5b7ab8",
+        "type": "link in",
+        "z": "945969ce.9abb18",
+        "name": "Lights",
+        "links": [
+            "447204bc.200b3c",
+            "73db0c24.927f84",
+            "533a6e9f.11aa",
+            "6dfaf121.10bd9",
+            "cda91cd3.11ebd",
+            "dcace700.2cba88",
+            "592cbf6a.e7649"
+        ],
+        "x": 210,
+        "y": 60,
+        "wires": [
+            [
+                "d3bd0b1b.a30908"
+            ]
+        ],
+        "l": true
+    },
+    {
+        "id": "f843f498.80a198",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/A/Output/float/Heater_(Analog)",
+        "qos": "2",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 470,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "52373d9c.1a6be4",
+        "type": "link in",
+        "z": "945969ce.9abb18",
+        "name": "Heater",
+        "links": [
+            "991999f1.6b0058",
+            "d4b2f58b.2b1e68",
+            "1e66c4c3.2e8b6b",
+            "b11d9874.ea5ac8"
+        ],
+        "x": 210,
+        "y": 100,
+        "wires": [
+            [
+                "f843f498.80a198"
+            ]
+        ],
+        "l": true
+    },
+    {
+        "id": "739dd3b4.5f015c",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/O/Output/float/Lights_Porch_1_(Analog)",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 1200,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "4a79a2d8.5c3ebc",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/O/Output/float/Lights_Pool_(Analog)",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 1190,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "99232b41.f56a58",
+        "type": "link in",
+        "z": "945969ce.9abb18",
+        "name": "Light Porch",
+        "links": [
+            "15179264.4ca79e"
+        ],
+        "x": 890,
+        "y": 180,
+        "wires": [
+            [
+                "739dd3b4.5f015c"
+            ]
+        ],
+        "l": true
+    },
+    {
+        "id": "b23d18c3.1db498",
+        "type": "link in",
+        "z": "945969ce.9abb18",
+        "name": "Light Pool",
+        "links": [
+            "48f2b5c9.a3930c"
+        ],
+        "x": 900,
+        "y": 220,
+        "wires": [
+            [
+                "4a79a2d8.5c3ebc"
+            ]
+        ],
+        "l": true
+    },
+    {
+        "id": "a1bfb315.a16ab",
+        "type": "mqtt in",
+        "z": "246169f.c6abe96",
+        "name": "",
+        "topic": "/home/general/Memory/DateTime/Date_and_Time",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "982ead91.2d941",
+        "x": 250,
+        "y": 60,
+        "wires": [
+            [
+                "5fdf75c1.b57f4c"
+            ]
+        ]
+    },
+    {
+        "id": "1eea361b.b23e0a",
+        "type": "link out",
+        "z": "246169f.c6abe96",
+        "name": "Motion Detector",
+        "links": [
+            "6068f541.ec4a74",
+            "7ffd2617.037918"
+        ],
+        "x": 580,
+        "y": 260,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "5fdf75c1.b57f4c",
+        "type": "link out",
+        "z": "246169f.c6abe96",
+        "name": "Date / Time",
+        "links": [
+            "c62d3261.4646a",
+            "eb32e238.f8ce3"
+        ],
+        "x": 570,
+        "y": 60,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "c5fce309.cd03d",
+        "type": "link out",
+        "z": "246169f.c6abe96",
+        "name": "Cloudiness",
+        "links": [
+            "68e8c7a3.083548",
+            "90d523e5.8da28",
+            "c3b1179f.669ec8",
+            "681dc92.8182e38"
+        ],
+        "x": 570,
+        "y": 140,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "c24212b1.0150a",
+        "type": "link out",
+        "z": "246169f.c6abe96",
+        "name": "Smoke",
+        "links": [
+            "8ae76248.ba9a8"
+        ],
+        "x": 550,
+        "y": 300,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "532aeca9.d51304",
+        "type": "mqtt in",
+        "z": "246169f.c6abe96",
+        "name": "",
+        "topic": "/home/A/Input/bool/Motion_Detector",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "982ead91.2d941",
+        "x": 300,
+        "y": 260,
+        "wires": [
+            [
+                "1eea361b.b23e0a"
+            ]
+        ]
+    },
+    {
+        "id": "fbad12d5.8f9bc",
+        "type": "mqtt in",
+        "z": "246169f.c6abe96",
+        "name": "",
+        "topic": "/home/general/Memory/float/Cloudiness",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "982ead91.2d941",
+        "x": 290,
+        "y": 140,
+        "wires": [
+            [
+                "c5fce309.cd03d"
+            ]
+        ]
+    },
+    {
+        "id": "ff07b2af.0129a",
+        "type": "mqtt in",
+        "z": "246169f.c6abe96",
+        "name": "",
+        "topic": "/home/A/Input/bool/Smoke_Detector",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "982ead91.2d941",
+        "x": 300,
+        "y": 300,
+        "wires": [
+            [
+                "c24212b1.0150a"
+            ]
+        ]
+    },
+    {
+        "id": "4412ec82.2c8a34",
+        "type": "mqtt in",
+        "z": "246169f.c6abe96",
+        "name": "",
+        "topic": "/home/A/Input/float/Brightness_Sensor_(Analog)",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "982ead91.2d941",
+        "x": 260,
+        "y": 420,
+        "wires": [
+            [
+                "8ba6568.56133a8"
+            ]
+        ]
+    },
+    {
+        "id": "8ba6568.56133a8",
+        "type": "link out",
+        "z": "246169f.c6abe96",
+        "name": "Brightness",
+        "links": [
+            "4cd634b8.1961ac",
+            "3c6e76d7.30fd4a",
+            "2d182c4.7749fd4",
+            "457aec73.db6274"
+        ],
+        "x": 570,
+        "y": 420,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "e9f4e74a.ce9d08",
+        "type": "mqtt in",
+        "z": "246169f.c6abe96",
+        "name": "",
+        "topic": "/home/A/Input/float/Roller_Shades_1_(Openness)",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "982ead91.2d941",
+        "x": 250,
+        "y": 460,
+        "wires": [
+            [
+                "c5f1ac49.b8cc4"
+            ]
+        ]
+    },
+    {
+        "id": "c5f1ac49.b8cc4",
+        "type": "link out",
+        "z": "246169f.c6abe96",
+        "name": "Shades",
+        "links": [
+            "ea88ea86.dd9938",
+            "51eba0d7.af974",
+            "a350093b.3bc328",
+            "3c68e7f4.4d25e8",
+            "181be55.569bd1b",
+            "e321b944.db0ce8"
+        ],
+        "x": 560,
+        "y": 460,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "73bab2c0.0c245c",
+        "type": "link out",
+        "z": "246169f.c6abe96",
+        "name": "Door 1",
+        "links": [
+            "3503723d.0112ae",
+            "2536639.229cb9c"
+        ],
+        "x": 550,
+        "y": 340,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "28c4d13d.f6650e",
+        "type": "link out",
+        "z": "246169f.c6abe96",
+        "name": "Temp",
+        "links": [
+            "a4e4458c.f705d8",
+            "b529507a.d5486"
+        ],
+        "x": 550,
+        "y": 500,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "35362b1.57059d4",
+        "type": "mqtt in",
+        "z": "246169f.c6abe96",
+        "name": "",
+        "topic": "/home/A/Input/bool/Door_Detector_1",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "982ead91.2d941",
+        "x": 290,
+        "y": 340,
+        "wires": [
+            [
+                "73bab2c0.0c245c"
+            ]
+        ]
+    },
+    {
+        "id": "d15d63f5.c42e",
+        "type": "mqtt in",
+        "z": "246169f.c6abe96",
+        "name": "",
+        "topic": "/home/general/Memory/float/Instant_Power_[w]",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "982ead91.2d941",
+        "x": 260,
+        "y": 100,
+        "wires": [
+            [
+                "99eab098.2fc71"
+            ]
+        ]
+    },
+    {
+        "id": "99eab098.2fc71",
+        "type": "link out",
+        "z": "246169f.c6abe96",
+        "name": "Power",
+        "links": [
+            "72d876e2.cde818",
+            "5cac0ade.91ba44"
+        ],
+        "x": 550,
+        "y": 100,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "9cdffba9.333968",
+        "type": "delay",
+        "z": "6952671a.ed8d08",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 430,
+        "y": 140,
+        "wires": [
+            [
+                "f57328da.794778"
+            ]
+        ]
+    },
+    {
+        "id": "49bc204.587b3e",
+        "type": "change",
+        "z": "6952671a.ed8d08",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 620,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f57328da.794778",
+        "type": "change",
+        "z": "6952671a.ed8d08",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 620,
+        "y": 140,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1904a5d2.bf6ada",
+        "type": "change",
+        "z": "6952671a.ed8d08",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 620,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bce3700e.cc9e",
+        "type": "switch",
+        "z": "6952671a.ed8d08",
+        "name": "",
+        "property": "shade",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "gte",
+                "v": "5",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 410,
+        "y": 200,
+        "wires": [
+            [
+                "1904a5d2.bf6ada"
+            ],
+            [
+                "d9c24d8f.2b31d"
+            ]
+        ]
+    },
+    {
+        "id": "d9c24d8f.2b31d",
+        "type": "delay",
+        "z": "6952671a.ed8d08",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 410,
+        "y": 280,
+        "wires": [
+            [
+                "bce3700e.cc9e"
+            ]
+        ]
+    },
+    {
+        "id": "32934760.a15c68",
+        "type": "change",
+        "z": "6952671a.ed8d08",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "shade",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 580,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e13d5326.bf768",
+        "type": "function",
+        "z": "6952671a.ed8d08",
+        "name": "toFloat",
+        "func": "msg.payload = msg.payload.replace(',', '.')\nmsg.payload = parseFloat(msg.payload)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 400,
+        "y": 360,
+        "wires": [
+            [
+                "32934760.a15c68"
+            ]
+        ]
+    },
+    {
+        "id": "f1339c45.4a9",
+        "type": "delay",
+        "z": "19603698.044e09",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 430,
+        "y": 140,
+        "wires": [
+            [
+                "ca844298.09853"
+            ]
+        ]
+    },
+    {
+        "id": "705d9ac1.365d94",
+        "type": "change",
+        "z": "19603698.044e09",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 620,
+        "y": 60,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ca844298.09853",
+        "type": "change",
+        "z": "19603698.044e09",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 620,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a5bf563f.27e708",
+        "type": "change",
+        "z": "19603698.044e09",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "false",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 620,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f98a592d.696a08",
+        "type": "switch",
+        "z": "19603698.044e09",
+        "name": "",
+        "property": "shade",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "lte",
+                "v": "5",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 450,
+        "y": 200,
+        "wires": [
+            [
+                "a5bf563f.27e708"
+            ],
+            [
+                "3d4a8ec3.c21552"
+            ]
+        ]
+    },
+    {
+        "id": "3d4a8ec3.c21552",
+        "type": "delay",
+        "z": "19603698.044e09",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "50",
+        "timeoutUnits": "milliseconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 450,
+        "y": 280,
+        "wires": [
+            [
+                "f98a592d.696a08"
+            ]
+        ]
+    },
+    {
+        "id": "188f11b9.86b95e",
+        "type": "change",
+        "z": "19603698.044e09",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "shade",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 640,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c77903c5.b1a3b",
+        "type": "function",
+        "z": "19603698.044e09",
+        "name": "toFloat",
+        "func": "msg.payload = msg.payload.replace(',', '.')\nmsg.payload = parseFloat(msg.payload)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 480,
+        "y": 360,
+        "wires": [
+            [
+                "188f11b9.86b95e"
+            ]
+        ]
+    },
+    {
+        "id": "2d1b79a7.a8f936",
+        "type": "switch",
+        "z": "19603698.044e09",
+        "name": "",
+        "property": "shade",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "btwn",
+                "v": "4",
+                "vt": "num",
+                "v2": "6",
+                "v2t": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 270,
+        "y": 180,
+        "wires": [
+            [],
+            [
+                "f1339c45.4a9",
+                "705d9ac1.365d94",
+                "f98a592d.696a08"
+            ]
+        ]
+    },
+    {
+        "id": "c21ffffd.35b89",
+        "type": "switch",
+        "z": "6952671a.ed8d08",
+        "name": "",
+        "property": "shade",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "btwn",
+                "v": "4",
+                "vt": "num",
+                "v2": "6",
+                "v2t": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 310,
+        "y": 100,
+        "wires": [
+            [],
+            [
+                "49bc204.587b3e",
+                "9cdffba9.333968",
+                "bce3700e.cc9e"
+            ]
+        ]
+    },
+    {
+        "id": "1fae5917.216797",
+        "type": "mqtt in",
+        "z": "246169f.c6abe96",
+        "name": "",
+        "topic": "/home/A/Input/float/Thermostat_(Room_Temperature)",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "982ead91.2d941",
+        "x": 240,
+        "y": 500,
+        "wires": [
+            [
+                "28c4d13d.f6650e"
+            ]
+        ]
+    },
+    {
+        "id": "992c2d39.b27b",
+        "type": "comment",
+        "z": "945969ce.9abb18",
+        "name": "A: Living Room",
+        "info": "",
+        "x": 120,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "2da2ca0d.66eb06",
+        "type": "comment",
+        "z": "945969ce.9abb18",
+        "name": "E: Entrance",
+        "info": "",
+        "x": 810,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "2def6f33.95b52",
+        "type": "comment",
+        "z": "945969ce.9abb18",
+        "name": "O: Outside",
+        "info": "",
+        "x": 800,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "57ae18b0.6fcd58",
+        "type": "comment",
+        "z": "246169f.c6abe96",
+        "name": "General",
+        "info": "",
+        "x": 80,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "56504c58.cbbd94",
+        "type": "comment",
+        "z": "246169f.c6abe96",
+        "name": "A: Living Room",
+        "info": "",
+        "x": 100,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "c794218d.0d57",
+        "type": "mosca in",
+        "z": "690b881c.9de788",
+        "mqtt_port": 1883,
+        "mqtt_ws_port": 8080,
+        "name": "",
+        "username": "",
+        "password": "",
+        "dburl": "",
+        "x": 130,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5a579397.cd158c",
+        "type": "inject",
+        "z": "1bab800f.1f0f4",
+        "name": "",
+        "topic": "",
+        "payload": "2500",
+        "payloadType": "num",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 110,
+        "y": 100,
+        "wires": [
+            [
+                "db5c2fda.9bc6c"
+            ]
+        ]
+    },
+    {
+        "id": "c367e83d.254c78",
+        "type": "comment",
+        "z": "1bab800f.1f0f4",
+        "name": "UI and Logic",
+        "info": "",
+        "x": 90,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "b75cc755.1a07f8",
+        "type": "comment",
+        "z": "1bab800f.1f0f4",
+        "name": "Initialisations",
+        "info": "",
+        "x": 90,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "ba260720.ac0478",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_1_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 490,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "ba1d9407.cc93a8",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_1_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 500,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "ad69295a.f80b68",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_2_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 490,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "1488c208.e460ce",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_3_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 490,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "1bab8b45.78ce45",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_4_(Up)",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 490,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "46ac8293.d8ebfc",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_2_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 500,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "350456d0.d1deca",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_3_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 500,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "7f2e3c19.8e74c4",
+        "type": "mqtt out",
+        "z": "945969ce.9abb18",
+        "name": "",
+        "topic": "/home/A/Output/bool/Roller_Shades_4_(Down)",
+        "qos": "",
+        "retain": "",
+        "broker": "982ead91.2d941",
+        "x": 500,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "1de798b0.7dc737",
+        "type": "link in",
+        "z": "945969ce.9abb18",
+        "name": "Roller Shades Up",
+        "links": [
+            "cef8f2d0.cdadf",
+            "47154712.a95ba8",
+            "bb989d2c.cffe9",
+            "89886a4d.f2ab78",
+            "e55a78c.2558c88",
+            "f2415056.be203",
+            "1a8d6091.39ff4f",
+            "cb9281c3.361d5",
+            "40a6d152.2598b",
+            "60295ccb.760d64",
+            "e747cbe8.801bb8"
+        ],
+        "x": 180,
+        "y": 240,
+        "wires": [
+            [
+                "ba260720.ac0478",
+                "ad69295a.f80b68",
+                "1488c208.e460ce",
+                "1bab8b45.78ce45"
+            ]
+        ],
+        "l": true
+    },
+    {
+        "id": "14cbd19e.a00b5e",
+        "type": "link in",
+        "z": "945969ce.9abb18",
+        "name": "Roller Shades Down",
+        "links": [
+            "14e925e0.8bd09a",
+            "278659f3.dec5b6",
+            "f6f19453.b352e8",
+            "e5a3d16e.8d678",
+            "d74caba3.fde128",
+            "7396f6ad.c2a8c8",
+            "bdaacdbf.b7fc6",
+            "dd848a86.ddd3a8",
+            "45e4944c.69147c",
+            "d2e889ee.77be98",
+            "ebf1ffc1.6ed32"
+        ],
+        "x": 170,
+        "y": 440,
+        "wires": [
+            [
+                "ba1d9407.cc93a8",
+                "46ac8293.d8ebfc",
+                "350456d0.d1deca",
+                "7f2e3c19.8e74c4"
+            ]
+        ],
+        "l": true
+    },
+    {
+        "id": "477dec8f.76b3c4",
+        "type": "comment",
+        "z": "95ade9df.d52718",
+        "name": "Roller Shades Up",
+        "info": "",
+        "x": 740,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "6f8aac79.09e694",
+        "type": "comment",
+        "z": "95ade9df.d52718",
+        "name": "Roller Shades Down",
+        "info": "",
+        "x": 750,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "496104c3.e33f9c",
+        "type": "comment",
+        "z": "66050a7a.a36d44",
+        "name": "Roller Shades Up",
+        "info": "",
+        "x": 760,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "64bc4485.4b426c",
+        "type": "comment",
+        "z": "66050a7a.a36d44",
+        "name": "Roller Shades Down",
+        "info": "",
+        "x": 770,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "dfc0c925.740cd8",
+        "type": "comment",
+        "z": "6952671a.ed8d08",
+        "name": "Roller Shades Down",
+        "info": "",
+        "x": 970,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "282d6203.102a4e",
+        "type": "comment",
+        "z": "6952671a.ed8d08",
+        "name": "Roller Shades Up",
+        "info": "",
+        "x": 960,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "4f798771.d935c8",
+        "type": "comment",
+        "z": "19603698.044e09",
+        "name": "Roller Shades Down",
+        "info": "",
+        "x": 930,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "1931a8fd.b1cab7",
+        "type": "comment",
+        "z": "19603698.044e09",
+        "name": "Roller Shades Up",
+        "info": "",
+        "x": 920,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "7c222544.177cbc",
+        "type": "link out",
+        "z": "246169f.c6abe96",
+        "name": "Door 2",
+        "links": [
+            "2536639.229cb9c",
+            "172e8f0.ba71d71",
+            "e254dfb8.37daf"
+        ],
+        "x": 550,
+        "y": 380,
+        "wires": [],
+        "l": true
+    },
+    {
+        "id": "5ae8313b.c83dc",
+        "type": "mqtt in",
+        "z": "246169f.c6abe96",
+        "name": "",
+        "topic": "/home/A/Input/bool/Door_Detector_2",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "982ead91.2d941",
+        "x": 290,
+        "y": 380,
+        "wires": [
+            [
+                "7c222544.177cbc"
+            ]
+        ]
+    },
+    {
+        "id": "a0850e7d.ef916",
+        "type": "switch",
+        "z": "6952671a.ed8d08",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 150,
+        "y": 220,
+        "wires": [
+            [
+                "c21ffffd.35b89"
+            ],
+            [
+                "e13d5326.bf768"
+            ]
+        ]
+    },
+    {
+        "id": "65294c2a.e35e94",
+        "type": "switch",
+        "z": "19603698.044e09",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 130,
+        "y": 280,
+        "wires": [
+            [
+                "2d1b79a7.a8f936"
+            ],
+            [
+                "c77903c5.b1a3b"
+            ]
+        ]
+    }
+]
