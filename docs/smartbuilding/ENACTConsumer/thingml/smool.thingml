@@ -1,0 +1,68 @@
+import "genericSender.thingml"
+
+thing Smool includes CustomDataSender
+
+@src "../src"
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>common</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>connector</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi.connector</groupId><artifactId>tcpip</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>model</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi.model</groupId><artifactId>direct</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi.model</groupId><artifactId>smart</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>ssap</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>javax.xml</groupId><artifactId>jsr173</artifactId><version>1.0</version></dependency>"
+@maven_dep "<dependency><groupId>log4j</groupId><artifactId>log4j</artifactId><version>1.2.9</version></dependency>"
+@maven_dep "<dependency><groupId>xalan</groupId><artifactId>xalan</artifactId><version>2.6.0</version></dependency>"
+@maven_dep "<dependency><groupId>com.sun.xml.stream</groupId><artifactId>sjsxp</artifactId><version>1.0.2</version></dependency>"
+@maven_dep "<dependency><groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId><version>3.1</version></dependency>"
+@maven_dep "
+<dependency>
+  <groupId>org.eclipse.paho</groupId>
+  <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+  <version>1.2.0</version>
+</dependency>"
+@maven_dep "
+<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.6.2</version>
+</dependency>"
+
+@maven_repo "<repository><id>smool_remote</id><url>http://smool.tecnalia.com:8080</url></repository>"
+
+
+{
+	statechart client init main {
+		on entry do
+			println "Project name: ENACTConsumer"
+			 
+			 /* Start sentence depending on KP is consumer producer or prosumer */
+			` 
+			try{ 
+				ENACTConsumer.logic.ConsumerMain.main(new String[0]);
+			}catch(Exception e){ 
+				e.printStackTrace();
+			}	
+			`
+		end
+		state main {
+			/*
+			 * AVAILABLE SMOOL PRODUCING DATA:
+			 * [org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@89eab25 (URI: http://com.tecnalia.smool/core/smoolcore#BlindPositionActuator, GenerationType: Producer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@25fc72c6 (URI: http://com.tecnalia.smool/core/smoolcore#LightRangeActuator, GenerationType: Producer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@700fec90 (URI: http://com.tecnalia.smool/core/smoolcore#HVACActuator, GenerationType: Producer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@5fcf9bff (URI: http://com.tecnalia.smool/core/smoolcore#LightSwitchActuator, GenerationType: Producer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@1607b56b (URI: http://com.tecnalia.smool/core/smoolcore#WashingMachineActuator, GenerationType: Producer)]
+			 * AVAILABLE SMOOL CONSUMING DATA:
+			 * [org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@3cc5b3d3 (URI: http://com.tecnalia.smool/core/smoolcore#Accelerometer, GenerationType: Consumer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@7ee0af8c (URI: http://com.tecnalia.smool/core/smoolcore#GasSensor, GenerationType: Consumer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@66041d36 (URI: http://com.tecnalia.smool/core/smoolcore#HumiditySensor, GenerationType: Consumer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@386c6903 (URI: http://com.tecnalia.smool/core/smoolcore#LightingSensor, GenerationType: Consumer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@29260ef6 (URI: http://com.tecnalia.smool/core/smoolcore#NoiseSensor, GenerationType: Consumer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@52c14891 (URI: http://com.tecnalia.smool/core/smoolcore#TemperatureSensor, GenerationType: Consumer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@39342312 (URI: http://com.tecnalia.smool/core/smoolcore#BlackoutSensor, GenerationType: Consumer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@4f1545bd (URI: http://com.tecnalia.smool/core/smoolcore#FloodSensor, GenerationType: Consumer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@56ddb317 (URI: http://com.tecnalia.smool/core/smoolcore#PresenceSensor, GenerationType: Consumer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@e80fc9d (URI: http://com.tecnalia.smool/core/smoolcore#SmokeSensor, GenerationType: Consumer), org.smool.sdk.ontmodel.ontmodel.impl.ClassImpl@7eb03024 (URI: http://com.tecnalia.smool/core/smoolcore#MessageReceiveSensor, GenerationType: Consumer)]
+			 */
+			internal event s : TemperatureData?temperatureSensorData
+			action do 
+			
+				println "Java Service Endpoint received sensorData: Temperature = " + s.sensorData 
+									
+			end
+		}
+	}
+}
+
+configuration ENACTConsumer{
+	instance obj : Smool
+}

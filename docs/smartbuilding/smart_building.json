@@ -402,7 +402,7 @@
                     "control_id": "",
                     "description": ""
                 },
-                "port_number": "1880"
+                "port_number": "1881"
             }],
             "required_communication_port": [{
                 "name": "ef8c0271-7a44-4d0c-b1ba-68af3e8042fb",

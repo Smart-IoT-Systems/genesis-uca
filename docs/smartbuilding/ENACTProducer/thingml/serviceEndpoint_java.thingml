@@ -1,0 +1,76 @@
+/**
+This endpoint receives sensor data, e.g., from MQTT broker, and  sends commands back to sensor?
+* It also forwards sensor data to a consumer, like a tenant using SMOOL service. 
+*/
+
+import "api.thingml"
+import "genericSender.thingml"
+import "JavaSmoolKP_Producer.thingml"
+
+thing JavaEndpoint includes API 
+@src "../src"
+@maven_repo "<repository><id>smool_remote</id><url>http://smool.tecnalia.com:8080</url></repository>"
+@maven_repo "<repository><id>smool_local</id><url>file:///Users/ferrynico/Documents/Code/GeneSIS-gitlab/smool_maven</url></repository>"
+{
+	
+	//To receive sensor data message from MQTT and send actuator command to MQTT
+	provided port p {
+		receives msg
+		sends cmd
+	}
+	
+	//To forward sensor data to SMOOL data producer and receive Actuator commands from SMOOL server
+	required port TemperatureSensor1_Data 
+	@sync_send "true"
+	{
+		sends sensorData
+		//receives cmd
+	}
+	
+	statechart init INIT {
+		state INIT {
+			on entry println "Java Service Endpoint ready! Listening to receive sensor data..."
+			
+			internal event e : p?msg
+			
+			action do
+								
+				println "Java Service Endpoint received sensorData: Temperature = " + e.temp + " and Humidity = " + e.humid
+				//we just replaced the ThingML print by an action sending a customPrint message
+				
+				//forward the sensor data to the Smool Producer to publish to Smool Consumers
+				TemperatureSensor1_Data!sensorData(e.temp)
+				
+				//send command back to MQTT: TODO?
+				//p!m2(1, 2, 3)
+			end
+		}
+	}
+}
+
+
+//TODO: Compile and run for the Java platform
+/**
+ * Right click on serviceEndpoint_java.thingml and HEADS / ThingML to generate Java code
+ * Copy the mapping.properties from src\config folder into \thingml-gen\java\javacfg\src\main\resources\config folder (this is for the dependencies of SMOOL)
+ * 
+ * Because the Maven plugin in Eclipse does not include the dependencies of SMOOL, we have to use the genuie commandline of Maven 3.5.3 to package the generated java program: 
+ * In the \thingml-gen\java\javacfg folder, run command line to build jar file: mvn package
+ * Run this cmd line to start the Java program: java -cp target/javacfg-1.0.0-jar-with-dependencies.jar org.thingml.generated.Main
+ * 
+ */
+protocol mqtt
+@serializer "JSON"
+@mqtt_broker_address "localhost"//localhost or "test.mosquitto.org", CoAP Server, UDP
+@mqtt_broker_port "1883"
+@mqtt_subscribe_topic "TemperatureSensor1_Data"
+@mqtt_publish_topic "ACTUATION_Blinds";
+
+configuration javacfg {
+	instance j : JavaEndpoint
+	instance smoolDataProducer : JavaSmoolDataProducer
+	
+	connector j.p over mqtt
+	
+	connector j.TemperatureSensor1_Data => smoolDataProducer.SensorData
+}

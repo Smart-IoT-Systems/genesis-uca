@@ -1,0 +1,29 @@
+import "datatypes.thingml" from stl
+
+/**
+Then, we organize the sensor data message into a port.
+Our custom sender will basically receive this message and
+use some system primitives to perform the sending data such as SMOOL API.
+However at this point, the thing is still platform independent (no C, no Java, no JavaScript here)
+*/
+thing fragment CustomDataSender
+{
+	message lightingSensorData(sensorData : Double);
+	//The API (this port) is fully platform-independent	
+	provided port LightingData 
+	@sync_send "true"
+	{
+		receives lightingSensorData
+		sends lightingSensorData
+	}
+	
+	message temperatureSensorData(sensorData : Double);
+	//The API (this port) is fully platform-independent	
+	provided port TemperatureData 
+	@sync_send "true"
+	{
+		receives temperatureSensorData
+		sends temperatureSensorData
+	}
+	
+}
