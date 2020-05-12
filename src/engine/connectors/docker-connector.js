@@ -94,7 +94,7 @@ var docker_connector = function () {
                 StdinOnce: false
             };
 
-            if (command !== "") {
+            if ((command !== "") && (command !== undefined)) {
                 if(command[0] === "-"){
                     var t_c=command.split(' ');
                     options.Cmd = [t_c[0], t_c[1]];
