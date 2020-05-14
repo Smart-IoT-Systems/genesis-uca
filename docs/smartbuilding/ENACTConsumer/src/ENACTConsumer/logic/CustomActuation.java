@@ -14,7 +14,7 @@ import ENACTConsumer.model.smoolcore.impl.SecurityAuthorization;
  * clients to send actuation orders, this message is sent with security content.
  * </P>
  */
-class CustomActuation {
+public class CustomActuation {
 	private boolean isFirstActuation = true;
 	private String kpName;
 	private String name;
@@ -33,8 +33,12 @@ class CustomActuation {
 	}
 
 	public synchronized void run(double temp) {
+		System.out.println("Sending ACTUATION order because temp is " + temp);
+		run();
+	}
+	
+	public synchronized void run() {
 		try {
-			System.out.println("Sending ACTUATION order because temp is " + temp);
 			if (isFirstActuation) {
 				// TODO this security payload will be provided either by the Tecnalia AC agent
 				// or by the thingml features for SMOOL

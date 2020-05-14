@@ -40,11 +40,10 @@ public class ConsumerMain {
 		// ---------------------------CONNECT TO SMOOL---------------------
 		// SmoolKP.connect();
 		// SmoolKP.connect("sib1", "172.24.5.151", 23000);
-		System.out.println("*** " + sib + " ***"+ addr +" ***"+ port +" ***");
 		SmoolKP.connect(sib, addr, port);
 
 		// ---------------------------SUBSCRIBE TO DATA----------------------
-		/*Consumer consumer = SmoolKP.getConsumer();
+		Consumer consumer = SmoolKP.getConsumer();
 
 		TemperatureSensorSubscription tempSubscription = new TemperatureSensorSubscription(createTemperatureObserver());
 		consumer.subscribeToTemperatureSensor(tempSubscription, null);
@@ -53,7 +52,7 @@ public class ConsumerMain {
 		consumer.subscribeToSmokeSensor(smokeSubscription, null);
 
 		GasSensorSubscription gasSubscription = new GasSensorSubscription(createGasObserver());
-		consumer.subscribeToGasSensor(gasSubscription, null);*/
+		consumer.subscribeToGasSensor(gasSubscription, null);
 
 		// -----------ATTACH WATCHDOG instead of SLEEP-------
 		// Thread.sleep(Long.MAX_VALUE); // keep application alive.

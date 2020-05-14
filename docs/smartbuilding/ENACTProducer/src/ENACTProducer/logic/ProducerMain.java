@@ -5,6 +5,7 @@ import java.util.Observer;
 
 import org.smool.kpi.model.exception.KPIModelException;
 
+import org.eclipse.paho.client.mqttv3.*;
 import ENACTProducer.api.BlindPositionActuatorSubscription;
 import ENACTProducer.api.Consumer;
 import ENACTProducer.api.Producer;
@@ -33,11 +34,13 @@ import ENACTProducer.model.smoolcore.impl.TemperatureSensor;
  * </p>
  *
  */
-public class ProducerMain {
+public class ProducerMain implements MqttCallback {
 
 	public static final String vendor = "Tecnalia";
 	public static final String name = "EnactProducer" + System.currentTimeMillis() % 10000;
 	public static TemperatureSensor tempSensor;
+
+	private TemperatureInformation tempInfo;
 
 	public ProducerMain(String sib, String addr, int port) throws Exception {
 		SmoolKP.setKPName(name);
@@ -46,6 +49,9 @@ public class ProducerMain {
 		// SmoolKP.connect();
 		// SmoolKP.connect("sib1", "172.24.5.151", 23000);
 		SmoolKP.connect(sib, addr, port);
+
+		//Create an MQTT client here
+		initMQTTclient();
 
 		// ---------------------------CREATE SENSOR-----------------------------
 		Producer producer = SmoolKP.getProducer();
@@ -56,7 +62,7 @@ public class ProducerMain {
 		// ---------------------------PRODUCE DATA----------------------------------
 		String timestamp = Long.toString(System.currentTimeMillis());
 
-		TemperatureInformation tempInfo = new TemperatureInformation(name + "_temp");
+		tempInfo = new TemperatureInformation(name + "_temp");
 		double temp = 25;
 		tempInfo.setValue(temp).setUnit("ºC").setTimestamp(timestamp);
 
@@ -77,28 +83,61 @@ public class ProducerMain {
 		BlindPositionActuatorSubscription subscription = new BlindPositionActuatorSubscription(createObserver());
 		consumer.subscribeToBlindPositionActuator(subscription, null);
 
-		// ---------------------SEND DATA--------------------------------------------
-		while (true) {
-			Thread.sleep(10000);
-			timestamp = Long.toString(System.currentTimeMillis());
-			System.out.println("Producing data at " + timestamp);
-
-			temp = temp < 26 ? temp + 0.5 : 22;
-			tempInfo.setValue(temp).setTimestamp(timestamp);
-			producer.updateTemperatureSensor(tempSensor._getIndividualID(), name, vendor, null, null, tempInfo);
-
-			System.out.println("Producing temp  " + Double.toString(temp) + " (and more concepts)");
-
-			smoke = !smoke;
-			smokeInfo.setStatus(smoke).setTimestamp(timestamp);
-			producer.updateSmokeSensor(smokeSensor._getIndividualID(), name, vendor, null, null, smokeInfo);
-
-			gas = gas < 2000 ? gas + 100 : 400;
-			gasInfo.setValue(gas).setTimestamp(timestamp);
-			producer.updateGasSensor(gasSensor._getIndividualID(), name, vendor, null, gasInfo, null);
-		}
-
 	}
+
+
+	private void initMQTTclient() {
+		try{
+        	// ---------------------------MQTT Client----------------------------------
+    		String publisherId = UUID.randomUUID().toString();
+    		publisher = new MqttClient("tcp://127.0.0.1:1883", publisherId);
+            
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setAutomaticReconnect(true);
+            options.setCleanSession(true);
+            options.setConnectionTimeout(10);
+			publisher.setCallback(this);
+            publisher.connect(options);
+			System.out.println("Connected to broker");
+
+			// All subscriptions for actuation orders
+			String myTopic = "/home/A/Input/float/Thermostat_(Room_Temperature)";
+			MqttTopic topic = publisher.getTopic(myTopic);
+			publisher.subscribe(myTopic, 0);
+            
+        }catch(Exception e){
+            throw new RuntimeException("Exception occured in creating MQTT Client");
+        }
+	}
+
+	/**
+	FROM APP to SMOOL
+	*/
+	 @Override
+    public void connectionLost(Throwable t) {
+        System.out.println("Connection lost!");
+        // code to reconnect to the broker would go here if desired
+    }
+
+    @Override
+    public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+		//we should send it to smoll
+        System.out.println("-------------------------------------------------");
+        System.out.println("| Topic:" + s);
+        System.out.println("| Message: " + new String(mqttMessage.getPayload()));
+        System.out.println("-------------------------------------------------");
+        
+		String timestamp = Long.toString(System.currentTimeMillis());
+		tempInfo.setValue(temp).setUnit("ºC").setTimestamp(timestamp);
+		SmoolKP.getProducer().updateTemperatureSensor(ProducerMain.tempSensor._getIndividualID(), ProducerMain.name, ProducerMain.vendor, null, null, tempInfo);				
+    }
+
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
+        //System.out.println("Pub complete" + new String(token.getMessage().getPayload()));
+
+    }
+
 
 	/**
 	 * Processs messages related to actuation orders on blinds

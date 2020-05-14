@@ -97,7 +97,7 @@
             },
             "ssh_resource": {
                 "name": "f97e8d25-dd63-400a-a128-600c0e5b0e4a",
-                "startCommand": "nohup java -jar ENACTConsumer-1.0.0-jar-with-dependencies.jar &",
+                "startCommand": "nohup java -jar ENACTConsumer-1.0.0-jar-with-dependencies.jar > SMOOL.txt &",
                 "downloadCommand": "",
                 "installCommand": "",
                 "configureCommand": "",
@@ -152,7 +152,7 @@
                 "isMandatory": false
             }],
             "nr_description": "",
-            "file": "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/GeneSIS/docs/smartbuilding/ENACTConsumer/thingml/smool.thingml",
+            "file": "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/GeneSIS/docs/smartbuilding/ENACTConsumer/thingml/SmartEnergyAppWrapper_Main_SmoolJava.thingml",
             "src": "",
             "libraries": [],
             "target_language": "java"

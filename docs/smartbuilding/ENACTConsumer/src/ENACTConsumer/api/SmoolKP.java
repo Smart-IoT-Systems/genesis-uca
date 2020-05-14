@@ -1338,6 +1338,34 @@ public class SmoolKP {
 			}
 		}
 
+		public void subscribeToBlindPositionActuator(BlindPositionActuatorSubscription subscription,
+				String individualID) throws KPIModelException {
+			if (individualID == null || individualID.equals("")) {
+				dl.getModel().subscribe(BlindPositionActuator.class, subscription);
+			} else {
+				dl.getModel().subscribe(BlindPositionActuator.class, individualID, subscription);
+			}
+			dl.getModel().publish();
+		}
+
+		public void unsubscribeToBlindPositionActuator(BlindPositionActuatorSubscription subscription)
+				throws KPIModelException {
+			dl.getModel().unsubscribe(subscription);
+			dl.getModel().publish();
+		}
+
+		public List<BlindPositionActuator> queryAllBlindPositionActuator() throws KPIModelException {
+			return dl.getModel().query(BlindPositionActuator.class, TypeAttribute.RDFM3);
+		}
+
+		public BlindPositionActuator queryBlindPositionActuator(String individualID) throws KPIModelException {
+			if (individualID == null) {
+				return null;
+			}
+			return dl.getModel().query(BlindPositionActuator.class, individualID, TypeAttribute.RDFM3);
+		}
+
+
 		public void subscribeToAccelerometer(AccelerometerSubscription subscription, String individualID)
 				throws KPIModelException {
 			if (individualID == null || individualID.equals("")) {

@@ -1,0 +1,60 @@
+import "genericSender.thingml"
+
+thing JavaSmoolActuationCommander includes CustomDataSender
+
+
+{
+	
+	//Initialize the KP Consumer
+	function initConsumer(sib : String, addr : String, prt : Integer)
+	//@fork_thread "true"
+	do
+		println "Consumer is getting Started!"
+		
+		` 
+		
+		try{ 
+			new ENACTConsumer.logic.SmartEnergyApp_ConsumerMain(` & sib & `, ` & addr & `, ` & prt & `);
+		}catch(Exception e){ 
+			e.printStackTrace();
+		}		
+		
+		`
+	end
+	
+	//Send actuation commands to actuators via the SMOOL server
+	function processActuationCommand(actuationCmd : String)
+	//@fork_thread "true"
+	do
+		println "processActuationCommand. Sending cmd = " + actuationCmd + " \n"
+				
+		`
+		try {					
+			String timestamp = Long.toString(System.currentTimeMillis());
+			
+			ENACTConsumer.logic.CustomActuation actuation = new ENACTConsumer.logic.CustomActuation(` & actuationCmd & `);
+			new Thread(() -> actuation.run()).start();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		`
+	end
+	
+	//main
+	statechart SmoolActuationCommand init sendingActuationCommand {	
+		
+		on entry do
+			//hard code the SMOOL server parameters, to be configured from GeneSIS
+			initConsumer("sib1", "smool.tecnalia.com", 80)
+		end
+		
+		state sendingActuationCommand {
+			internal event s : ActuatorCmd?cmd
+			
+			action do 
+				processActuationCommand(s.cmdString)
+			end
+		}
+	}
+}
+		
