@@ -119,15 +119,13 @@ public class SmartEnergyApp_ConsumerMain implements MqttCallback {
 	/**
 	FROM APP to SMOOL
 	*/
-	 @Override
-    public void connectionLost(Throwable t) {
+	 public void connectionLost(Throwable t) {
         System.out.println("Connection lost!");
         // code to reconnect to the broker would go here if desired
     }
 
-    @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
-		//we should send it to smoll
+		//we should send it to smmol
         System.out.println("-------------------------------------------------");
         System.out.println("| Topic:" + s);
         System.out.println("| Message: " + new String(mqttMessage.getPayload()));
@@ -138,7 +136,6 @@ public class SmartEnergyApp_ConsumerMain implements MqttCallback {
         }
     }
 
-    @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
         //System.out.println("Pub complete" + new String(token.getMessage().getPayload()));
 
@@ -235,7 +232,7 @@ public class SmartEnergyApp_ConsumerMain implements MqttCallback {
 	        try {
 	        	if(publisher.isConnected()) {
 	        		//whenever there is sensor data update sent from SMOOL server, send it to the Apps via MQTT broker 
-	        		publisher.publish("/home/A/Input/bool/Smoke_Detector", msg);
+	        		publisher.publish("/home/A/Input/float/Brightness_Sensor_(Analog)", msg);
 	        	}else {
 	        		System.out.println("publisher.isConnected() = " + publisher.isConnected());
 	        	}
