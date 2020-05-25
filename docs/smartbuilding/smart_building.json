@@ -605,7 +605,7 @@
                 "agent": ""
             },
             "monitoring_agent": "none",
-            "physical_port": "",
+            "physical_port": "/dev/ttyACM0",
             "device_type": "arduino",
             "needDeployer": true
         }, {
@@ -635,6 +635,279 @@
             "physical_port": "",
             "device_type": "arduino",
             "needDeployer": true
+        }, {
+            "_type": "/internal/thingml/smoolkp",
+            "name": "ENACTProducer",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "be1452be-9d0d-497b-91bf-6b66efed803e",
+            "provided_execution_port": [{
+                "name": "f5b39c66-ce05-4c44-a83b-9fc3a905e9c2",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "b54531fd-4fc6-410d-a644-c8d1d42df669",
+                "image": "ubuntu",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "7b47c8f3-7e24-4b7c-9af5-40a6189e2278",
+                "startCommand": "nohup java -jar ENACTProducer-1.0.0-jar-with-dependencies.jar > SMOOL.txt &",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "uploadCommand": [],
+                "credentials": {
+                    "username": "pi",
+                    "password": "raspberry",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "655838aa-d56f-4b54-b724-017fa0133f0f",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "bd3673ae-3ee0-44f3-a795-43ce7b9d0884",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "5263165e-03e2-4f52-a9b8-92103f976059",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "a2c50bfd-dd18-427c-b23c-3b612b655f2f",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "file": "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/GeneSIS/docs/smartbuilding/ENACTProducer/thingml/serviceEndpoint_java.thingml",
+            "security_policy": [
+                ["", ""]
+            ],
+            "target_language": "java",
+            "config_name": "ENACTProducer"
+        }, {
+            "_type": "/internal/thingml",
+            "name": "SmartDisplay",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "7b0a0716-71de-420a-9c59-4c39cd4ec0b8",
+            "provided_execution_port": [{
+                "name": "ec642861-bddd-4404-86f6-0f9eb6fe1149",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "be836221-58db-4382-b375-6e7fb3e5629a",
+                "image": "ubuntu",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "04527b89-98da-4d26-87ff-031ecd28e5c2",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "uploadCommand": [],
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "baf6c139-973b-44da-922e-ff8fbf027796",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "6d8f4df0-defc-4978-9a39-b909e01341df",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "10f3966f-1fc1-4363-bf6b-ed1f212bc814",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "df0df4c5-f878-4674-9de9-05d102f12537",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_description": "",
+            "file": "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/docker-node-red-thingml/doc/examples/LightSensorApp/LightSensorApp.thingml",
+            "src": "",
+            "libraries": ["Adafruit GFX Library", "Adafruit ST7735 Library"],
+            "target_language": "arduino",
+            "config_name": "MainCfg"
+        }, {
+            "_type": "/internal/arduino",
+            "name": "TempHumidity",
+            "properties": [],
+            "version": "0.0.1",
+            "id": "19d19b07-d1b0-4000-9608-2a9d57f523a0",
+            "provided_execution_port": [{
+                "name": "b7a93ba4-3ecd-45d8-b52d-0ba8dba8345c",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                }
+            }],
+            "docker_resource": {
+                "name": "8d8094f4-a6b1-454e-8394-01e4999c5e67",
+                "image": "ubuntu",
+                "command": "",
+                "links": [],
+                "port_bindings": {
+                    "1880": "1880"
+                },
+                "devices": {
+                    "PathOnHost": "",
+                    "PathInContainer": "",
+                    "CgroupPermissions": "rwm"
+                }
+            },
+            "ssh_resource": {
+                "name": "9f834c2d-1395-44fb-a689-b4455184cc3e",
+                "startCommand": "",
+                "downloadCommand": "",
+                "installCommand": "",
+                "configureCommand": "",
+                "stopCommand": "",
+                "uploadCommand": [],
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "ansible_resource": {
+                "name": "d280ca3e-6bf5-4c54-a06b-ccc1f86d6091",
+                "playbook_path": "",
+                "playbook_host": "",
+                "credentials": {
+                    "username": "ubuntu",
+                    "password": "",
+                    "sshkey": "",
+                    "agent": ""
+                }
+            },
+            "required_execution_port": {
+                "name": "a08888d6-7815-464b-bd0f-ae7f6b9627ae",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "needDeployer": false
+            },
+            "provided_communication_port": [{
+                "name": "b6cad6b7-9fd0-4b88-9eb2-b09542584e8c",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80"
+            }],
+            "required_communication_port": [{
+                "name": "783e97cc-4eef-47a4-bc8e-b7e5f2305414",
+                "capabilities": {
+                    "_type": "/capability/security_capability",
+                    "name": "a_capability",
+                    "control_id": "",
+                    "description": ""
+                },
+                "port_number": "80",
+                "isMandatory": false
+            }],
+            "nr_description": "",
+            "sketch": "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/docker-node-red-thingml/doc/examples/LightSensorApp/LightSensorApp.thingml",
+            "libraries": ["Adafruit GFX Library", "Adafruit ST7735 and ST7789 Library"]
         }],
         "links": [{
             "name": "SMOOL_to_Consumer",
@@ -656,8 +929,7 @@
             "src": "/MQTTBroker/bd3provf-f691-4a46-b9cd-14bab0f9a8e0",
             "target": "/HomeIO/7b2de0b7-0d2f-421d-aa80-2cede1de8132",
             "isControl": true,
-            "isDeployer": false,
-            "isMandatory": false
+            "isDeployer": false
         }, {
             "name": "user_to_consumer",
             "properties": [],
@@ -692,16 +964,42 @@
             "src": "/ExpressAPI/7d8cb3f4-f382-4489-ac42-87077aaa85b1",
             "target": "/EnergyEfficiency/ef8c0271-7a44-4d0c-b1ba-68af3e8042fb",
             "isControl": true,
-            "isDeployer": false,
-            "isMandatory": false
+            "isDeployer": false
         }, {
             "name": "express_to_user",
             "properties": [],
             "src": "/ExpressAPI/7d8cb3f4-f382-4489-ac42-87077aaa85b1",
             "target": "/UserComfortApp/f3d9d1ce-5d30-41cf-afe0-086c9adf4b8e",
             "isControl": true,
-            "isDeployer": false,
-            "isMandatory": false
+            "isDeployer": false
+        }, {
+            "name": "SMOOL_to_Producer",
+            "properties": [],
+            "src": "/SMOOL_Server/9d001054-5e08-4233-aa63-4a3fb8c21ae5",
+            "target": "/ENACTProducer/a2c50bfd-dd18-427c-b23c-3b612b655f2f",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "producer_to_smool",
+            "properties": [],
+            "src": "/ENACTProducer/5263165e-03e2-4f52-a9b8-92103f976059",
+            "target": "/SMOOL_Server/1300d677-1479-4498-9dfe-5319bd61556e",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "broker_to_producer",
+            "properties": [],
+            "src": "/MQTTBroker/bd3provf-f691-4a46-b9cd-14bab0f9a8e0",
+            "target": "/ENACTProducer/a2c50bfd-dd18-427c-b23c-3b612b655f2f",
+            "isControl": false,
+            "isDeployer": false
+        }, {
+            "name": "producer_to_mqtt",
+            "properties": [],
+            "src": "/ENACTProducer/5263165e-03e2-4f52-a9b8-92103f976059",
+            "target": "/MQTTBroker/bd3f34af-f691-4a46-b9cd-14bab0f9a8e0",
+            "isControl": false,
+            "isDeployer": false
         }],
         "containments": [{
             "name": "AppToSMOOL_on_APP_Server",
@@ -728,6 +1026,21 @@
             "properties": [],
             "src": "/BuildingControl/c33ecc66-a3ea-4dde-9249-05837307af80",
             "target": "/MQTTBroker/0e024905-579e-47c4-82f4-518e0b5b9285"
+        }, {
+            "name": "producer_on_smartspace",
+            "properties": [],
+            "src": "/IoT_Smart_Space/7a7f8257-2c0a-442d-a346-74d62dc9c517",
+            "target": "/ENACTProducer/bd3673ae-3ee0-44f3-a795-43ce7b9d0884"
+        }, {
+            "name": "display_on_arduino1",
+            "properties": [],
+            "src": "/Arduino1/685e343d-b1cc-4037-afd2-79d767239f66",
+            "target": "/SmartDisplay/6d8f4df0-defc-4978-9a39-b909e01341df"
+        }, {
+            "name": "temp_on_arduino2",
+            "properties": [],
+            "src": "/arduino2/77e75002-10f6-4986-8006-88522dc98c54",
+            "target": "/TempHumidity/a08888d6-7815-464b-bd0f-ae7f6b9627ae"
         }],
         "type_registry": []
     },
@@ -738,8 +1051,8 @@
                     "id": "SMOOL_Server"
                 },
                 "position": {
-                    "x": 200,
-                    "y": 225.76557143266277
+                    "x": 199.0137450387303,
+                    "y": 232.43430102457825
                 },
                 "group": "nodes",
                 "removed": false,
@@ -832,8 +1145,8 @@
                     "id": "IoT_Smart_Space"
                 },
                 "position": {
-                    "x": 290.2842469280448,
-                    "y": 233.61231703814656
+                    "x": 284.43936352633267,
+                    "y": 229.25023703853353
                 },
                 "group": "nodes",
                 "removed": false,
@@ -893,8 +1206,8 @@
                     "id": "Arduino1"
                 },
                 "position": {
-                    "x": 382.12411740973715,
-                    "y": 192.8254135565861
+                    "x": 381.58057109752633,
+                    "y": 180.60036633573438
                 },
                 "group": "nodes",
                 "removed": false,
@@ -902,14 +1215,14 @@
                 "selectable": true,
                 "locked": false,
                 "grabbable": true,
-                "classes": "devicelocal"
+                "classes": "devicelocal host"
             }, {
                 "data": {
                     "id": "arduino2"
                 },
                 "position": {
-                    "x": 383.22789993949317,
-                    "y": 267.3307343151149
+                    "x": 380.54966189450147,
+                    "y": 261.52250934065313
                 },
                 "group": "nodes",
                 "removed": false,
@@ -917,7 +1230,55 @@
                 "selectable": true,
                 "locked": false,
                 "grabbable": true,
-                "classes": "devicelocal"
+                "classes": "devicelocal host"
+            }, {
+                "data": {
+                    "id": "ENACTProducer",
+                    "parent": "IoT_Smart_Space"
+                },
+                "position": {
+                    "x": 284.43936352633267,
+                    "y": 229.25023703853353
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "SmartDisplay",
+                    "parent": "Arduino1"
+                },
+                "position": {
+                    "x": 381.58057109752633,
+                    "y": 180.60036633573438
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "thingml"
+            }, {
+                "data": {
+                    "id": "TempHumidity",
+                    "parent": "arduino2"
+                },
+                "position": {
+                    "x": 380.54966189450147,
+                    "y": 261.52250934065313
+                },
+                "group": "nodes",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
             }],
             "edges": [{
                 "data": {
@@ -1045,6 +1406,62 @@
                 "locked": false,
                 "grabbable": true,
                 "classes": "control"
+            }, {
+                "data": {
+                    "id": "SMOOL_to_Producer",
+                    "source": "SMOOL_Server",
+                    "target": "ENACTProducer"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "producer_to_smool",
+                    "source": "ENACTProducer",
+                    "target": "SMOOL_Server"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "broker_to_producer",
+                    "source": "MQTTBroker",
+                    "target": "ENACTProducer"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "producer_to_mqtt",
+                    "source": "ENACTProducer",
+                    "target": "MQTTBroker"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
             }]
         },
         "style": [{
@@ -1173,14 +1590,14 @@
         }],
         "zoomingEnabled": true,
         "userZoomingEnabled": true,
-        "zoom": 1.8119511281286067,
+        "zoom": 1.5493390950366248,
         "minZoom": 0.4,
         "maxZoom": 6,
         "panningEnabled": true,
         "userPanningEnabled": true,
         "pan": {
-            "x": 190.57590474273235,
-            "y": -235.28401973693366
+            "x": 216.3088223503474,
+            "y": -135.1534794513881
         },
         "boxSelectionEnabled": false,
         "renderer": {

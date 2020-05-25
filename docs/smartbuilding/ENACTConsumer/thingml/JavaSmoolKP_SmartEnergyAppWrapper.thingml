@@ -45,7 +45,7 @@ thing JavaSmoolActuationCommander includes CustomDataSender
 		
 		on entry do
 			//hard code the SMOOL server parameters, to be configured from GeneSIS
-			initConsumer("sib1", "smool.tecnalia.com", 80)
+			initConsumer("sib1", "15.236.132.74", 23000)
 		end
 		
 		state sendingActuationCommand {

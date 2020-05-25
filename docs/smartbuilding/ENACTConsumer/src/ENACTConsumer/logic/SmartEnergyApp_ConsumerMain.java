@@ -248,8 +248,8 @@ public class SmartEnergyApp_ConsumerMain implements MqttCallback {
 
 	public static void main(String[] args) throws Exception {
 		String sib = args.length > 0 ? args[0] : "sib1";
-		String addr = args.length > 1 ? args[1] : "smool.tecnalia.com";
-		int port = args.length > 2 ? Integer.valueOf(args[2]) : 80;
+		String addr = args.length > 1 ? args[1] : "15.236.132.74";
+		int port = args.length > 2 ? Integer.valueOf(args[2]) : 23000;
 		// Logger.setDebugging(true);
 		// Logger.setDebugLevel(4);
 		while (true) {

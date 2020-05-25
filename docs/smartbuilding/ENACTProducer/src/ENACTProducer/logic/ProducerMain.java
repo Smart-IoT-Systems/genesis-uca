@@ -2,6 +2,8 @@ package ENACTProducer.logic;
 
 import java.io.IOException;
 import java.util.Observer;
+import java.util.UUID;
+import java.nio.ByteBuffer; 
 
 import org.smool.kpi.model.exception.KPIModelException;
 
@@ -39,6 +41,8 @@ public class ProducerMain implements MqttCallback {
 	public static final String vendor = "Tecnalia";
 	public static final String name = "EnactProducer" + System.currentTimeMillis() % 10000;
 	public static TemperatureSensor tempSensor;
+
+	private IMqttClient publisher; 
 
 	private TemperatureInformation tempInfo;
 
@@ -104,6 +108,14 @@ public class ProducerMain implements MqttCallback {
 			String myTopic = "/home/A/Input/float/Thermostat_(Room_Temperature)";
 			MqttTopic topic = publisher.getTopic(myTopic);
 			publisher.subscribe(myTopic, 0);
+
+			myTopic = "/home/A/Input/bool/Smoke_Detector";
+			topic = publisher.getTopic(myTopic);
+			publisher.subscribe(myTopic, 0);
+
+			myTopic = "/home/A/Input/float/Brightness_Sensor_(Analog)";
+			topic = publisher.getTopic(myTopic);
+			publisher.subscribe(myTopic, 0);
             
         }catch(Exception e){
             throw new RuntimeException("Exception occured in creating MQTT Client");
@@ -127,9 +139,11 @@ public class ProducerMain implements MqttCallback {
         System.out.println("| Message: " + new String(mqttMessage.getPayload()));
         System.out.println("-------------------------------------------------");
         
-		String timestamp = Long.toString(System.currentTimeMillis());
-		tempInfo.setValue(temp).setUnit("ºC").setTimestamp(timestamp);
-		SmoolKP.getProducer().updateTemperatureSensor(ProducerMain.tempSensor._getIndividualID(), ProducerMain.name, ProducerMain.vendor, null, null, tempInfo);				
+		if(s.equals("/home/A/Input/float/Thermostat_(Room_Temperature)")){
+			String timestamp = Long.toString(System.currentTimeMillis());
+			tempInfo.setValue(ByteBuffer.wrap(mqttMessage.getPayload()).getDouble()).setUnit("ºC").setTimestamp(timestamp);
+			SmoolKP.getProducer().updateTemperatureSensor(ProducerMain.tempSensor._getIndividualID(), ProducerMain.name, ProducerMain.vendor, null, null, tempInfo);				
+		}
     }
 
     @Override
@@ -165,8 +179,8 @@ public class ProducerMain implements MqttCallback {
 
 	public static void main(String[] args) throws Exception {
 		String sib = args.length > 0 ? args[0] : "sib1";
-		String addr = args.length > 1 ? args[1] : "smool.tecnalia.com";
-		int port = args.length > 2 ? Integer.valueOf(args[2]) : 80;
+		String addr = args.length > 1 ? args[1] : "15.236.132.74";
+		int port = args.length > 2 ? Integer.valueOf(args[2]) : 23000;
 		// Logger.setDebugging(true);
 		// Logger.setDebugLevel(4);
 		while (true) {

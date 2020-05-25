@@ -39,7 +39,7 @@ thing JavaSmoolDataProducer includes CustomDataSender
 		` 
 		
 		try{ 
-			new ENACTProducer.logic.Customized_ProducerMain_Temp(` & sib & `, ` & addr & `, ` & prt & `);
+			new ENACTProducer.logic.ProducerMain(` & sib & `, ` & addr & `, ` & prt & `);
 		}catch(Exception e){ 
 			e.printStackTrace();
 		}		
@@ -71,7 +71,7 @@ thing JavaSmoolDataProducer includes CustomDataSender
 		
 		on entry do
 			//hard code the SMOOL server parameters, to be configured from GeneSIS
-			initProducer("sib1", "smool.tecnalia.com", 80)
+			initProducer("sib1", "15.236.132.74", 23000)
 		end
 		
 		state sendingSmoolData {
