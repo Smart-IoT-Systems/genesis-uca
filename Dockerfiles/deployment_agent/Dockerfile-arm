@@ -1,15 +1,19 @@
-FROM arm32v7/ubuntu:19.04
+FROM arm32v7/ubuntu:latest
 
 USER root
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update
-RUN apt-get install -y curl
-RUN apt-get install -y git
+RUN apt-get install -y wget
 RUN apt-get install -y nodejs
 RUN apt-get install -y npm
 RUN apt-get install -y openjdk-8-jre
+RUN apt-get install -y curl
 
-RUN curl http://downloads.arduino.cc/arduino-1.8.5-linuxarm.tar.xz | tar xJC /
+RUN curl http://downloads.arduino.cc/arduino-1.8.10-linuxarm.tar.xz | tar xJC /
+
+RUN npm config set registry http://registry.npmjs.org/
 
 RUN npm install npm@latest -g
 
@@ -19,8 +23,10 @@ RUN npm install -g --unsafe-perm node-red
 
 WORKDIR /root/.node-red
 
-ENV PATH="${PATH}:/arduino-1.8.5"
+ENV PATH="${PATH}:/arduino-1.8.10"
 
+RUN apt-get install -y git
+ARG NODE_TLS_REJECT_UNAUTHORIZED=0
 RUN npm install \
         node-red-node-serialport \
         git+https://gitlab.com/enact/node-red-contrib-thingml-preparedeploy-docker \
@@ -28,6 +34,8 @@ RUN npm install \
         git+https://gitlab.com/enact/node-red-contrib-docker-compose \
         git+https://gitlab.com/enact/node-red-contrib-arduino \
         git+https://github.com/FIWARE/node-red-contrib-FIWARE_official.git
+
+RUN curl -L https://www.dropbox.com/s/tibyn4sd8kfya02/ThingML2CLI.jar?dl=0  --output /root/.node-red/node_modules/node-red-contrib-thingml-compiler/lib/thingml/ThingML2CLI.jar
 
 RUN apt-get install -y libtinfo5
 
