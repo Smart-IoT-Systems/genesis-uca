@@ -33,32 +33,6 @@ policies.put("", "");
 
 policies.put("", "");
 
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("BlindPositionActuator", "Authorization");
-
 
 		// policies.put("BlindPositionActuator", "Authentication");
 		//policies.put("BlindPositionActuator", "Authorization");

@@ -67,7 +67,7 @@ public class ConsumerMain {
 			System.out.println("temp  from " + sensor._getIndividualID() + ": " + temp);
 			if (temp > 22) {
 				// launch an actuation order to modify the blinds position
-				new Thread(() -> ConsumerMain.actuation.run(temp)).start(); // ConsumerMain.actuation.run();
+				//new Thread(() -> ConsumerMain.actuation.run(temp)).start(); // ConsumerMain.actuation.run();
 			}
 		};
 	}

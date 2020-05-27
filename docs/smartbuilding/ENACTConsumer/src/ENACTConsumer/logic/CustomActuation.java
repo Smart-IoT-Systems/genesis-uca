@@ -64,7 +64,7 @@ public class CustomActuation {
 			} else {
 				val = val + 1; // WARNING: if val is the same as latest val, the mesage is not sent
 				blindPos.setValue(val); // we can also send temp, so the SCADA will contain the temp-to-blind rule
-				SmoolKP.getProducer().updateBlindPositionActuator(name, kpName, "TECNALIA", null, blindPos, null);
+				//SmoolKP.getProducer().updateBlindPositionActuator(name, kpName, "TECNALIA", null, blindPos, null);
 			}
 		} catch (Exception e) {
 			System.out.println("Error: the actuation order cannot be sent. " + e.getMessage());

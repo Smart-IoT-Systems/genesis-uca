@@ -11,6 +11,7 @@ import ENACTConsumer.api.TemperatureSensorSubscription;
 import ENACTConsumer.model.smoolcore.IContinuousInformation;
 import ENACTConsumer.model.smoolcore.impl.*;
 import java.nio.ByteBuffer; 
+import ENACTConsumer.model.smoolcore.impl.SecurityAuthorization;
 
 
 import org.eclipse.paho.client.mqttv3.*;
@@ -34,6 +35,7 @@ public class SmartEnergyApp_ConsumerMain implements MqttCallback {
 	public IMqttClient publisher; 
 
     private ContinuousInformation blindPos;
+	private SecurityAuthorization sec;
 
 	public SmartEnergyApp_ConsumerMain(String sib, String addr, int port) throws Exception {
 
@@ -63,6 +65,7 @@ public class SmartEnergyApp_ConsumerMain implements MqttCallback {
 		LightingSensorSubscription lightSubscription = new LightingSensorSubscription(createLightObserver());
 		consumer.subscribeToLightingSensor(lightSubscription, null);
 
+		sec = new SecurityAuthorization(name + "_security");
         blindPos = new ContinuousInformation(name + "_blindPosition");
         SmoolKP.getProducer().createBlindPositionActuator(SmartEnergyApp_ConsumerMain.name+"_actuator", SmartEnergyApp_ConsumerMain.name, SmartEnergyApp_ConsumerMain.vendor, null, blindPos, null);
 
@@ -125,13 +128,33 @@ public class SmartEnergyApp_ConsumerMain implements MqttCallback {
     }
 
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+		// if started as insecure, do not send credentials (>java -Dinsecure app.jar)
+		if (System.getProperty("insecure") != null) {
+			// IMPORTANT, send data="" instead of null since the global list pf props must
+			// be sent and if old BlindSobscriptions where created with that triple and then
+			// with new insecure requests the data triple is not sent, the subscriptors
+			// crash and cannot reconnect until smool server is restarted.
+			sec.setData("");
+		} else {
+			sec.setData("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkludmVzdGlnYWRvciBDb2xhYm9yYWRvciIsImlhdCI6MTUxNjIzOTAyMn0.OBdiCZDhegbD8liXQ5WqFk2tZQGw0pLXTYm61GoNWgM");
+		}
+		
 		//we should send it to smmol
+		String value_blind=new String(mqttMessage.getPayload());
         System.out.println("-------------------------------------------------");
         System.out.println("| Topic:" + s);
-        System.out.println("| Message: " + new String(mqttMessage.getPayload()));
+        System.out.println("| Message: " + value_blind);
         System.out.println("-------------------------------------------------");
-        if(s.equals("home/A/Output/bool/Roller_Shades_1_(Down)")){
-            blindPos.setValue(ByteBuffer.wrap(mqttMessage.getPayload()).getDouble()); // we can also send temp, so the SCADA will contain the temp-to-blind rule
+        if(s.equals("/home/A/Output/bool/Roller_Shades_1_(Down)")){
+			System.out.println("Sending message to SMOOL");
+			//Later can be intermediary level so we keep double
+            if(value_blind.equals("true")){
+				blindPos.setValue(100.0).setSecurityData(sec);
+			}else{
+				blindPos.setValue(0.0).setSecurityData(sec);
+			} 
+
+			// we can also send temp, so the SCADA will contain the temp-to-blind rule
             SmoolKP.getProducer().updateBlindPositionActuator(SmartEnergyApp_ConsumerMain.name+"_actuator", SmartEnergyApp_ConsumerMain.name, "TECNALIA", null, blindPos, null);
         }
     }

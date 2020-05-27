@@ -28,16 +28,16 @@ thing JavaSmoolActuationCommander includes CustomDataSender
 	do
 		println "processActuationCommand. Sending cmd = " + actuationCmd + " \n"
 				
-		`
-		try {					
-			String timestamp = Long.toString(System.currentTimeMillis());
+		//`
+		//try {					
+		//	String timestamp = Long.toString(System.currentTimeMillis());
 			
-			ENACTConsumer.logic.CustomActuation actuation = new ENACTConsumer.logic.CustomActuation(` & actuationCmd & `);
-			new Thread(() -> actuation.run()).start();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-		`
+		//	ENACTConsumer.logic.CustomActuation actuation = new ENACTConsumer.logic.CustomActuation(` & actuationCmd & `);
+		//	new Thread(() -> actuation.run()).start();
+		//} catch (Exception e1) {
+		//	e1.printStackTrace();
+		//}
+		//`
 	end
 	
 	//main
