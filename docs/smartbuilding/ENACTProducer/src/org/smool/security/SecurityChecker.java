@@ -25,17 +25,28 @@ public class SecurityChecker<T extends AbstractOntConcept> implements Predicate<
 	private Map<String, String> policies = new HashMap<>();
 
 	public SecurityChecker() {
+policies.put("BlindPositionActuator", "Authentication");
+
+policies.put("BlindPositionActuator", "Authentication");
+
 policies.put("", "");
+
+policies.put("BlindPositionActuator", "Authentication");
 
 policies.put("", "");
 
 policies.put("", "");
 
 policies.put("", "");
+
+policies.put("", "");
+
+policies.put("", "");
+
 
 
 		// policies.put("BlindPositionActuator", "Authentication");
-		//policies.put("BlindPositionActuator", "Authorization");
+		// policies.put("BlindPositionActuator", "Authorization");
 		// policies.put("BlindPositionActuator", "Confidentiality");
 		// policies.put("BlindPositionActuator", "Integrity");
 		// policies.put("BlindPositionActuator", "NonRepudiation");

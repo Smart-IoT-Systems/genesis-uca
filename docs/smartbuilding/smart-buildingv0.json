@@ -101,7 +101,7 @@
                 "downloadCommand": "",
                 "installCommand": "",
                 "configureCommand": "",
-                "stopCommand": "rm -rf ENACTProducer-1.0.0-jar-with-dependencies.jar rm -rf SMOOL.txt ; ps -aux | grep ENACT | awk '{print $2}' |xargs kill",
+                "stopCommand": "",
                 "credentials": {
                     "username": "pi",
                     "password": "raspberry",
@@ -156,92 +156,6 @@
             "src": "",
             "libraries": [],
             "target_language": "java"
-        }, {
-            "_type": "/internal/expressapi",
-            "name": "ExpressAPI",
-            "properties": [],
-            "version": "0.0.1",
-            "id": "a6843de4-ce22-44d9-a484-738fc69c27ca",
-            "provided_execution_port": [{
-                "name": "fb3c65f6-e93a-4821-ae29-1c6e1f31d4b1",
-                "capabilities": {
-                    "_type": "/capability/security_capability",
-                    "name": "a_capability",
-                    "control_id": "",
-                    "description": ""
-                }
-            }],
-            "docker_resource": {
-                "name": "97407fc1-1f39-4115-98e4-0844f12b59f5",
-                "image": "",
-                "command": "",
-                "links": [],
-                "port_bindings": {
-                    "1880": "1880"
-                },
-                "devices": {
-                    "PathOnHost": "",
-                    "PathInContainer": "",
-                    "CgroupPermissions": "rwm"
-                }
-            },
-            "ssh_resource": {
-                "name": "52a12bfa-0-44d9-9358-f55b9dcc36e5",
-                "uploadCommand": ["/Users/ferrynico/Downloads/20200106_GeneSIS4SP_Code/apigw/config/gateway.config.yml", "/home/pi/gateway.config.yml"],
-                "startCommand": "cd ./APIG && nohup npm start &",
-                "downloadCommand": "wget -L https://www.dropbox.com/s/6kgfusgxolp2bnm/APIGW.zip?dl=0 -O APIGW.zip",
-                "installCommand": "rm -rf ./APIG && unzip APIGW.zip -d ./APIG && cd ./APIG && npm install",
-                "configureCommand": "mv /home/pi/gateway.config.yml /home/pi/APIG/config",
-                "stopCommand": "",
-                "credentials": {
-                    "username": "pi",
-                    "password": "raspberry",
-                    "sshkey": "",
-                    "agent": ""
-                }
-            },
-            "ansible_resource": {
-                "name": "b73ec035-f723-418b-9c3d-302ed6c25a71",
-                "playbook_path": "",
-                "playbook_host": "",
-                "credentials": {
-                    "username": "ubuntu",
-                    "password": "",
-                    "sshkey": "",
-                    "agent": ""
-                }
-            },
-            "required_execution_port": {
-                "name": "882346d6-3462-4d95-a83a-b68685a1c5b5",
-                "capabilities": {
-                    "_type": "/capability/security_capability",
-                    "name": "a_capability",
-                    "control_id": "",
-                    "description": ""
-                },
-                "needDeployer": false
-            },
-            "provided_communication_port": [{
-                "name": "7d8cb3f4-f382-4489-ac42-87077aaa85b1",
-                "capabilities": {
-                    "_type": "/capability/security_capability",
-                    "name": "a_capability",
-                    "control_id": "",
-                    "description": ""
-                },
-                "port_number": "80"
-            }],
-            "required_communication_port": [{
-                "name": "5f8d082f-67c1-425a-bab3-56af351f152f",
-                "capabilities": {
-                    "_type": "/capability/security_capability",
-                    "name": "a_capability",
-                    "control_id": "",
-                    "description": ""
-                },
-                "port_number": "80",
-                "isMandatory": false
-            }]
         }, {
             "_type": "/internal/node_red",
             "name": "UserComfortApp",
@@ -331,96 +245,6 @@
             }],
             "nr_flow": [],
             "path_flow": "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/GeneSIS/docs/smartbuilding/homeio_user.json",
-            "packages": ["node-red-dashboard", "node-red-contrib-mqtt-broker", "node-red-contrib-boolean-logic-ultimate", "enact-actuation-conflict-manager-node"]
-        }, {
-            "_type": "/internal/node_red",
-            "name": "EnergyEfficiency",
-            "properties": [],
-            "version": "0.0.1",
-            "id": "3007893d-fb56-44a6-b504-7b608712e64b",
-            "provided_execution_port": [{
-                "name": "fa802a66-56d7-467a-87ea-6d99cea91cc3",
-                "capabilities": {
-                    "_type": "/capability/security_capability",
-                    "name": "a_capability",
-                    "control_id": "",
-                    "description": ""
-                }
-            }],
-            "docker_resource": {
-                "name": "630a5a0b-f74e-4a06-a3e2-84cc254b224e",
-                "image": "nicolasferry/multiarch-node-red-thingml:latest",
-                "command": "",
-                "links": [],
-                "port_bindings": {
-                    "1881": "1880",
-                    "1884": "1883"
-                },
-                "devices": {
-                    "PathOnHost": "",
-                    "PathInContainer": "",
-                    "CgroupPermissions": "rwm"
-                }
-            },
-            "ssh_resource": {
-                "name": "0b47f995-9fa5-47a2-8df1-ab7e5fcde69a",
-                "startCommand": "",
-                "downloadCommand": "",
-                "installCommand": "",
-                "configureCommand": "",
-                "stopCommand": "",
-                "uploadCommand": [],
-                "credentials": {
-                    "username": "ubuntu",
-                    "password": "",
-                    "sshkey": "",
-                    "agent": ""
-                }
-            },
-            "ansible_resource": {
-                "name": "5784eade-a241-4497-8432-076158d361d6",
-                "playbook_path": "",
-                "playbook_host": "",
-                "credentials": {
-                    "username": "ubuntu",
-                    "password": "",
-                    "sshkey": "",
-                    "agent": ""
-                }
-            },
-            "required_execution_port": {
-                "name": "95105335-ffbe-41fe-ada8-599c22c4b560",
-                "capabilities": {
-                    "_type": "/capability/security_capability",
-                    "name": "a_capability",
-                    "control_id": "",
-                    "description": ""
-                },
-                "needDeployer": false
-            },
-            "provided_communication_port": [{
-                "name": "2ed34478-9fc9-4c32-a138-bdf507d569e2",
-                "capabilities": {
-                    "_type": "/capability/security_capability",
-                    "name": "a_capability",
-                    "control_id": "",
-                    "description": ""
-                },
-                "port_number": "1881"
-            }],
-            "required_communication_port": [{
-                "name": "ef8c0271-7a44-4d0c-b1ba-68af3e8042fb",
-                "capabilities": {
-                    "_type": "/capability/security_capability",
-                    "name": "a_capability",
-                    "control_id": "",
-                    "description": ""
-                },
-                "port_number": "80",
-                "isMandatory": false
-            }],
-            "nr_flow": [],
-            "path_flow": "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/GeneSIS/docs/smartbuilding/homeio_energy.json",
             "packages": ["node-red-dashboard", "node-red-contrib-mqtt-broker", "node-red-contrib-boolean-logic-ultimate", "enact-actuation-conflict-manager-node"]
         }, {
             "_type": "/infra/docker_host",
@@ -672,7 +496,7 @@
                 "downloadCommand": "",
                 "installCommand": "",
                 "configureCommand": "",
-                "stopCommand": "rm -rf ENACTProducer-1.0.0-jar-with-dependencies.jar rm -rf SMOOL.txt ; ps -aux | grep ENACT | awk '{print $2}' |xargs kill",
+                "stopCommand": "",
                 "uploadCommand": [],
                 "credentials": {
                     "username": "pi",
@@ -725,7 +549,7 @@
             }],
             "file": "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/GeneSIS/docs/smartbuilding/ENACTProducer/thingml/serviceEndpoint_java.thingml",
             "security_policy": [
-                ["BlindPositionActuator", "Authentication"]
+                ["", ""]
             ],
             "target_language": "java",
             "config_name": "ENACTProducer"
@@ -1118,39 +942,11 @@
             "isControl": false,
             "isDeployer": false
         }, {
-            "name": "energy_to_consumer",
-            "properties": [],
-            "src": "/EnergyEfficiency/2ed34478-9fc9-4c32-a138-bdf507d569e2",
-            "target": "/AppToSMOOL/a51823ac-7c5a-4c89-9a4a-ee066454b66d",
-            "isControl": false,
-            "isDeployer": false
-        }, {
             "name": "consumer_to_user",
             "properties": [],
             "src": "/AppToSMOOL/69f7f7af-0709-4534-9dbd-57306cb9ee55",
             "target": "/UserComfortApp/f3d9d1ce-5d30-41cf-afe0-086c9adf4b8e",
             "isControl": false,
-            "isDeployer": false
-        }, {
-            "name": "consumer_to_energy",
-            "properties": [],
-            "src": "/AppToSMOOL/69f7f7af-0709-4534-9dbd-57306cb9ee55",
-            "target": "/EnergyEfficiency/ef8c0271-7a44-4d0c-b1ba-68af3e8042fb",
-            "isControl": false,
-            "isDeployer": false
-        }, {
-            "name": "express_to_energy",
-            "properties": [],
-            "src": "/ExpressAPI/7d8cb3f4-f382-4489-ac42-87077aaa85b1",
-            "target": "/EnergyEfficiency/ef8c0271-7a44-4d0c-b1ba-68af3e8042fb",
-            "isControl": true,
-            "isDeployer": false
-        }, {
-            "name": "express_to_user",
-            "properties": [],
-            "src": "/ExpressAPI/7d8cb3f4-f382-4489-ac42-87077aaa85b1",
-            "target": "/UserComfortApp/f3d9d1ce-5d30-41cf-afe0-086c9adf4b8e",
-            "isControl": true,
             "isDeployer": false
         }, {
             "name": "SMOOL_to_Producer",
@@ -1215,20 +1011,10 @@
             "src": "/APP_Server/07ab21aa-ca42-4001-b114-eef6e57b08a6",
             "target": "/AppToSMOOL/b86016b4-ffb2-4956-9e72-639401aec677"
         }, {
-            "name": "Express_on_AppServer",
-            "properties": [],
-            "src": "/APP_Server/07ab21aa-ca42-4001-b114-eef6e57b08a6",
-            "target": "/ExpressAPI/882346d6-3462-4d95-a83a-b68685a1c5b5"
-        }, {
             "name": "UserComfort_on_App_server",
             "properties": [],
             "src": "/APP_Server/07ab21aa-ca42-4001-b114-eef6e57b08a6",
             "target": "/UserComfortApp/b46c5fc1-1649-4914-963a-3d77204cffb1"
-        }, {
-            "name": "EnergyEfficiency_on_app_server",
-            "properties": [],
-            "src": "/APP_Server/07ab21aa-ca42-4001-b114-eef6e57b08a6",
-            "target": "/EnergyEfficiency/95105335-ffbe-41fe-ada8-599c22c4b560"
         }, {
             "name": "MQTTBroker_on_BC",
             "properties": [],
@@ -1284,8 +1070,8 @@
                     "id": "APP_Server"
                 },
                 "position": {
-                    "x": 18.457332039424315,
-                    "y": 236.42934221393557
+                    "x": 56.66782097575786,
+                    "y": 213.53504479133682
                 },
                 "group": "nodes",
                 "removed": false,
@@ -1312,44 +1098,12 @@
                 "classes": "thingml"
             }, {
                 "data": {
-                    "id": "ExpressAPI",
-                    "parent": "APP_Server"
-                },
-                "position": {
-                    "x": -55.5642179059853,
-                    "y": 234.66778586372797
-                },
-                "group": "nodes",
-                "removed": false,
-                "selected": false,
-                "selectable": true,
-                "locked": false,
-                "grabbable": true,
-                "classes": ""
-            }, {
-                "data": {
                     "id": "UserComfortApp",
                     "parent": "APP_Server"
                 },
                 "position": {
                     "x": 21.85675996668179,
                     "y": 197.37300218609798
-                },
-                "group": "nodes",
-                "removed": false,
-                "selected": false,
-                "selectable": true,
-                "locked": false,
-                "grabbable": true,
-                "classes": "node_red"
-            }, {
-                "data": {
-                    "id": "EnergyEfficiency",
-                    "parent": "APP_Server"
-                },
-                "position": {
-                    "x": 21.153607908127167,
-                    "y": 275.48568224177313
                 },
                 "group": "nodes",
                 "removed": false,
@@ -1532,6 +1286,34 @@
             }],
             "edges": [{
                 "data": {
+                    "id": "broker_to_producer",
+                    "source": "MQTTBroker",
+                    "target": "ENACTProducer"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": ""
+            }, {
+                "data": {
+                    "id": "sensor_service_temp",
+                    "source": "sensor_service",
+                    "target": "TempHumidity"
+                },
+                "position": {},
+                "group": "edges",
+                "removed": false,
+                "selected": false,
+                "selectable": true,
+                "locked": false,
+                "grabbable": true,
+                "classes": "isdeployer"
+            }, {
+                "data": {
                     "id": "SMOOL_to_Consumer",
                     "source": "SMOOL_Server",
                     "target": "AppToSMOOL"
@@ -1560,9 +1342,9 @@
                 "classes": ""
             }, {
                 "data": {
-                    "id": "express_to_energy",
-                    "source": "ExpressAPI",
-                    "target": "EnergyEfficiency"
+                    "id": "actu_to_display",
+                    "source": "actuator_service",
+                    "target": "SmartDisplay"
                 },
                 "position": {},
                 "group": "edges",
@@ -1571,7 +1353,7 @@
                 "selectable": true,
                 "locked": false,
                 "grabbable": true,
-                "classes": "control"
+                "classes": "isdeployer"
             }, {
                 "data": {
                     "id": "MQTT_to_Home",
@@ -1602,9 +1384,9 @@
                 "classes": ""
             }, {
                 "data": {
-                    "id": "energy_to_consumer",
-                    "source": "EnergyEfficiency",
-                    "target": "AppToSMOOL"
+                    "id": "sensor_to_producer",
+                    "source": "sensor_service",
+                    "target": "ENACTProducer"
                 },
                 "position": {},
                 "group": "edges",
@@ -1630,65 +1412,9 @@
                 "classes": ""
             }, {
                 "data": {
-                    "id": "consumer_to_energy",
-                    "source": "AppToSMOOL",
-                    "target": "EnergyEfficiency"
-                },
-                "position": {},
-                "group": "edges",
-                "removed": false,
-                "selected": false,
-                "selectable": true,
-                "locked": false,
-                "grabbable": true,
-                "classes": ""
-            }, {
-                "data": {
-                    "id": "express_to_user",
-                    "source": "ExpressAPI",
-                    "target": "UserComfortApp"
-                },
-                "position": {},
-                "group": "edges",
-                "removed": false,
-                "selected": false,
-                "selectable": true,
-                "locked": false,
-                "grabbable": true,
-                "classes": "control"
-            }, {
-                "data": {
-                    "id": "SMOOL_to_Producer",
-                    "source": "SMOOL_Server",
-                    "target": "ENACTProducer"
-                },
-                "position": {},
-                "group": "edges",
-                "removed": false,
-                "selected": false,
-                "selectable": true,
-                "locked": false,
-                "grabbable": true,
-                "classes": ""
-            }, {
-                "data": {
-                    "id": "producer_to_smool",
+                    "id": "producer_to_actuator",
                     "source": "ENACTProducer",
-                    "target": "SMOOL_Server"
-                },
-                "position": {},
-                "group": "edges",
-                "removed": false,
-                "selected": false,
-                "selectable": true,
-                "locked": false,
-                "grabbable": true,
-                "classes": ""
-            }, {
-                "data": {
-                    "id": "broker_to_producer",
-                    "source": "MQTTBroker",
-                    "target": "ENACTProducer"
+                    "target": "actuator_service"
                 },
                 "position": {},
                 "group": "edges",
@@ -1714,37 +1440,9 @@
                 "classes": ""
             }, {
                 "data": {
-                    "id": "sensor_service_temp",
-                    "source": "sensor_service",
-                    "target": "TempHumidity"
-                },
-                "position": {},
-                "group": "edges",
-                "removed": false,
-                "selected": false,
-                "selectable": true,
-                "locked": false,
-                "grabbable": true,
-                "classes": "isdeployer"
-            }, {
-                "data": {
-                    "id": "actu_to_display",
-                    "source": "actuator_service",
-                    "target": "SmartDisplay"
-                },
-                "position": {},
-                "group": "edges",
-                "removed": false,
-                "selected": false,
-                "selectable": true,
-                "locked": false,
-                "grabbable": true,
-                "classes": "isdeployer"
-            }, {
-                "data": {
-                    "id": "producer_to_actuator",
-                    "source": "ENACTProducer",
-                    "target": "actuator_service"
+                    "id": "SMOOL_to_Producer",
+                    "source": "SMOOL_Server",
+                    "target": "ENACTProducer"
                 },
                 "position": {},
                 "group": "edges",
@@ -1756,9 +1454,9 @@
                 "classes": ""
             }, {
                 "data": {
-                    "id": "sensor_to_producer",
-                    "source": "sensor_service",
-                    "target": "ENACTProducer"
+                    "id": "producer_to_smool",
+                    "source": "ENACTProducer",
+                    "target": "SMOOL_Server"
                 },
                 "position": {},
                 "group": "edges",
@@ -1902,8 +1600,8 @@
         "panningEnabled": true,
         "userPanningEnabled": true,
         "pan": {
-            "x": 712.5591794646178,
-            "y": -245.19168091102296
+            "x": 694.5591794646177,
+            "y": -275.1916809110229
         },
         "boxSelectionEnabled": false,
         "renderer": {

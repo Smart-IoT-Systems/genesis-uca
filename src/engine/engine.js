@@ -582,6 +582,7 @@ var engine = (function () {
             bus.on('node-started2', function (container_id, comp_name) {
                 tmp++;
                 //Add container id to the component
+                console.log("Started node: "+tmp +" :::: "+ comp.length);
                 var compon = that.dep_model.find_node_named(comp_name);
                 compon.container_id = container_id;
 
@@ -593,6 +594,7 @@ var engine = (function () {
 
             bus.on('link-done', function () {
                 tmp_link++;
+                console.log("Link done: "+tmp_link +" :::: "+ diff.list_of_added_links.length);
                 if (tmp_link >= diff.list_of_added_links.length) {
                     tmp_link = 0;
                     resolve(tmp_link);
@@ -614,7 +616,7 @@ var engine = (function () {
 
             var manage_links = function (comp_tab) {
                 //For all Node-Red hosted components we generate the websocket proxies
-                for (var ct_elem of comp_tab) {
+                /*for (var ct_elem of comp_tab) {
                     (function (comp_tab, ct_elem) {
                         if (ct_elem._type === '/internal/node_red') {
                             var host = that.dep_model.find_host(ct_elem);
@@ -637,7 +639,8 @@ var engine = (function () {
                             bus.emit('link-done');
                         }
                     }(comp_tab, ct_elem));
-                }
+                }*/
+                resolve(0);
             }
 
 
