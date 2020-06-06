@@ -40,7 +40,7 @@ image from which our component will be deployed, here
 ```json
 {
     "name": "6240c0bf-5116-4985-8714-d4bc4ba7c436",
-    "image": "test-app:v1.0",
+    "image": "fchauvel/test-app:v1.0",
     "command": "",
     "links": [],
     "port_bindings": {
@@ -130,6 +130,7 @@ flask
 We can now bundle this application into a Docker image using the
 following Dockerfile:
 
+
 ```dockerfile
 FROM python:3.8-buster
 
@@ -148,3 +149,11 @@ RUN pip install -r requirements.txt
 
 CMD python app.py
 ```
+
+Now we can build the Docker image using the command:
+
+```shell
+$ docker build --build-arg APP_VERSION=1.0 -t test-app:v1.0 .
+```
+
+

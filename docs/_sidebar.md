@@ -8,6 +8,7 @@
     -   [Ansible resources](./tutorial/4.Ansible_resources/)
     -   [SSH Resources](./tutorial/5.SSH_resources/)
     -   [Deployment Agent](./tutorial/6.Deployment_Agent/)
+	-   [Blue/Green Deployments](./tutorial/7.blue_green_deployments/)
 -   [The GeneSIS Metamodel](./metamodel.md)
 -   [Contribute](./contribute.md)
 -   [References](./references)
