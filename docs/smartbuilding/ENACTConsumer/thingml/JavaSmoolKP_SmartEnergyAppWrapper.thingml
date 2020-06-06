@@ -28,16 +28,16 @@ thing JavaSmoolActuationCommander includes CustomDataSender
 	do
 		println "processActuationCommand. Sending cmd = " + actuationCmd + " \n"
 				
-		`
-		try {					
-			String timestamp = Long.toString(System.currentTimeMillis());
+		//`
+		//try {					
+		//	String timestamp = Long.toString(System.currentTimeMillis());
 			
-			ENACTConsumer.logic.CustomActuation actuation = new ENACTConsumer.logic.CustomActuation(` & actuationCmd & `);
-			new Thread(() -> actuation.run()).start();
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-		`
+		//	ENACTConsumer.logic.CustomActuation actuation = new ENACTConsumer.logic.CustomActuation(` & actuationCmd & `);
+		//	new Thread(() -> actuation.run()).start();
+		//} catch (Exception e1) {
+		//	e1.printStackTrace();
+		//}
+		//`
 	end
 	
 	//main
@@ -45,7 +45,7 @@ thing JavaSmoolActuationCommander includes CustomDataSender
 		
 		on entry do
 			//hard code the SMOOL server parameters, to be configured from GeneSIS
-			initConsumer("sib1", "smool.tecnalia.com", 80)
+			initConsumer("sib1", "15.236.132.74", 23000)
 		end
 		
 		state sendingActuationCommand {

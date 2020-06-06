@@ -34,12 +34,12 @@ thing JavaSmoolDataProducer includes CustomDataSender
 	function initProducer(sib : String, addr : String, prt : Integer)
 	//@fork_thread "true"
 	do
-		println "Customized_ProducerMain_Temp is getting Started!"
+		println "ProducerMain is getting Started!"
 		
 		` 
 		
 		try{ 
-			new ENACTProducer.logic.Customized_ProducerMain_Temp(` & sib & `, ` & addr & `, ` & prt & `);
+			new ENACTProducer.logic.ProducerMain(` & sib & `, ` & addr & `, ` & prt & `);
 		}catch(Exception e){ 
 			e.printStackTrace();
 		}		
@@ -53,17 +53,17 @@ thing JavaSmoolDataProducer includes CustomDataSender
 	do
 		println "Customized_ProducerMain_Temp has received Temperature Data from Endpoint. Sending Smool Temperature Data = " + sensorData + " \n"
 				
-		`
-		try {					
-			String timestamp = Long.toString(System.currentTimeMillis());
-			ENACTProducer.logic.Customized_ProducerMain_Temp.tempInfo.setValue(Double.parseDouble(` & sensorData & `)).setUnit("ºC").setTimestamp(timestamp);
+		//`
+		//try {					
+		//	String timestamp = Long.toString(System.currentTimeMillis());
+		//	ENACTProducer.logic.Customized_ProducerMain_Temp.tempInfo.setValue(Double.parseDouble(` & sensorData & `)).setUnit("ºC").setTimestamp(timestamp);
 			
 			//update and send data to the consumer
-			ENACTProducer.api.SmoolKP.getProducer().updateTemperatureSensor(ENACTProducer.logic.Customized_ProducerMain_Temp.tempSensor._getIndividualID(), ENACTProducer.logic.Customized_ProducerMain_Temp.name, ENACTProducer.logic.Customized_ProducerMain_Temp.vendor, null, null, ENACTProducer.logic.Customized_ProducerMain_Temp.tempInfo);
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-		`
+		//	ENACTProducer.api.SmoolKP.getProducer().updateTemperatureSensor(ENACTProducer.logic.Customized_ProducerMain_Temp.tempSensor._getIndividualID(), ENACTProducer.logic.Customized_ProducerMain_Temp.name, ENACTProducer.logic.Customized_ProducerMain_Temp.vendor, null, null, ENACTProducer.logic.Customized_ProducerMain_Temp.tempInfo);
+		//} catch (Exception e1) {
+		//	e1.printStackTrace();
+		//}
+		//`
 	end
 	
 	//main
@@ -71,7 +71,7 @@ thing JavaSmoolDataProducer includes CustomDataSender
 		
 		on entry do
 			//hard code the SMOOL server parameters, to be configured from GeneSIS
-			initProducer("sib1", "smool.tecnalia.com", 80)
+			initProducer("sib1", "15.236.132.74", 23000)
 		end
 		
 		state sendingSmoolData {

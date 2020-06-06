@@ -45,39 +45,7 @@ policies.put("", "");
 
 policies.put("", "");
 
-policies.put("", "");
 
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
 
 		// policies.put("BlindPositionActuator", "Authentication");
 		// policies.put("BlindPositionActuator", "Confidentiality");
