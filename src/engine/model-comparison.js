@@ -27,6 +27,17 @@ var comparator = function (dm) {
 
         result.old_dm = that.dm;
 
+	/* 
+	 * Check if the given component is updated, as opposed to
+	 * merely added or removed.
+	 */
+	result.isUpdateOf = function(component) {
+	    const isUpdate = this.list_of_added_components.some(c => c.name === component.name)
+		  && this.list_of_removed_components.some(c => c.name === component.name);
+	    logger.info(`Component ${component.name} updated? ${isUpdate}!`);
+	    return isUpdate;
+	}
+
         //Added Hosts and components
         var target_comps = target_dm.components;
         for (var i in target_comps) {
@@ -49,10 +60,11 @@ var comparator = function (dm) {
                             result.list_of_added_hosted_components.push(target_comps[i]);
                         }
                         result.list_of_added_components.push(target_comps[i]);
-                    } else {
+
+		    } else {
                         result.list_of_added_hosts.push(target_comps[i]);
                     }
-                }else{ //we save the runtime info
+                } else { //we save the runtime info
                     target_comps[i]._runtime = tmp_node._runtime;
                     target_comps[i].container_id = tmp_node.container_id;
                 }

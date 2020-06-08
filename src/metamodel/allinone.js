@@ -713,12 +713,23 @@ var device = function (spec) {
     return that;
 };
 
+
+const DeploymentStrategies = {
+    SINGLE: "Normal",
+    BLUE_GREEN: "Blue/Green",
+    ROLLING: "Rolling Upgrade (Not Yet Implemented)",
+    CANARY: "Canary Release (Not Yet implemented)",
+};
+
+
 /******************************************/
 /* Software node (aka. Internal component)*/
 /******************************************/
 var software_node = function (spec) {
     var that = component(spec);
 
+    that.deployment_strategy = spec.deployment_strategy || DeploymentStrategies.SINGLE;
+    
     that.docker_resource = spec.docker_resource || docker_resource({});
     that.ssh_resource = spec.ssh_resource || ssh_resource({});
     that.ansible_resource = spec.ansible_resource || ansible_resource({});
@@ -990,5 +1001,6 @@ module.exports = {
     hosting: hosting,
     security_capability: security_capability,
     hardware_capability: hardware_capability,
-    soft_capability: soft_capability
+    soft_capability: soft_capability,
+    DeploymentStrategies: DeploymentStrategies
 }
