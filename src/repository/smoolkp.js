@@ -34,25 +34,30 @@ var smoolkp = function (spec) {
             }
         }
 
-        const rl2 = readline.createInterface({
-            input: fs.createReadStream(path_checker),
-            output: process.stdout
-        });
-        var pos_reader = 0;
-
-        var content_for_insertion = '';
-        that.security_policy.forEach(policies => {
-            content_for_insertion += 'policies.put("' + policies[0] + '", "' + policies[1] + '");\n';
-        });
-
-        for await (const line2 of rl2) {
-            pos_reader++;
-            if (line2.indexOf("public SecurityChecker()") > 0) {
-                insertLine(path_checker).contentSync(content_for_insertion).at(pos_reader + 1);
-                break;
-            }
+        if(that.security_checker === ""){
+            const rl2 = readline.createInterface({
+                input: fs.createReadStream(path_checker),
+                output: process.stdout
+            });
+            var pos_reader = 0;
+    
+            var content_for_insertion = '';
+            that.security_policy.forEach(policies => {
+                content_for_insertion += 'policies.put("' + policies[0] + '", "' + policies[1] + '");\n';
+            });
+    
+            for await (const line2 of rl2) {
+                pos_reader++;
+                if (line2.indexOf("public SecurityChecker()") > 0) {
+                    insertLine(path_checker).contentSync(content_for_insertion).at(pos_reader + 1);
+                    break;
+                }
+            }    
+        }else{
+            var contents = fs.readFileSync(that.security_checker);
+            fs.writeFileSync(path_checker, contents);
         }
-
+        
         return content_for_insertion;
     };
 
