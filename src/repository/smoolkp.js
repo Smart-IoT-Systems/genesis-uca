@@ -14,6 +14,7 @@ var smoolkp = function (spec) {
     that.security_policy = spec.security_policy || [["", ""]];
     that.target_language = spec.target_language || "java"
     that.config_name = spec.config_name || that.name;
+    that.security_checker = spec.security_checker || "";
 
     // This function is called before the resources are used
     that._configure = async function () {
