@@ -9,8 +9,8 @@ const insertLine = require('insert-line');
 var smoolkp = function (spec) {
     var that = mm.software_node(spec);
     that._type += "/thingml/smoolkp";
-    that.name = spec.name || "SmoolKP";
-    that.file = spec.file || "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/docker-node-red-thingml/doc/examples/LightSensorApp/LightSensorApp.thingml",
+    that.name = spec.name || "ENACTConsumer";
+    that.file = spec.file || "/Users/ferrynico/Documents/Code/GeneSIS-gitlab/GeneSIS/docs/smartbuilding/ENACTConsumer/thingml/SmartEnergyAppWrapper_Main_SmoolJava.thingml",
     that.security_policy = spec.security_policy || [["", ""]];
     that.target_language = spec.target_language || "java"
     that.config_name = spec.config_name || that.name;
@@ -18,8 +18,6 @@ var smoolkp = function (spec) {
 
     // This function is called before the resources are used
     that._configure = async function () {
-
-
 
         const rl = readline.createInterface({
             input: fs.createReadStream(that.file),
