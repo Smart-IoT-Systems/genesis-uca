@@ -1,7 +1,7 @@
 var mm = require('../metamodel/allinone.js');
 
 /******************************/
-/* Specific ExpressAPIGateway */
+/* Specific jCasbin RBAC      */
 /******************************/
 var jcasbin = function (spec) {
     var that = mm.software_node(spec);
