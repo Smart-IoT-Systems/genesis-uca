@@ -1,8 +1,8 @@
 # Installation
 
 > GeneSIS requires the following components to be available:
->  - Node.js v7
->  - NPM v4
+>  - Node.js (Latest LTS Version, recommended)
+>  - NPM (Latest LTS Version, recommended)
 >  - Java v8, and Java should be in the path
 
 
