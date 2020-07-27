@@ -172,18 +172,22 @@ class EditLink extends React.Component {
         d_m.get_all_can_be_hosted().forEach(element => {
             var optSrc={ value: element.name, label: element.name};
             optSrc.children = [];
-            element.provided_communication_port.forEach(port => {
-                var c = {value: port.name, label: port.name};
-                optSrc.children.push(c);
-            });
+            if(element.provided_communication_port !== undefined){
+                element.provided_communication_port.forEach(port => {
+                    var c = {value: port.name, label: port.name};
+                    optSrc.children.push(c);
+                });
+            }
             optionsSrc.push(optSrc);
 
             var optTgt={ value: element.name, label: element.name};
             optTgt.children = [];
-            element.required_communication_port.forEach(port => {
-                var ct = {value: port.name, label: port.name};
-                optTgt.children.push(ct);
-            });
+            if(element.required_communication_port !== undefined){
+                element.required_communication_port.forEach(port => {
+                    var ct = {value: port.name, label: port.name};
+                    optTgt.children.push(ct);
+                });
+            }
             optionsTgt.push(optTgt);
         });
 
