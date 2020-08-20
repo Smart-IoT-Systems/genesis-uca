@@ -32,7 +32,7 @@ var thingml_compiler = function (node) {
             });
         }*/
 
-        var rimraf = require(dirpath);
+        rimraf.sync(dirpath);
     };
 
     that.unzipSources = function (source, callback) {
