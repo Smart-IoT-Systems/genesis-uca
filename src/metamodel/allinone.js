@@ -478,7 +478,9 @@ var deployment_model = function (spec) {
     that.find_target_port_of_link = function (l) {
         var resultat = undefined;
         var target_node_name = l.target.split('/')[1];
+        console.log('>>>'+JSON.stringify(target_node_name));
         var the_target_node = that.find_node_named(target_node_name);
+        console.log('>>>'+JSON.stringify(the_target_node));
         the_target_node.required_communication_port.forEach(function (elem) {
             if (that.get_port_name_from_port_id(l.target) === elem.name) {
                 resultat = elem;
@@ -489,10 +491,10 @@ var deployment_model = function (spec) {
 
     that.find_src_port_of_link = function (l) {
         var resultat = undefined;
-        var src_node_name = l.target.split('/')[1];
+        var src_node_name = l.src.split('/')[1];
         var the_src_node = that.find_node_named(src_node_name);
-        the_src_node.required_communication_port.forEach(function (elem) {
-            if (that.get_port_name_from_port_id(l.target) === elem.name) {
+        the_src_node.provided_communication_port.forEach(function (elem) {
+            if (that.get_port_name_from_port_id(l.src) === elem.name) {
                 resultat = elem;
             }
         });
@@ -536,6 +538,10 @@ var deployment_model = function (spec) {
                 //Then let's check capabilities
                 var tgt_port = that.find_target_port_of_link(elem);
                 var src_port = that.find_src_port_of_link(elem);
+
+                console.log(JSON.stringify(elem));
+                console.log(JSON.stringify(tgt_port));
+                console.log(JSON.stringify(src_port));
 
                 if (tgt_port.capabilities !== undefined && tgt_port.capabilities.length > 0) {
                     if (src_port.capabilities !== undefined && src_port.capabilities.length > 0) {
