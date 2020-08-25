@@ -1,0 +1,26 @@
+import "api.thingml"
+
+/**
+Then, we organise the sensor data message into a port.
+Our custom sender will basically receive this message and
+use some system primitives to perform the sending data such as SMOOL API.
+However at this point, the thing is still platform independent (no C, no Java, no JavaScript here)
+*/
+thing fragment CustomDataSender includes API 
+{
+	//The API (this port) is fully platform-independent	
+	required port SensorData 
+	@sync_send "true"
+	{
+		receives sensorData
+		sends sensorData
+	}
+	
+	//The API (this port) is fully platform-independent, not implemented yet for actuator commands
+	provided port ActuatorCmd 
+	@sync_send "true"
+	{
+		receives cmd
+		sends cmd
+	}
+}
