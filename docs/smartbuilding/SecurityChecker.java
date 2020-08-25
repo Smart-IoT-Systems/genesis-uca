@@ -1,12 +1,5 @@
 package org.smool.security;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +9,8 @@ import java.util.function.Predicate;
 import org.smool.kpi.model.smart.AbstractOntConcept;
 import org.smool.kpi.model.smart.slots.FunctionalSlot;
 
-import ENACTConsumer.model.smoolcore.IInformation;
-import ENACTConsumer.model.smoolcore.ISecurity;
+import ENACTProducer.model.smoolcore.IInformation;
+import ENACTProducer.model.smoolcore.ISecurity;
 
 /**
  * -----------------------------------------------------------------------------------------------------------------------------
@@ -87,10 +80,15 @@ public class SecurityChecker<T extends AbstractOntConcept> implements Predicate<
 				isAuthorized = getPermission(jwtToken);
 			}
 			
-			// return test
-			System.out.println(">>>>>>>>>>Security checker is " + (isCompliant && isAuthorized) + " for " + t._getIndividualID());
+			//Filter here to only show the check result for the UserComfortApp_ENACT_blindActuator to avoid noise
+			if(t._getIndividualID().equalsIgnoreCase("UserComfortApp_ENACT_blindActuator") || 
+					t._getIndividualID().equalsIgnoreCase("SmartEnergyApp_ENACT_blindActuator")) {
+				System.out.println(">>>>>>>>>>Security checker: isCompliant && isAuthorized = " + isCompliant + " && " + isAuthorized 
+						+ " = " + (isCompliant && isAuthorized) + " for " + t._getIndividualID());
+			}
 			
-			return (isCompliant && isAuthorized) ? true : false;
+			// return test
+			return isCompliant && isAuthorized;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -102,31 +100,47 @@ public class SecurityChecker<T extends AbstractOntConcept> implements Predicate<
 	private boolean getPermission(String jwtToken) {
 		boolean isAuthorized = false;
 		
-		HttpRequest request = HttpRequest.newBuilder()
-			      .uri(URI.create("http://localhost:8011/getPermission/jwtToken/"+jwtToken))
-			      .timeout(Duration.ofMinutes(1))
-			      .headers("Content-Type", "text/plain;charset=UTF-8")
-			      .GET()
-			      .build();
-		
-		HttpClient client = HttpClient.newHttpClient();
-		
-		HttpResponse<String> response;
 		try {
-			response = client.send(request, BodyHandlers.ofString());
-			System.out.println(response.statusCode());
-			System.out.println(response.body());
+			String response = HTTPS.get("http://localhost:8011/getPermission/jwtToken/"+jwtToken);
 			
-			isAuthorized = (response.statusCode() < 299) && response.body().equalsIgnoreCase("true");
+//			System.out.println(response);
 			
-		} catch (IOException e) {
+			isAuthorized = response != null && !response.isEmpty() && response.equalsIgnoreCase("true");
+			
+			return isAuthorized;
+					
+		} catch (Exception e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}			
+			e1.printStackTrace();
+			
+			return false;
+		}
 		
-		return isAuthorized;
+//		HttpRequest request = HttpRequest.newBuilder()
+//			      .uri(URI.create("http://localhost:8011/getPermission/jwtToken/"+jwtToken))
+//			      .timeout(Duration.ofMinutes(1))
+//			      .headers("Content-Type", "text/plain;charset=UTF-8")
+//			      .GET()
+//			      .build();
+//		
+//		HttpClient client = HttpClient.newHttpClient();
+//		
+//		HttpResponse<String> response;
+//		try {
+//			response = client.send(request, BodyHandlers.ofString());
+//			//System.out.println(response.statusCode());
+//			//System.out.println(response.body());
+//			
+//			isAuthorized = (response.statusCode() < 299) && response.body().equalsIgnoreCase("true");
+//			
+//			return isAuthorized;
+//			
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			return false; // cannot verify if secure or not -> return false
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//			return false; // cannot verify if secure or not -> return false
+//		}
 	}
 }

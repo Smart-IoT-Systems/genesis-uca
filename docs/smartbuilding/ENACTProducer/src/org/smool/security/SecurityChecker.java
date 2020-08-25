@@ -25,28 +25,8 @@ public class SecurityChecker<T extends AbstractOntConcept> implements Predicate<
 	private Map<String, String> policies = new HashMap<>();
 
 	public SecurityChecker() {
-policies.put("BlindPositionActuator", "Authentication");
-
-policies.put("BlindPositionActuator", "Authentication");
-
-policies.put("", "");
-
-policies.put("BlindPositionActuator", "Authentication");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-policies.put("", "");
-
-
-
 		// policies.put("BlindPositionActuator", "Authentication");
-		// policies.put("BlindPositionActuator", "Authorization");
+		policies.put("BlindPositionActuator", "Authorization");
 		// policies.put("BlindPositionActuator", "Confidentiality");
 		// policies.put("BlindPositionActuator", "Integrity");
 		// policies.put("BlindPositionActuator", "NonRepudiation");
@@ -93,9 +73,22 @@ policies.put("", "");
 					.map(sec -> policies.get(name).equals(sec.getClass().getSimpleName().replace("Security", "")))
 					.allMatch(el -> el == true);
 
+			//NEW: check RBAC
+			boolean isAuthorized = false;
+			for(ISecurity sec: items) {
+				String jwtToken = sec.getData();
+				isAuthorized = getPermission(jwtToken);
+			}
+			
+			//Filter here to only show the check result for the UserComfortApp_ENACT_blindActuator to avoid noise
+			if(t._getIndividualID().equalsIgnoreCase("UserComfortApp_ENACT_blindActuator") || 
+					t._getIndividualID().equalsIgnoreCase("SmartEnergyApp_ENACT_blindActuator")) {
+				System.out.println(">>>>>>>>>>Security checker: isCompliant && isAuthorized = " + isCompliant + " && " + isAuthorized 
+						+ " = " + (isCompliant && isAuthorized) + " for " + t._getIndividualID());
+			}
+			
 			// return test
-			System.out.println(">>>>>>>>>>Security checker is " + isCompliant + " for " + t._getIndividualID());
-			return isCompliant ? true : false;
+			return isCompliant && isAuthorized;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -103,4 +96,51 @@ policies.put("", "");
 		}
 	}
 
+	//NEW: get permission from the REST RBAC service
+	private boolean getPermission(String jwtToken) {
+		boolean isAuthorized = false;
+		
+		try {
+			String response = HTTPS.get("http://localhost:8011/getPermission/jwtToken/"+jwtToken);
+			
+//			System.out.println(response);
+			
+			isAuthorized = response != null && !response.isEmpty() && response.equalsIgnoreCase("true");
+			
+			return isAuthorized;
+					
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			
+			return false;
+		}
+		
+//		HttpRequest request = HttpRequest.newBuilder()
+//			      .uri(URI.create("http://localhost:8011/getPermission/jwtToken/"+jwtToken))
+//			      .timeout(Duration.ofMinutes(1))
+//			      .headers("Content-Type", "text/plain;charset=UTF-8")
+//			      .GET()
+//			      .build();
+//		
+//		HttpClient client = HttpClient.newHttpClient();
+//		
+//		HttpResponse<String> response;
+//		try {
+//			response = client.send(request, BodyHandlers.ofString());
+//			//System.out.println(response.statusCode());
+//			//System.out.println(response.body());
+//			
+//			isAuthorized = (response.statusCode() < 299) && response.body().equalsIgnoreCase("true");
+//			
+//			return isAuthorized;
+//			
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			return false; // cannot verify if secure or not -> return false
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//			return false; // cannot verify if secure or not -> return false
+//		}
+	}
 }

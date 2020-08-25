@@ -36,6 +36,38 @@ thing JavaEndpoint includes API
     <version>2.6.2</version>
 </dependency>"
 
+@maven_dep "
+<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
+    <version>4.5.12</version>
+</dependency>"
+@maven_dep "
+<!-- https://mvnrepository.com/artifact/commons-logging/commons-logging -->
+<dependency>
+    <groupId>commons-logging</groupId>
+    <artifactId>commons-logging</artifactId>
+    <version>1.2</version>
+</dependency>
+"
+@maven_dep "
+<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore -->
+<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpcore</artifactId>
+    <version>4.4.13</version>
+</dependency>
+"
+@maven_dep "
+<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpmime -->
+<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpmime</artifactId>
+    <version>4.5.12</version>
+</dependency>
+"
+
 @maven_repo "<repository><id>smool_remote</id><url>http://smool.tecnalia.com:8080</url></repository>"
 {
 

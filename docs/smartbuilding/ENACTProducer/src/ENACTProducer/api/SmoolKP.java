@@ -172,7 +172,7 @@ public class SmoolKP {
 	 */
 	public static void connect(String name, String address, int port) throws IOException {
 		clean();
-		SmoolKP.isConnected = SmoolKP.connectToSIB(name, address, Integer.toString(port), 1000);
+		SmoolKP.isConnected = SmoolKP.connectToSIB(name, address, Integer.toString(port), 2000);
 		if (SmoolKP.isConnected) {
 			System.out.println("Successfully connected to SIB");
 		} else {
@@ -250,8 +250,10 @@ public class SmoolKP {
 				}
 			} catch (KPIModelException kpie) {
 				Logger.error("Failed to connect to SIB...");
+				kpie.printStackTrace();
 				return false;
 			} catch (InterruptedException ie) {
+				ie.printStackTrace();
 				return dl.getModel().isConnected();
 			}
 		}

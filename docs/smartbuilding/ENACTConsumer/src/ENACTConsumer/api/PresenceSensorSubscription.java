@@ -5,25 +5,25 @@
 
 package ENACTConsumer.api;
 
-import ENACTConsumer.model.smoolcore.impl.PresenceSensor;
+import java.util.Observer;
 
 import org.smool.kpi.common.Logger;
 import org.smool.kpi.model.smart.subscription.AbstractSubscription;
 import org.smool.kpi.ssap.message.parameter.SSAPMessageRDFParameter.TypeAttribute;
-import java.util.Observer;
+
+import ENACTConsumer.model.smoolcore.impl.PresenceSensor;
 
 public class PresenceSensorSubscription extends AbstractSubscription<PresenceSensor> {
 
-	private Observer customObserver=null;
-	
+	private Observer customObserver = null;
+
 	public PresenceSensorSubscription() {
 		super(TypeAttribute.RDFM3);
 	}
-	
-	
+
 	public PresenceSensorSubscription(Observer customObserver) {
 		super(TypeAttribute.RDFM3);
-		this.customObserver=customObserver;
+		this.customObserver = customObserver;
 	}
 
 	public void conceptAdded(PresenceSensor aoc) {
@@ -45,11 +45,11 @@ public class PresenceSensorSubscription extends AbstractSubscription<PresenceSen
 		Logger.debug("Current: " + newConcept);
 		customNotify(newConcept);
 	}
-	
+
 	private void customNotify(PresenceSensor concept) {
-	  SmoolKP.lastTimestamp = System.currentTimeMillis(); // update last time a message arrived
-	  if(customObserver!=null) customObserver.update(null, concept);
+		SmoolKP.lastTimestamp = System.currentTimeMillis(); // update last time a message arrived
+		if (customObserver != null)
+			customObserver.update(null, concept);
 	}
 
 }
-
