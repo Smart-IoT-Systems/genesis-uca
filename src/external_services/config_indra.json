@@ -1,6 +1,6 @@
 {
-    "login":"nicolas",
-    "passwd":"ENACT9012",
+    "login":"xx",
+    "passwd":"xx",
     "ip": "54.154.144.55",
     "KEY": "/Users/ferrynico/Documents/Code/INDRAMQTT/private_key/nicolas.key.pem",
     "cert":"/Users/ferrynico/Documents/Code/INDRAMQTT/public_key/nicolas.cert.pem", 
