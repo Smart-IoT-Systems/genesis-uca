@@ -172,7 +172,7 @@ var docker_connector = function () {
 				});
 
 			}).catch(function (err) {
-				if(err.statusCode === 409){
+				if(err.statusCode === 409 && err.message.includes("already in use by container")){
 					let id_container = err.message.split('"')[3]; //temporary hack
 					logger.log('info', 'Container already started: ' + id_container + ' (' + that.comp_name + ')');
 					resolve(id_container, that.comp_name);
