@@ -46,6 +46,9 @@ import ENACTConsumer.model.smoolcore.impl.PresenceSensor;
 import ENACTConsumer.model.smoolcore.impl.SmokeSensor;
 import ENACTConsumer.model.smoolcore.impl.TemperatureSensor;
 import ENACTConsumer.model.smoolcore.impl.WashingMachineActuator;
+import ENACTConsumer.model.smoolcore.IMessage;
+import ENACTConsumer.model.smoolcore.ILogicalLocation;
+
 
 public class SmoolKP {
 
@@ -1285,6 +1288,115 @@ public class SmoolKP {
 			dl.getModel().remove(concept);
 			dl.getModel().publish();
 		}
+
+		public String createMessageReceiveSensor(String elemID, String deviceID, String vendor,
+				java.util.List<IAlarm> alarms, java.util.List<ILogicalLocation> destination,
+				ILogicalLocation logicalLoc, IMessage message, ILogicalLocation origin) throws KPIModelException {
+
+			if (elemID == null)
+				throw new KPIModelException("Concepts must have an ID");
+
+			if (conceptMap.containsKey(elemID)) {
+				throw new KPIModelException("Cannot create two concepts with the same ID");
+			}
+
+			// check that we're connected
+			if (SmoolKP.dl.getModel() == null || !SmoolKP.dl.getModel().isConnected()) {
+				Logger.error("Cannot create a new concept. Connection lost. Try to reconnect");
+				throw new KPIModelException("Cannot create a new concept. Connection lost. Try to reconnect");
+			}
+			MessageReceiveSensor concept = new MessageReceiveSensor();
+			concept._setIndividualID(elemID);
+
+			concept.setDeviceID(deviceID);
+			concept.setVendor(vendor);
+			if (alarms != null) {
+				for (IAlarm elem : alarms) {
+					concept.addAlarms(elem);
+				}
+			}
+			if (destination != null) {
+				for (ILogicalLocation elem : destination) {
+					concept.addDestination(elem);
+				}
+			}
+			concept.setLogicalLoc(logicalLoc);
+			concept.setMessage(message);
+			concept.setOrigin(origin);
+
+			// Add it to the HashMap
+			conceptMap.put(elemID, concept);
+			dl.getModel().add(concept);
+			dl.getModel().publish();
+
+			return concept._getIndividualID();
+		}
+
+		public void updateMessageReceiveSensor(String elemID, String deviceID, String vendor,
+				java.util.List<IAlarm> alarms, java.util.List<ILogicalLocation> destination,
+				ILogicalLocation logicalLoc, IMessage message, ILogicalLocation origin) throws KPIModelException {
+
+			// check that we're connected and model is inserted
+			if (SmoolKP.dl.getModel() == null || !SmoolKP.dl.getModel().isConnected()) {
+				Logger.error("Cannot update the concept. Connection lost. Try to reconnect");
+				throw new KPIModelException("Cannot update concept. Connection lost. Try to reconnect");
+			}
+			AbstractOntConcept concept = conceptMap.get(elemID);
+
+			if (concept == null || !(concept instanceof MessageReceiveSensor)) {
+				throw new KPIModelException("Provided ID does not refer to an existing concept of the selected type.");
+			}
+			// SECURITY: refresh secutity objects when updating, even if the were not been
+			// modified (then the commands for those slots are added)
+			persistSecurityConcepts(elemID, deviceID, vendor, alarms, destination, logicalLoc, message, origin);
+
+			Collection<Object> vals = null;
+			((MessageReceiveSensor) concept).setDeviceID(deviceID);
+			((MessageReceiveSensor) concept).setVendor(vendor);
+			vals = new ArrayList<Object>(
+					((MessageReceiveSensor) concept)._getNonFunctionalProperty("alarms").listValues());
+			if (vals != null)
+				((MessageReceiveSensor) concept)._getNonFunctionalProperty("alarms").removeAll(vals);
+
+			if (alarms != null) {
+				for (IAlarm elem : alarms) {
+					((MessageReceiveSensor) concept).addAlarms(elem);
+				}
+			}
+			vals = new ArrayList<Object>(
+					((MessageReceiveSensor) concept)._getNonFunctionalProperty("destination").listValues());
+			if (vals != null)
+				((MessageReceiveSensor) concept)._getNonFunctionalProperty("destination").removeAll(vals);
+
+			if (destination != null) {
+				for (ILogicalLocation elem : destination) {
+					((MessageReceiveSensor) concept).addDestination(elem);
+				}
+			}
+			((MessageReceiveSensor) concept).setLogicalLoc(logicalLoc);
+			((MessageReceiveSensor) concept).setMessage(message);
+			((MessageReceiveSensor) concept).setOrigin(origin);
+
+			dl.getModel().add(concept);
+			dl.getModel().publish();
+		}
+
+		public void removeMessageReceiveSensor(String elemID) throws KPIModelException {
+
+			// check that we're connected and model is inserted
+			if (SmoolKP.dl.getModel() == null || !SmoolKP.dl.getModel().isConnected()) {
+				Logger.error("Cannot remove the concept. Connection lost. Try to reconnect");
+				throw new KPIModelException("Cannot remove the concept. Connection lost. Try to reconnect");
+			}
+
+			AbstractOntConcept concept = conceptMap.get(elemID);
+			if (concept == null || !(concept instanceof MessageReceiveSensor)) {
+				throw new KPIModelException("Provided ID does not refer to an existing concept of the selected type.");
+			}
+			dl.getModel().remove(concept);
+			dl.getModel().publish();
+		}
+
 
 		/**
 		 * Security concepts are intended to travel along with the KP messages, but if
