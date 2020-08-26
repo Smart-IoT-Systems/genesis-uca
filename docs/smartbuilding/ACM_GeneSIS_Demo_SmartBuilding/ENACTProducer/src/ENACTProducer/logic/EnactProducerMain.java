@@ -1,8 +1,6 @@
 package ENACTProducer.logic;
 
 import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.Locale;
 import java.util.Observer;
 import java.util.UUID;
 
@@ -17,16 +15,14 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 import org.smool.kpi.model.exception.KPIModelException;
 
-import ENACTProducer.api.BlindPositionActuatorSubscription;
 import ENACTProducer.api.Consumer;
+import ENACTProducer.api.MessageReceiveSensorSubscription;
 import ENACTProducer.api.Producer;
 import ENACTProducer.api.SmoolKP;
-import ENACTProducer.model.smoolcore.IContinuousInformation;
-import ENACTProducer.model.smoolcore.impl.BlindPositionActuator;
-import ENACTProducer.model.smoolcore.impl.GasSensor;
-import ENACTProducer.model.smoolcore.impl.SmokeSensor;
+import ENACTProducer.model.smoolcore.IMessage;
+import ENACTProducer.model.smoolcore.impl.Message;
+import ENACTProducer.model.smoolcore.impl.MessageReceiveSensor;
 import ENACTProducer.model.smoolcore.impl.TemperatureInformation;
-import ENACTProducer.model.smoolcore.impl.TemperatureSensor;
 
 /**
  * Producer of data for the Smart Building use case for Enact.
@@ -36,18 +32,22 @@ import ENACTProducer.model.smoolcore.impl.TemperatureSensor;
  * </p>
  * <p>
  * This app is sending (via SMOOL) the temperature, gas, etc stataus in the
- * smart building. When an external app controlling this data decides that the
- * values must be re-adapted, an actuation order is sent back to this
- * appication, and this one check if security data is valid and then it calls
+ * smart building. It is also receiving (via SMOOL) actuation orders, and checking if security data is valid and then it calls
  * the Smart Building SCADA to tune the values.
  * </p>
  *
  */
 public class EnactProducerMain implements MqttCallback{
 
-	public static final String vendor = "Tecnalia";
-	public static final String name = "EnactProducer_HomeIO";//"EnactProducer" + System.currentTimeMillis() % 10000;
-	public static TemperatureSensor tempSensor;
+	public static final String vendor = "CNRS";
+	public static final String name = "ACM_GeneSIS_Demo";//"EnactProducer" + System.currentTimeMillis() % 10000;
+	
+	public static MessageReceiveSensor sensor_luminance;
+	
+	public static MessageReceiveSensor camera_detection;
+	
+//	public static MessageSendActuator switch_binary;
+	public static MessageReceiveSensor switch_binary;//Actuator but use this MessageReceiveSensor instead
 	
 	private IMqttClient publisher; 
 	public TemperatureInformation tempInfo;
@@ -67,57 +67,34 @@ public class EnactProducerMain implements MqttCallback{
 
 		// ---------------------------CREATE SENSOR-----------------------------
 		Producer producer = SmoolKP.getProducer();
-		tempSensor = new TemperatureSensor(name + "_tempSensor");
-		SmokeSensor smokeSensor = new SmokeSensor(name + "_smokeSensor");
-		GasSensor gasSensor = new GasSensor(name + "_gasSensor");
+		sensor_luminance = new MessageReceiveSensor(name + "_sensor_luminance");
+		camera_detection = new MessageReceiveSensor(name + "_camera_detection");
+//		switch_binary = new MessageSendActuator(name + "_switch_binary");
+		switch_binary = new MessageReceiveSensor(name + "_switch_binary");
 
 		// ---------------------------PRODUCE DATA----------------------------------
 		String timestamp = Long.toString(System.currentTimeMillis());
 
-		TemperatureInformation tempInfo = new TemperatureInformation(name + "_temp");
-		double temp = 20;
-		tempInfo.setValue(temp).setUnit("ºC").setTimestamp(timestamp);
+		Message msg = new Message();
+		msg.setBody("");
+		msg.setTimestamp(timestamp);
 
-		producer.createTemperatureSensor(tempSensor._getIndividualID(), name, vendor, null, null, tempInfo);
-
-		// SmokeInformation smokeInfo = new SmokeInformation(name + "_smoke");
-		// boolean smoke = false;
-		// smokeInfo.setStatus(smoke).setTimestamp(timestamp);
-		// producer.createSmokeSensor(smokeSensor._getIndividualID(), name, vendor,
-		// null, null, smokeInfo);
-		//
-		// GasInformation gasInfo = new GasInformation(name + "_CO2");
-		// double gas = 400;
-		// gasInfo.setType("CO2").setUnit("ppm").setValue(gas).setTimestamp(timestamp);
-		// producer.createGasSensor(gasSensor._getIndividualID(), name, vendor, null,
-		// gasInfo, null);
+		//maybe this is not necessary
+		producer.createMessageReceiveSensor(sensor_luminance._getIndividualID(), name, vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(camera_detection._getIndividualID(), name, vendor, null, null, null, msg, null);
+		
 
 		// ---------------------------CONSUME ACTION----------------------------------
 		Consumer consumer = SmoolKP.getConsumer();
-		BlindPositionActuatorSubscription subscription = new BlindPositionActuatorSubscription(createObserver());
-		consumer.subscribeToBlindPositionActuator(subscription, null);
-
-//		// ---------------------SEND DATA--------------------------------------------
-//		while (true) {
-//			Thread.sleep(10000);
-//			timestamp = Long.toString(System.currentTimeMillis());
-//			temp = temp < 26 ? temp + 0.5 : 22;
-//			tempInfo.setValue(temp).setTimestamp(timestamp);
-//			producer.updateTemperatureSensor(tempSensor._getIndividualID(), name, vendor, null, null, tempInfo);
-//
-//			System.out.println("Producing temp  " + Double.toString(temp) + " (and more concepts)");
-//
-//			// smoke = !smoke;
-//			// smokeInfo.setStatus(smoke).setTimestamp(timestamp);
-//			// producer.updateSmokeSensor(smokeSensor._getIndividualID(), name, vendor,
-//			// null, null, smokeInfo);
-//			//
-//			// gas = gas < 2000 ? gas + 100 : 400;
-//			// gasInfo.setValue(gas).setTimestamp(timestamp);
-//			// producer.updateGasSensor(gasSensor._getIndividualID(), name, vendor, null,
-//			// gasInfo, null);
-//		}
-
+		
+//		MessageReceiveSensorSubscription sensor_luminance_subscription = new MessageReceiveSensorSubscription();
+//		consumer.subscribeToMessageReceiveSensor(sensor_luminance_subscription, sensor_luminance._getIndividualID());
+		
+		MessageReceiveSensorSubscription subscription_switch_binary = new MessageReceiveSensorSubscription(createObserver_switch_binary());
+		consumer.subscribeToMessageReceiveSensor(subscription_switch_binary, switch_binary._getIndividualID());
+		
+//		LightSwitchActuatorSubscription subscription_switch_binary = new LightSwitchActuatorSubscription(createObserver_switch_binary());
+//		consumer.subscribeToLightSwitchActuator(subscription_switch_binary, switch_binary._getIndividualID());		
 	}
 	
 	private void initMQTTclient() throws InterruptedException {
@@ -135,23 +112,20 @@ public class EnactProducerMain implements MqttCallback{
             options.setConnectionTimeout(10);
 			publisher.setCallback(this);
             publisher.connect(options);
-			System.out.println("Connected to the broker to HOMEIO");
+			System.out.println("Connected to the broker to SMART BUILDING");
 			
-			String myTopic = "/home/A/Input/float/Thermostat_(Room_Temperature)";
+			String myTopic = "enact/sensors/zwave/doors/x/sensor_luminance";
 			MqttTopic topic = publisher.getTopic(myTopic);
 			publisher.subscribe(myTopic, 0);
 
-			myTopic = "/home/A/Input/bool/Smoke_Detector";
+			myTopic = "enact/sensors/camera/detection";
 			topic = publisher.getTopic(myTopic);
 			publisher.subscribe(myTopic, 0);
-
-			myTopic = "/home/A/Input/float/Brightness_Sensor_(Analog)";
-			topic = publisher.getTopic(myTopic);
-			publisher.subscribe(myTopic, 0);
+			
 		}catch(MqttException e){
 //        	e.printStackTrace();
 			Thread.sleep(5000);
-			System.out.println("WAITING for the CONNECTION to the broker to HOMEIO...");
+			System.out.println("WAITING for the CONNECTION to the broker to SMART BUILDING...");
 			initMQTTclient();
             //throw new RuntimeException("Exception occurred in creating MQTT Client");
         }catch(Exception e) {
@@ -166,11 +140,11 @@ public class EnactProducerMain implements MqttCallback{
 	*/
 	 @Override
     public void connectionLost(Throwable t) {
-        System.out.println("Connection to HOMEIO lost!");
+        System.out.println("Connection to SMART BUILDING lost!");
         
         // code to reconnect to the broker would go here if desired
         try {
-        	System.out.println("RECONNECTING to the broker to HOMEIO...");
+        	System.out.println("RECONNECTING to the broker to SMART BUILDING...");
 			initMQTTclient();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -180,21 +154,37 @@ public class EnactProducerMain implements MqttCallback{
 
     @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
-		//we should send it to SMOOL
+		//Sending sensor data from SMART BUILDING to SMOOL
         
-//		if(s.equals("/home/A/Input/float/Thermostat_(Room_Temperature)")){
-//			
-//			String message_payload = new String(mqttMessage.getPayload());
-//			System.out.println("-------------------------------------------------");
-//			System.out.println("Forwarding to SMOOL: Thermostat_(Room_Temperature) = " + message_payload);
-//			System.out.println("-------------------------------------------------");
-//			String timestamp = Long.toString(System.currentTimeMillis());
-//			NumberFormat format = NumberFormat.getInstance(Locale.FRANCE);
-//			Number number = format.parse(message_payload);
-//			double d = number.doubleValue();
-//			tempInfo.setValue(d).setUnit("ºC").setTimestamp(timestamp);
-//			SmoolKP.getProducer().updateTemperatureSensor(ProducerMain.tempSensor._getIndividualID(), ProducerMain.name, ProducerMain.vendor, null, null, tempInfo);				
-//		}
+		if(s.equals("enact/sensors/zwave/doors/x/sensor_luminance")){
+			
+			String message_payload = new String(mqttMessage.getPayload());
+			System.out.println("-------------------------------------------------");
+			System.out.println("Forwarding to SMOOL: enact/sensors/zwave/doors/x/sensor_luminance = " + message_payload);
+			System.out.println("-------------------------------------------------");
+			
+			String timestamp = Long.toString(System.currentTimeMillis());
+			
+			Message msg_sensor_luminance = new Message();
+			msg_sensor_luminance.setBody(message_payload);
+			msg_sensor_luminance.setTimestamp(timestamp);
+			SmoolKP.getProducer().updateMessageReceiveSensor(sensor_luminance._getIndividualID(), name, vendor, null, null, null, msg_sensor_luminance, null);
+		}
+		
+		if(s.equals("enact/sensors/camera/detection")){
+			
+			String message_payload = new String(mqttMessage.getPayload());
+			System.out.println("-------------------------------------------------");
+			System.out.println("Forwarding to SMOOL: enact/sensors/camera/detection = " + message_payload);
+			System.out.println("-------------------------------------------------");
+			
+			String timestamp = Long.toString(System.currentTimeMillis());
+			
+			Message msg_camera_detection = new Message();
+			msg_camera_detection.setBody(message_payload);
+			msg_camera_detection.setTimestamp(timestamp);
+			SmoolKP.getProducer().updateMessageReceiveSensor(camera_detection._getIndividualID(), name, vendor, null, null, null, msg_camera_detection, null);
+		}
 
     }
 
@@ -211,26 +201,19 @@ public class EnactProducerMain implements MqttCallback{
     /**
 	 * Processs messages related to actuation orders on blinds
 	 */
-	private Observer createObserver() {
+	private Observer createObserver_switch_binary() {
 		return (o, concept) -> {
-			BlindPositionActuator actuator = (BlindPositionActuator) concept;
-			IContinuousInformation info = actuator.getBlindPos();
-			if(actuator.getDeviceID().equalsIgnoreCase("UserComfortApp_ENACT") || 
-					actuator.getDeviceID().equalsIgnoreCase("SmartEnergyApp_ENACT")) {//_actuator
-				System.out.println("receiving ACTUATION order on blinds. Value: " + info.getValue());
+			MessageReceiveSensor actuator_switch_binary = (MessageReceiveSensor) concept;
+			IMessage msg_switch_binary = actuator_switch_binary.getMessage();
+			
+			if(actuator_switch_binary.getDeviceID().equalsIgnoreCase("ACM_GeneSIS_Demo")) {
+				System.out.println("receiving Actuator Message order. Value: " + msg_switch_binary.getBody());
 			}
-			if(info.getValue() != null){
-					//byte [] val = new byte[] { (byte)((info.getValue() == 0.0)?1:0) };
-					MqttMessage msg=null;
-					MqttMessage msg2=null;
-					if((info.getValue() == 0.0)){
-						msg= new MqttMessage("true".getBytes());
-						msg2= new MqttMessage("false".getBytes());
-					} 
-					if((info.getValue() == 100.0)){
-						msg= new MqttMessage("false".getBytes());
-						msg2= new MqttMessage("true".getBytes());
-					} 
+			
+			if(msg_switch_binary.getBody() != null){
+				MqttMessage msg=null;
+				
+				msg = new MqttMessage(msg_switch_binary.getBody().getBytes());
 				
 				if(msg!=null){
 					msg.setQos(0);
@@ -240,34 +223,12 @@ public class EnactProducerMain implements MqttCallback{
 						if(publisher.isConnected()) {
 							//whenever there is sensor data update sent from SMOOL server, send it to the Apps via MQTT broker 
 							System.out.println("-------------------------------------------------");
-							System.out.println("Is Forwarding Actuation Cmd to HOMEIO: "+new String(msg.getPayload()));
+							System.out.println("Is Forwarding Actuation Cmd to SMART BUILDING: " + new String(msg.getPayload()));
 							System.out.println("-------------------------------------------------");
-							publisher.publish("/home/A/Output/bool/Roller_Shades_1_(Down)", msg2);
-							publisher.publish("/home/A/Output/bool/Roller_Shades_2_(Down)", msg2);
-							publisher.publish("/home/A/Output/bool/Roller_Shades_3_(Down)", msg2);
-							publisher.publish("/home/A/Output/bool/Roller_Shades_4_(Down)", msg2);
-							
-							publisher.publish("/home/A/Output/bool/Roller_Shades_1_(Up)", msg2);
-							publisher.publish("/home/A/Output/bool/Roller_Shades_2_(Up)", msg2);
-							publisher.publish("/home/A/Output/bool/Roller_Shades_3_(Up)", msg2);
-							publisher.publish("/home/A/Output/bool/Roller_Shades_4_(Up)", msg2);
-
-							try
-							{
-								Thread.sleep(20);
-							}
-							catch(InterruptedException ex)
-							{
-								Thread.currentThread().interrupt();
-							}
-
-							publisher.publish("/home/A/Output/bool/Roller_Shades_1_(Up)", msg);
-							publisher.publish("/home/A/Output/bool/Roller_Shades_2_(Up)", msg);
-							publisher.publish("/home/A/Output/bool/Roller_Shades_3_(Up)", msg);
-							publisher.publish("/home/A/Output/bool/Roller_Shades_4_(Up)", msg);
+							publisher.publish("enact/actuators/zwave/switches/X/switch_binary", msg);
 							
 						}else {
-							System.out.println("Cannot send to HOMEIO: publisher.isConnected() = " + publisher.isConnected());
+							System.out.println("Cannot send to SMART BUILDING: publisher.isConnected() = " + publisher.isConnected());
 						}
 					} catch (MqttPersistenceException e) {
 						// TODO Auto-generated catch block
@@ -276,7 +237,7 @@ public class EnactProducerMain implements MqttCallback{
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}    
-				} 
+				}
 			}
 		};
 	}
