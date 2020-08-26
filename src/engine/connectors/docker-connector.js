@@ -172,9 +172,15 @@ var docker_connector = function () {
 				});
 
 			}).catch(function (err) {
-				bus.emit('container-error', that.comp_name);
-				logger.log('info', 'Error while starting container for: ' + that.comp_name + '\n' + err);
-				reject(err);
+				if(err.statusCode === 409){
+					let id_container = err.message.split('"')[3]; //temporary hack
+					logger.log('info', 'Container already started: ' + id_container + ' (' + that.comp_name + ')');
+					resolve(id_container, that.comp_name);
+				}else{
+					bus.emit('container-error', that.comp_name);
+					logger.log('info', 'Error while starting container for: ' + that.comp_name + '\n' + JSON.stringify(err));
+					reject(err);
+				}
 			});
 
 		});
