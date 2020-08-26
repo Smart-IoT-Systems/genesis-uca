@@ -14,7 +14,7 @@ thing JavaSmoolActuationCommander includes CustomDataSender
 		` 
 		
 		try{ 
-			new ENACTConsumer.logic.SmartEnergyApp_ConsumerMain(` & sib & `, ` & addr & `, ` & prt & `);
+			new ENACTConsumer.logic.EnactConsumerMain(` & sib & `, ` & addr & `, ` & prt & `);
 		}catch(Exception e){ 
 			e.printStackTrace();
 		}		
