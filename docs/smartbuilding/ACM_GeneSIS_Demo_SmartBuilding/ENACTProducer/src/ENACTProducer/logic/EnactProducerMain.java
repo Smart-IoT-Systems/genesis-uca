@@ -12,7 +12,6 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import org.eclipse.paho.client.mqttv3.MqttTopic;
 import org.smool.kpi.model.exception.KPIModelException;
 
 import ENACTProducer.api.Consumer;
@@ -22,7 +21,6 @@ import ENACTProducer.api.SmoolKP;
 import ENACTProducer.model.smoolcore.IMessage;
 import ENACTProducer.model.smoolcore.impl.Message;
 import ENACTProducer.model.smoolcore.impl.MessageReceiveSensor;
-import ENACTProducer.model.smoolcore.impl.TemperatureInformation;
 
 import ENACTProducer.logic.ACM_GeneSIS_Demo_Common;
 
@@ -62,10 +60,25 @@ public class EnactProducerMain implements MqttCallback{
 		
 		ACM_GeneSIS_Demo_Common.sensor_luminance = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.sensor_luminance_id);
 		ACM_GeneSIS_Demo_Common.camera_detection = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.camera_detection_id);
-		
+		ACM_GeneSIS_Demo_Common.botvacD3_state = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_state_id);
+		ACM_GeneSIS_Demo_Common.botvacD3_action = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_action_id);
+		ACM_GeneSIS_Demo_Common.botvacD3_is_docked = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_is_docked_id);
+		ACM_GeneSIS_Demo_Common.botvacD3_is_scheduled = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_is_scheduled_id);
+		ACM_GeneSIS_Demo_Common.botvacD3_is_charging = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_is_charging_id);
+		ACM_GeneSIS_Demo_Common.botvacD3_command = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_command_id);
+		ACM_GeneSIS_Demo_Common.microphone_record = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_record_id);
+		ACM_GeneSIS_Demo_Common.microphone_sound = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_sound_id);
+		ACM_GeneSIS_Demo_Common.microphone_zcr = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_zcr_id);
+		ACM_GeneSIS_Demo_Common.microphone_mfcc = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_mfcc_id);
+		ACM_GeneSIS_Demo_Common.microphone_time = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_time_id);
+		ACM_GeneSIS_Demo_Common.microphone_replay = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_replay_id);
+		ACM_GeneSIS_Demo_Common.sensors_cec_status = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.sensors_cec_status_id);
+		ACM_GeneSIS_Demo_Common.sensors_cec_source = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.sensors_cec_source_id);
+		ACM_GeneSIS_Demo_Common.actuators_cec_source = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.actuators_cec_source_id);		
+		ACM_GeneSIS_Demo_Common.actuators_cec_power = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.actuators_cec_power_id);		
 		
 //		switch_binary = new MessageSendActuator(name + "_switch_binary");
-		ACM_GeneSIS_Demo_Common.microphone_record = new MessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_record_id);
+
 
 		// ---------------------------PRODUCE DATA----------------------------------
 		String timestamp = Long.toString(System.currentTimeMillis());
@@ -77,6 +90,22 @@ public class EnactProducerMain implements MqttCallback{
 		//maybe this is not necessary
 		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.sensor_luminance._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
 		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.camera_detection._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_state._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_action._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_is_docked._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_is_scheduled._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_is_charging._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_command._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_record._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_sound._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_zcr._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_mfcc._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_time._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_replay._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.sensors_cec_status._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.sensors_cec_source._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.actuators_cec_source._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		producer.createMessageReceiveSensor(ACM_GeneSIS_Demo_Common.actuators_cec_power._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
 		
 
 		// ---------------------------CONSUME ACTION----------------------------------
@@ -85,11 +114,28 @@ public class EnactProducerMain implements MqttCallback{
 //		MessageReceiveSensorSubscription sensor_luminance_subscription = new MessageReceiveSensorSubscription();
 //		consumer.subscribeToMessageReceiveSensor(sensor_luminance_subscription, sensor_luminance._getIndividualID());
 		
-		MessageReceiveSensorSubscription subscription_microphone_record = new MessageReceiveSensorSubscription(createObserver());
-		consumer.subscribeToMessageReceiveSensor(subscription_microphone_record, ACM_GeneSIS_Demo_Common.microphone_record._getIndividualID());
+		MessageReceiveSensorSubscription subscription = new MessageReceiveSensorSubscription(createObserver());
+		
+		consumer.subscribeToMessageReceiveSensor(subscription, ACM_GeneSIS_Demo_Common.botvacD3_command._getIndividualID());
+		consumer.subscribeToMessageReceiveSensor(subscription, ACM_GeneSIS_Demo_Common.microphone_record._getIndividualID());
+		consumer.subscribeToMessageReceiveSensor(subscription, ACM_GeneSIS_Demo_Common.microphone_replay._getIndividualID());
+		consumer.subscribeToMessageReceiveSensor(subscription, ACM_GeneSIS_Demo_Common.actuators_cec_source._getIndividualID());
+		consumer.subscribeToMessageReceiveSensor(subscription, ACM_GeneSIS_Demo_Common.actuators_cec_power._getIndividualID());
 		
 //		LightSwitchActuatorSubscription subscription_switch_binary = new LightSwitchActuatorSubscription(createObserver_switch_binary());
 //		consumer.subscribeToLightSwitchActuator(subscription_switch_binary, switch_binary._getIndividualID());		
+		
+		// ---------------------SEND DATA for a testing purpose--------------------------------------------
+		while (true) {
+			Thread.sleep(10000);
+			timestamp = Long.toString(System.currentTimeMillis());
+			Message message = new Message();
+			message.setBody("test");
+			producer.updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.sensor_luminance._getIndividualID(), ACM_GeneSIS_Demo_Common.name, null, null, null, null, message, null);
+			System.out.println("Producing " + ACM_GeneSIS_Demo_Common.sensor_luminance._getIndividualID() + " (and more concepts)");
+			producer.updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.camera_detection._getIndividualID(), ACM_GeneSIS_Demo_Common.name, null, null, null, null, message, null);
+			System.out.println("Producing " + ACM_GeneSIS_Demo_Common.camera_detection._getIndividualID() + " (and more concepts)");
+		}
 	}
 	
 	private void initMQTTclient() throws InterruptedException {
@@ -113,6 +159,17 @@ public class EnactProducerMain implements MqttCallback{
 			publisher.subscribe(ACM_GeneSIS_Demo_Common.sensor_luminance_topic, 0);
 //			topic = publisher.getTopic(camera_detection_topic);
 			publisher.subscribe(ACM_GeneSIS_Demo_Common.camera_detection_topic, 0);
+			publisher.subscribe(ACM_GeneSIS_Demo_Common.botvacD3_state_topic, 0);
+			publisher.subscribe(ACM_GeneSIS_Demo_Common.botvacD3_action_topic, 0);
+			publisher.subscribe(ACM_GeneSIS_Demo_Common.botvacD3_is_docked_topic, 0);
+			publisher.subscribe(ACM_GeneSIS_Demo_Common.botvacD3_is_scheduled_topic, 0);
+			publisher.subscribe(ACM_GeneSIS_Demo_Common.botvacD3_is_charging_topic, 0);
+			publisher.subscribe(ACM_GeneSIS_Demo_Common.microphone_sound_topic, 0);
+			publisher.subscribe(ACM_GeneSIS_Demo_Common.microphone_zcr_topic, 0);
+			publisher.subscribe(ACM_GeneSIS_Demo_Common.microphone_mfcc_topic, 0);
+			publisher.subscribe(ACM_GeneSIS_Demo_Common.microphone_time_topic, 0);
+			publisher.subscribe(ACM_GeneSIS_Demo_Common.sensors_cec_status_topic, 0);
+			publisher.subscribe(ACM_GeneSIS_Demo_Common.sensors_cec_source_topic, 0);
 			
 		}catch(MqttException e){
 //        	e.printStackTrace();
@@ -166,6 +223,50 @@ public class EnactProducerMain implements MqttCallback{
 		if(s.equals(ACM_GeneSIS_Demo_Common.camera_detection_topic)){
 			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.camera_detection._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
 		}
+		
+		if(s.equals(ACM_GeneSIS_Demo_Common.botvacD3_state_topic)){
+			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_state._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		}
+		
+		if(s.equals(ACM_GeneSIS_Demo_Common.botvacD3_action_topic)){
+			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_action._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		}
+		
+		if(s.equals(ACM_GeneSIS_Demo_Common.botvacD3_is_docked_topic)){
+			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_is_docked._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		}
+		
+		if(s.equals(ACM_GeneSIS_Demo_Common.botvacD3_is_scheduled_topic)){
+			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_is_scheduled._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		}
+		
+		if(s.equals(ACM_GeneSIS_Demo_Common.botvacD3_is_charging_topic)){
+			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.botvacD3_is_charging._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		}
+		
+		if(s.equals(ACM_GeneSIS_Demo_Common.microphone_sound_topic)){
+			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_sound._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		}
+		
+		if(s.equals(ACM_GeneSIS_Demo_Common.microphone_zcr_topic)){
+			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_zcr._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		}
+		
+		if(s.equals(ACM_GeneSIS_Demo_Common.microphone_mfcc_topic)){
+			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_mfcc._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		}
+		
+		if(s.equals(ACM_GeneSIS_Demo_Common.microphone_time_topic)){
+			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.microphone_time._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		}
+		
+		if(s.equals(ACM_GeneSIS_Demo_Common.sensors_cec_status_topic)){
+			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.sensors_cec_status._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		}
+		
+		if(s.equals(ACM_GeneSIS_Demo_Common.sensors_cec_source_topic)){
+			SmoolKP.getProducer().updateMessageReceiveSensor(ACM_GeneSIS_Demo_Common.sensors_cec_source._getIndividualID(), ACM_GeneSIS_Demo_Common.name, ACM_GeneSIS_Demo_Common.vendor, null, null, null, msg, null);
+		}
 
     }
 
@@ -180,58 +281,65 @@ public class EnactProducerMain implements MqttCallback{
     }
 
     /**
-	 * Processs messages related to any Actuator of 
+	 * Processs messages related to any Actuator of ACM_GeneSIS_Demo
 	 */
 	private Observer createObserver() {
 		return (o, concept) -> {
 			MessageReceiveSensor actuator = (MessageReceiveSensor) concept;
 			IMessage msg_actuator = actuator.getMessage();
 			
-			//If the actuator does NOT belong to name="ACM_GeneSIS_Demo", we will not process further
-			if(!actuator.getDeviceID().equalsIgnoreCase(ACM_GeneSIS_Demo_Common.name)) {
-				return;
-			}
-			
-			//the actuator does belong to ACM_GeneSIS_Demo, process the message
-			System.out.println("receiving Actuator Message order. Value: " + msg_actuator.getBody());
-			
-			if(msg_actuator.getBody() != null){
-				MqttMessage msg=null;
+			//ONLY If the actuator does belong to name="ACM_GeneSIS_Demo", we will process further
+			if(actuator.getDeviceID().equalsIgnoreCase(ACM_GeneSIS_Demo_Common.name)) {
 				
-				msg = new MqttMessage(msg_actuator.getBody().getBytes());
+				System.out.println("receiving Actuator Message order. Value: " + msg_actuator.getBody());
 				
-				if(msg!=null){
-					msg.setQos(0);
-					msg.setRetained(true);
+				if(msg_actuator.getBody() != null){
+					MqttMessage msg=null;
 					
-					try {
-						if(publisher.isConnected()) {
-							//whenever there is sensor data update sent from SMOOL server, send it to the Apps via MQTT broker 
-							System.out.println("-------------------------------------------------");
-							System.out.println("Is Forwarding Actuation Cmd to SMART BUILDING: " + new String(msg.getPayload()));
-							System.out.println("-------------------------------------------------");
-							
-							if(actuator._getIndividualID().equalsIgnoreCase(ACM_GeneSIS_Demo_Common.microphone_record_id)) {
-								publisher.publish(ACM_GeneSIS_Demo_Common.microphone_record_topic, msg);
+					msg = new MqttMessage(msg_actuator.getBody().getBytes());
+					
+					if(msg!=null){
+						msg.setQos(0);
+						msg.setRetained(true);
+						
+						try {
+							if(publisher.isConnected()) {
+								//whenever there is sensor data update sent from SMOOL server, send it to the Apps via MQTT broker 
+								System.out.println("-------------------------------------------------");
+								System.out.println("Is Forwarding Actuation Cmd to SMART BUILDING: " + new String(msg.getPayload()));
+								System.out.println("-------------------------------------------------");
+								
+								if(actuator._getIndividualID().equalsIgnoreCase(ACM_GeneSIS_Demo_Common.microphone_record_id)) {
+									publisher.publish(ACM_GeneSIS_Demo_Common.microphone_record_topic, msg);
+								}
+								
+								if(actuator._getIndividualID().equalsIgnoreCase(ACM_GeneSIS_Demo_Common.botvacD3_command_id)) {
+									publisher.publish(ACM_GeneSIS_Demo_Common.botvacD3_command_topic, msg);
+								}
+								
+								if(actuator._getIndividualID().equalsIgnoreCase(ACM_GeneSIS_Demo_Common.microphone_replay_id)) {
+									publisher.publish(ACM_GeneSIS_Demo_Common.microphone_replay_topic, msg);
+								}
+								
+								if(actuator._getIndividualID().equalsIgnoreCase(ACM_GeneSIS_Demo_Common.actuators_cec_source_id)) {
+									publisher.publish(ACM_GeneSIS_Demo_Common.actuators_cec_source_topic, msg);
+								}
+								
+								if(actuator._getIndividualID().equalsIgnoreCase(ACM_GeneSIS_Demo_Common.actuators_cec_power_id)) {
+									publisher.publish(ACM_GeneSIS_Demo_Common.actuators_cec_power_topic, msg);
+								}
+								
+							}else {
+								System.out.println("Cannot send to SMART BUILDING: publisher.isConnected() = " + publisher.isConnected());
 							}
-							
-							if(actuator._getIndividualID().equalsIgnoreCase(ACM_GeneSIS_Demo_Common.botvacD3_command_id)) {
-								publisher.publish(ACM_GeneSIS_Demo_Common.botvacD3_command_topic, msg);
-							}
-							
-							if(actuator._getIndividualID().equalsIgnoreCase(ACM_GeneSIS_Demo_Common.microphone_replay_id)) {
-								publisher.publish(ACM_GeneSIS_Demo_Common.microphone_replay_topic, msg);
-							}
-						}else {
-							System.out.println("Cannot send to SMART BUILDING: publisher.isConnected() = " + publisher.isConnected());
-						}
-					} catch (MqttPersistenceException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (MqttException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}    
+						} catch (MqttPersistenceException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (MqttException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}    
+					}
 				}
 			}
 		};
