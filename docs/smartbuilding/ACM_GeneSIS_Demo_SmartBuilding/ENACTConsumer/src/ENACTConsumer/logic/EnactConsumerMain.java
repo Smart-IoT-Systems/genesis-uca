@@ -170,6 +170,18 @@ public class EnactConsumerMain implements MqttCallback {
 		MessageReceiveSensorSubscription subscription_cec_source = new MessageReceiveSensorSubscription(createObserver_subscription_cec_source());
 		consumer.subscribeToMessageReceiveSensor(subscription_cec_source, sensor_cec_source._getIndividualID());
 
+		/*while (true) {
+			Thread.sleep(1000);
+			timestamp = Long.toString(System.currentTimeMillis());
+			Message message = new Message();
+			message.setBody("test");
+			producer.updateMessageReceiveSensor(microphone_record._getIndividualID(), name, null, null, null, null, message, null);
+			System.out.println("Producing " + microphone_record._getIndividualID() + " (and more concepts)");
+			Message message2 = new Message();
+			message2.setBody("test2");
+			producer.updateMessageReceiveSensor(botvacD3_command._getIndividualID(), name, null, null, null, null, message2, null);
+			System.out.println("Producing " + botvacD3_command._getIndividualID() + " (and more concepts)");
+		}*/
 
 
 		sec = new SecurityAuthorization(name + "_security"+Integer.toString(counter++));
@@ -190,16 +202,6 @@ public class EnactConsumerMain implements MqttCallback {
 		
 		// -----------ATTACH WATCHDOG instead of SLEEP-------
 		SmoolKP.watchdog(3600); // maximum interval that at least one message should arrive
-
-		while (true) {
-			Thread.sleep(10000);
-			timestamp = Long.toString(System.currentTimeMillis());
-			Message message = new Message();
-			message.setBody("test");
-			producer.updateMessageReceiveSensor(microphone_record._getIndividualID(), name, null, null, null, null, message, null);
-			System.out.println("Producing " + microphone_record._getIndividualID() + " (and more concepts)");
-		}
-
 	}
 	
 	/**
