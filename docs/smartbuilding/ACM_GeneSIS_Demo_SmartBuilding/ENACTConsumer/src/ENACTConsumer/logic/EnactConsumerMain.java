@@ -117,7 +117,7 @@ public class EnactConsumerMain implements MqttCallback {
 		String timestamp = Long.toString(System.currentTimeMillis());
 
 		Message msg = new Message();
-		msg.setBody("");
+		msg.setBody("Test");
 		msg.setTimestamp(timestamp);
 
 		Producer producer = SmoolKP.getProducer();
@@ -190,6 +190,15 @@ public class EnactConsumerMain implements MqttCallback {
 		
 		// -----------ATTACH WATCHDOG instead of SLEEP-------
 		SmoolKP.watchdog(3600); // maximum interval that at least one message should arrive
+
+		while (true) {
+			Thread.sleep(10000);
+			timestamp = Long.toString(System.currentTimeMillis());
+			Message message = new Message();
+			message.setBody("test");
+			producer.updateMessageReceiveSensor(microphone_record._getIndividualID(), ACM_GeneSIS_Demo_Common.name, null, null, null, null, message, null);
+			System.out.println("Producing " + microphone_record._getIndividualID() + " (and more concepts)");
+		}
 
 	}
 	
@@ -282,7 +291,6 @@ public class EnactConsumerMain implements MqttCallback {
 			Message msg_with_timestamp = new Message();
 			msg_with_timestamp.setBody(message_payload);
 			msg_with_timestamp.setTimestamp(timestamp);
-
 
 		switch(s){
 			case "enact/actuators/neato/botvacD3/command":
