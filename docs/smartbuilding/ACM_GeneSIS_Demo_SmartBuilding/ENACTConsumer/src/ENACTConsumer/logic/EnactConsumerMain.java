@@ -99,6 +99,20 @@ public class EnactConsumerMain implements MqttCallback {
 		cec_power = new MessageReceiveSensor(name + "_cec_power");
 		microphone_record = new MessageReceiveSensor(name + "_microphone_record");
 
+		x_sensor_luminance= new MessageReceiveSensor(name + "_x_sensor_luminance");
+		camera_detection= new MessageReceiveSensor(name + "_camera_detection");
+		botvacD3_state= new MessageReceiveSensor(name + "_botvacD3_state");
+		botvacD3_action= new MessageReceiveSensor(name + "_botvacD3_action");
+		botvacD3_is_docked= new MessageReceiveSensor(name + "_botvacD3_is_docked");
+		botvacD3_is_scheduled= new MessageReceiveSensor(name + "_botvacD3_is_scheduled");
+		botvacD3_is_charging= new MessageReceiveSensor(name + "_botvacD3_is_charging");
+		microphone_sound= new MessageReceiveSensor(name + "_microphone_sound");
+		microphone_zcr= new MessageReceiveSensor(name + "_microphone_zcr");
+		microphone_mfcc= new MessageReceiveSensor(name + "_microphone_mfcc");
+		microphone_time= new MessageReceiveSensor(name + "_microphone_time");
+		cec_status= new MessageReceiveSensor(name + "_cec_status");
+		sensor_cec_source= new MessageReceiveSensor(name + "_sensor_cec_source");
+
 
 		String timestamp = Long.toString(System.currentTimeMillis());
 
