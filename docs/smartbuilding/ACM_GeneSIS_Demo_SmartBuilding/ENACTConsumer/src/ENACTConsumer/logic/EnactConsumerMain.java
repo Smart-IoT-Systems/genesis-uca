@@ -196,7 +196,7 @@ public class EnactConsumerMain implements MqttCallback {
 			timestamp = Long.toString(System.currentTimeMillis());
 			Message message = new Message();
 			message.setBody("test");
-			producer.updateMessageReceiveSensor(microphone_record._getIndividualID(), ACM_GeneSIS_Demo_Common.name, null, null, null, null, message, null);
+			producer.updateMessageReceiveSensor(microphone_record._getIndividualID(), name, null, null, null, null, message, null);
 			System.out.println("Producing " + microphone_record._getIndividualID() + " (and more concepts)");
 		}
 
