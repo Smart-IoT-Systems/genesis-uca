@@ -400,7 +400,7 @@ class SiderDemo extends React.Component {
             <Notification/>
           </Content>
           <Footer style={{ textAlign: 'center'}}>
-            ENACT ©2018-2019 Created by SINTEF
+            ENACT ©2018-2020 Created by SINTEF
           </Footer>
         </Layout>
         </Layout>

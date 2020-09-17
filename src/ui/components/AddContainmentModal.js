@@ -59,11 +59,11 @@ class CAddContainmentModal extends React.Component {
                 
                     //update graph
                     var node = cy.getElementById(selectedSrcComp);
+                    var parent = cy.getElementById(selectedTargetComp);
+                    parent.addClass('host');
                     node.move({
                         parent: selectedTargetComp
                     });
-                    var parent = cy.getElementById(selectedTargetComp);
-                    parent.addClass('host');
                 
                     //update model
                     var m_m=window.SiderDemo.getMM();

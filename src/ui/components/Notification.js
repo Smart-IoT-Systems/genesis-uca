@@ -28,7 +28,7 @@ class Notification extends React.Component {
     }
 
     componentDidMount(){
-      const client = connect('ws://127.0.0.1:9001');
+      const client = connect('ws://'+window.location.hostname+':9001');
       client.on('connect', function () {
         client.subscribe('/Status');
         client.subscribe('/Notifications');

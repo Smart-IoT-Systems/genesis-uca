@@ -1,0 +1,99 @@
+/**
+This wrapper receives sensor data from SMOOL server, and then forwards sensor data to Smart Energy App via MQTT
+* It also receives actuation commands from Smart Energy App via MQTT, then forwards the commands to SMOOL server. 
+*/
+
+import "api.thingml"
+import "genericSender.thingml"
+import "JavaSmoolKP_SmartEnergyAppWrapper.thingml"
+
+thing JavaEndpoint includes API 
+
+@src "../src"
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>common</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>connector</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi.connector</groupId><artifactId>tcpip</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>model</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi.model</groupId><artifactId>direct</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi.model</groupId><artifactId>smart</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>ssap</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>javax.xml</groupId><artifactId>jsr173</artifactId><version>1.0</version></dependency>"
+@maven_dep "<dependency><groupId>log4j</groupId><artifactId>log4j</artifactId><version>1.2.9</version></dependency>"
+@maven_dep "<dependency><groupId>xalan</groupId><artifactId>xalan</artifactId><version>2.6.0</version></dependency>"
+@maven_dep "<dependency><groupId>com.sun.xml.stream</groupId><artifactId>sjsxp</artifactId><version>1.0.2</version></dependency>"
+@maven_dep "<dependency><groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId><version>3.1</version></dependency>"
+@maven_dep "
+<dependency>
+  <groupId>org.eclipse.paho</groupId>
+  <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+  <version>1.2.0</version>
+</dependency>"
+@maven_dep "
+<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.6.2</version>
+</dependency>"
+
+@maven_repo "<repository><id>smool_remote</id><url>http://smool.tecnalia.com:8080</url></repository>"
+{
+
+	//To receive sensor data message from MQTT and send actuator command to MQTT
+	provided port p {
+		receives cmd
+		sends msg
+	}
+	
+	//To forward sensor data to SMOOL data producer and receive Actuator commands from SMOOL server
+	required port forwardCmdPort 
+	@sync_send "true"
+	{
+		sends cmd
+		//receives msg
+	}
+	
+	statechart init INIT {
+		state INIT {
+			on entry println "Java Service Endpoint SmartEnergyAppWrapper ready! Listening to receive Actuation Commands..."
+			
+			internal event e : p?cmd
+			
+			action do
+								
+				println "Java Service Endpoint SmartEnergyAppWrapper received: Cmd = " + e.cmdString
+				
+				//forward the command to be processed by SMOOL server
+				forwardCmdPort!cmd(e.cmdString)
+				
+			end
+		}
+	}
+}
+
+
+//TODO: Compile and run for the Java platform
+/**
+ * Right click on serviceEndpoint_java.thingml and HEADS / ThingML to generate Java code
+ * Copy the mapping.properties from src\config folder into \thingml-gen\java\javacfg\src\main\resources\config folder (this is for the dependencies of SMOOL)
+ * 
+ * Because the Maven plugin in Eclipse does not include the dependencies of SMOOL, we have to use the genuie commandline of Maven 3.5.3 to package the generated java program: 
+ * In the \thingml-gen\java\javacfg folder, run command line to build jar file: mvn package
+ * Run this cmd line to start the Java program: java -cp target/javacfg-1.0.0-jar-with-dependencies.jar org.thingml.generated.Main
+ * 
+ */
+protocol mqtt
+@serializer "JSON"
+@mqtt_broker_address "localhost"//localhost or "test.mosquitto.org", CoAP Server, UDP
+@mqtt_broker_port "1883"
+@mqtt_subscribe_topic "Roller_Shades_1"//receiving cmd from Apps
+@mqtt_publish_topic "TemperatureSensorData";//sending sensor data to Apps
+
+configuration ENACTConsumer {
+	instance j : JavaEndpoint
+	instance smoolActuationCommander : JavaSmoolActuationCommander
+	
+	connector j.p over mqtt
+	
+	connector j.forwardCmdPort => smoolActuationCommander.ActuatorCmd
+}

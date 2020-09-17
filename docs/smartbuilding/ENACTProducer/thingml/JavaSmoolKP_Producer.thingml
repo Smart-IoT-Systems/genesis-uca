@@ -1,0 +1,86 @@
+import "genericSender.thingml"
+
+thing JavaSmoolDataProducer includes CustomDataSender
+
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>common</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>connector</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi.connector</groupId><artifactId>tcpip</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>model</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi.model</groupId><artifactId>direct</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi.model</groupId><artifactId>smart</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>org.smool.kpi</groupId><artifactId>ssap</artifactId><version>2.2.4</version></dependency>"
+@maven_dep "<dependency><groupId>javax.xml</groupId><artifactId>jsr173</artifactId><version>1.0</version></dependency>"
+@maven_dep "<dependency><groupId>log4j</groupId><artifactId>log4j</artifactId><version>1.2.9</version></dependency>"
+@maven_dep "<dependency><groupId>xalan</groupId><artifactId>xalan</artifactId><version>2.6.0</version></dependency>"
+@maven_dep "<dependency><groupId>com.sun.xml.stream</groupId><artifactId>sjsxp</artifactId><version>1.0.2</version></dependency>"
+@maven_dep "<dependency><groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId><version>3.1</version></dependency>"
+@maven_dep "
+<dependency>
+  <groupId>org.eclipse.paho</groupId>
+  <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+  <version>1.2.0</version>
+</dependency>"
+@maven_dep "
+<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.6.2</version>
+</dependency>"
+
+{
+	
+	//Initialize the KP Producer
+	function initProducer(sib : String, addr : String, prt : Integer)
+	//@fork_thread "true"
+	do
+		println "ProducerMain is getting Started!"
+		
+		` 
+		
+		try{ 
+			new ENACTProducer.logic.ProducerMain(` & sib & `, ` & addr & `, ` & prt & `);
+		}catch(Exception e){ 
+			e.printStackTrace();
+		}		
+		
+		`
+	end
+	
+	//Update temperature data for the KP Producer
+	function processTempData(sensorData : String)
+	//@fork_thread "true"
+	do
+		println "Customized_ProducerMain_Temp has received Temperature Data from Endpoint. Sending Smool Temperature Data = " + sensorData + " \n"
+				
+		//`
+		//try {					
+		//	String timestamp = Long.toString(System.currentTimeMillis());
+		//	ENACTProducer.logic.Customized_ProducerMain_Temp.tempInfo.setValue(Double.parseDouble(` & sensorData & `)).setUnit("ºC").setTimestamp(timestamp);
+			
+			//update and send data to the consumer
+		//	ENACTProducer.api.SmoolKP.getProducer().updateTemperatureSensor(ENACTProducer.logic.Customized_ProducerMain_Temp.tempSensor._getIndividualID(), ENACTProducer.logic.Customized_ProducerMain_Temp.name, ENACTProducer.logic.Customized_ProducerMain_Temp.vendor, null, null, ENACTProducer.logic.Customized_ProducerMain_Temp.tempInfo);
+		//} catch (Exception e1) {
+		//	e1.printStackTrace();
+		//}
+		//`
+	end
+	
+	//main
+	statechart SmoolDataProducer init sendingSmoolData {	
+		
+		on entry do
+			//hard code the SMOOL server parameters, to be configured from GeneSIS
+			initProducer("sib1", "15.236.132.74", 23000)
+		end
+		
+		state sendingSmoolData {
+			internal event s : SensorData?sensorData
+			
+			action do 
+				processTempData(s.sensorData)
+			end
+		}
+	}
+}
+		

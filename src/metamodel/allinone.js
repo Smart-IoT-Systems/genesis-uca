@@ -397,6 +397,30 @@ var deployment_model = function (spec) {
         }
     };
 
+
+    that.change_port_name_in_links = function(old_id, new_id){
+
+        var l = that.find_link_of_provided_port(old_id);
+        if (l !== null) {
+            l.src = new_id;
+        }
+
+        var l = that.find_link_of_required_port(old_id);
+        if (l !== null) {
+            l.target = new_id;
+        }
+
+        var ch = that.find_containment_of_required_port(old_id);
+        if (ch !== null) {
+            ch.target = new_id;
+        }
+
+        var c = that.find_containment_of_provided_port(old_id);
+        if (c !== null) {
+            c.src = new_id;
+        }
+    };
+
     that.change_name = function (name, comp) {
         if (that.is_valid_name(name)) {
             var oldname = comp.name;
@@ -683,10 +707,20 @@ var device = function (spec) {
     that._type += "/device";
     that.physical_port = spec.physical_port || "";
     that.device_type = spec.device_type || "";
+    that.cpu = spec.cpu || "";
     that.needDeployer = spec.needDeployer || false;
 
     return that;
 };
+
+
+const DeploymentStrategies = {
+    SINGLE: "Normal",
+    BLUE_GREEN: "Blue/Green",
+    ROLLING: "Rolling Upgrade (Not Yet Implemented)",
+    CANARY: "Canary Release (Not Yet implemented)",
+};
+
 
 /******************************************/
 /* Software node (aka. Internal component)*/
@@ -694,6 +728,8 @@ var device = function (spec) {
 var software_node = function (spec) {
     var that = component(spec);
 
+    that.deployment_strategy = spec.deployment_strategy || DeploymentStrategies.SINGLE;
+    
     that.docker_resource = spec.docker_resource || docker_resource({});
     that.ssh_resource = spec.ssh_resource || ssh_resource({});
     that.ansible_resource = spec.ansible_resource || ansible_resource({});
@@ -813,6 +849,7 @@ var ssh_resource = function (spec) {
     that.installCommand = spec.installCommand || "";
     that.configureCommand = spec.configureCommand || "";
     that.stopCommand = spec.stopCommand || "";
+    that.uploadCommand = spec.uploadCommand || [];
     that.credentials = spec.credentials || credentials({});
 
     return that;
@@ -964,5 +1001,6 @@ module.exports = {
     hosting: hosting,
     security_capability: security_capability,
     hardware_capability: hardware_capability,
-    soft_capability: soft_capability
+    soft_capability: soft_capability,
+    DeploymentStrategies: DeploymentStrategies
 }

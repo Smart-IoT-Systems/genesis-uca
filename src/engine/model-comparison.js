@@ -27,6 +27,17 @@ var comparator = function (dm) {
 
         result.old_dm = that.dm;
 
+	/* 
+	 * Check if the given component is updated, as opposed to
+	 * merely added or removed.
+	 */
+	result.isUpdateOf = function(component) {
+	    const isUpdate = this.list_of_added_components.some(c => c.name === component.name)
+		  && this.list_of_removed_components.some(c => c.name === component.name);
+	    logger.info(`Component ${component.name} updated? ${isUpdate}!`);
+	    return isUpdate;
+	}
+
         //Added Hosts and components
         var target_comps = target_dm.components;
         for (var i in target_comps) {
@@ -49,10 +60,11 @@ var comparator = function (dm) {
                             result.list_of_added_hosted_components.push(target_comps[i]);
                         }
                         result.list_of_added_components.push(target_comps[i]);
-                    } else {
+
+		    } else {
                         result.list_of_added_hosts.push(target_comps[i]);
                     }
-                }else{ //we save the runtime info
+                } else { //we save the runtime info
                     target_comps[i]._runtime = tmp_node._runtime;
                     target_comps[i].container_id = tmp_node.container_id;
                 }
@@ -99,6 +111,25 @@ var comparator = function (dm) {
                         result.list_of_removed_links.push(tmp_link[i]);
                         if (target_links[i].isDeployer) {
                             result.list_of_added_links_deployer.push(target_links[i]);
+                            //Need to update the other side of the link
+                            //In the long term should be handle by the resource in the link
+                            //i.e., stop and restar the other side or at least should be a property 
+                            let other = dm.get_comp_name_from_port_id(target_links[i].src);
+                            if(dm.get_comp_name_from_port_id(target_links[i].src) === c.name){
+                                other = dm.get_comp_name_from_port_id(target_links[i].target);
+                            }
+                            let node_to_be_redeployed=dm.find_node_named(other);
+                            let in_removed=false;
+                            for (var k in result.list_of_removed_components) {
+                                if(result.list_of_removed_components[k].name === node_to_be_redeployed.name){
+                                    in_removed=true;
+                                }
+                            }
+                            if(!in_removed){
+                                result.list_of_removed_components.push(node_to_be_redeployed);
+                                result.list_of_added_hosted_components.push(node_to_be_redeployed);
+                                result.list_of_added_components.push(node_to_be_redeployed);
+                            }
                         } else {
                             result.list_of_added_links.push(target_links[i]);
                         }

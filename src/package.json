@@ -14,7 +14,7 @@
         "start": "concurrently \"nodemon --config nodemon.json ./app.js\" \"webpack-dev-server \"",
         "client": "webpack-dev-server",
         "test": "node ./external_services/indra_connector_amqp.js",
-        "postinstall": "curl -L --create-dirs --output lib/thingml/ThingML2CLI.jar http://thingml.org/dist/ThingML2CLI.jar"
+        "postinstall": "curl -L --create-dirs --output lib/thingml/ThingML2CLI.jar https://github.com/TelluIoT/ThingML/releases/download/20200602/ThingML-CLI.jar"
     },
     "dependencies": {
         "adm-zip": "^0.4.14",
@@ -55,7 +55,8 @@
         "winston": "^3.1.0",
         "ws": "3.1.0",
         "zlib": "1.0.5",
-        "internal-ip": "^5.0.0"
+        "internal-ip": "^5.0.0",
+        "insert-line": "^1.1.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.8.4",
