@@ -240,7 +240,7 @@ public class ProducerMain implements MqttCallback{
 						if(publisher.isConnected()) {
 							//whenever there is sensor data update sent from SMOOL server, send it to the Apps via MQTT broker 
 							System.out.println("-------------------------------------------------");
-							System.out.println("Is Forwarding Actuation Cmd to HOMEIO: "+new String(msg.getPayload()));
+							System.out.println("Forwarding Actuation Cmd to HOMEIO: Windows Blinds open = "+new String(msg.getPayload()));
 							System.out.println("-------------------------------------------------");
 							publisher.publish("/home/A/Output/bool/Roller_Shades_1_(Down)", msg2);
 							publisher.publish("/home/A/Output/bool/Roller_Shades_2_(Down)", msg2);
