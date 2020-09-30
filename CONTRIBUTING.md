@@ -30,6 +30,8 @@ Explain the problem and include additional details to help maintainers reproduce
 * Which version of GeneSIS are you using?
 * Which OS and set up are you using?
 
+Labels for bugs if needed
+
 # Submitting Changes
 
 Please send a [Pull Request to GeneSIS](https://gitlab.com/enact/GeneSIS/-/merge_requests) with a clear list of what you've done. Please make sure all of your commits are atomic (one feature per commit).
@@ -40,5 +42,5 @@ Always write a clear log message for your commits. One-line messages are fine fo
     > 
     > A paragraph describing what changed and its impact."
 
+Labels for changes if needed
 
-# Issue and Pull Request Labels
