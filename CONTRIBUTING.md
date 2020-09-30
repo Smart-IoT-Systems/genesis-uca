@@ -27,15 +27,30 @@ GeneSIS is one of the core tool in the ENACT Framework making the link between D
 
 **GeneSIS and Packages**
 
-**Package Conventions**
+The GeneSIS repository is organized in three main folders:
+* The `docs` folder contains all the GeneSIS documentation, this includes: tutorials, examples of deployment models, the documentation wiki, and ENACT specific examples and development.
+* The `Dockerfiles` folder contains the different docker files to build the images of GeneSIS and of its deployment agent both for `arm` and `amd` architectures.
+* The `src` folder contains the code of GeneSIS. We detail its structure in the following.
+
+The GeneSIS code is organized in 5 modules:
+* The GeneSIS server (i.e., the deployment engine) can be found in the `engine` folder. This includes the core of the engine at the root of the folder, and a set of connectors for the engine to interact with different type of resources and customize the deployment according to these resources (e.g., Docker, SSH, Node-Red, Ansible, ThingML).
+* The `metamodel` of the GeneSIS language as well as all the facilities to manipulate the model can be found in the `metamodel` folder.
+* The `public` and `ui` folders contains all the code of the GeneSIS client (i.e., the GeneSIS web interface). The `public` folder contains static files publicly available whilst the `ui` folder contains the dynamic code.
+* The `repository` folders contains a set of specific GeneSIS component types. New component type descriptions can be added to this folder and will be dynamically loaded at starting time by the GeneSIS engine, making them available for deployment. 
 
 **Design Decisions**
 
+In the following we list some of the GeneSIS design decisions:
+* The UI is implemented using a React-based framework named [ant.design](https://ant.design). This cannot be changed as this to all ENACT tools.
+* GeneSIS models are serialized in JSON. This cannot be changed as this has been agreed by the ENACT partners.
+* The GeneSIS execution engine send notification about the status of deployment process as well as about the status of the system deployed. These notifications are sent using MQTT and the messages exchanged are serialized in JSON. This mechanism is used by the GeneSIS UI to provide end user with details about the status of a deployment.
+* The GeneSIS execution engine can be controlled via a REST-based API. This API is documented with swagger and is accessible at the following address: `http://<ip_genesis>:8880/api-docs`. By making the documentation available locally from the GeneSIS engine, we ensure end user always access a documentation in line with their version of GeneSIS.
+* The GeneSIS metamodel is written in pure javascript and object are implemented as functions with functional inheritence. 
 
 # Reporting Bugs
 
 Bugs are tracked as GitLab issues. 
-Explain the problem and include additional details to help maintainers reproduce the problem:
+When submitting an issue, please explain the problem and include additional details to help maintainers reproduce the problem. This typically means:
 * Use a clear and descriptive title for the issue to identify the problem.
 * Describe the exact steps which reproduce the problem
 * Explain which behavior you expected to see instead and why.
