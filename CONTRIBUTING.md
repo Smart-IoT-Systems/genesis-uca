@@ -69,5 +69,13 @@ Always write a clear log message for your commits. One-line messages are fine fo
     > 
     > A paragraph describing what changed and its impact."
 
-Labels for changes if needed
+#### Pull Request Labels
+
+| Label name | `genesis/genesis` :mag_right: | `genesis`‑org :mag_right: | Description
+| --- | --- | --- | --- |
+| `work-in-progress` | [search][search-genesis-repo-label-work-in-progress] | [search][search-genesis-org-label-work-in-progress] | Pull requests which are still being worked on, more changes will follow. |
+| `needs-review` | [search][search-genesis-repo-label-needs-review] | [search][search-genesis-org-label-needs-review] | Pull requests which need code review, and approval from maintainers or Genesis core team. |
+| `under-review` | [search][search-genesis-repo-label-under-review] | [search][search-genesis-org-label-under-review] | Pull requests being reviewed by maintainers or Genesis core team. |
+| `requires-changes` | [search][search-genesis-repo-label-requires-changes] | [search][search-genesis-org-label-requires-changes] | Pull requests which need to be updated based on review comments and then reviewed again. |
+| `needs-testing` | [search][search-genesis-repo-label-needs-testing] | [search][search-genesis-org-label-needs-testing] | Pull requests which need manual testing. |
 
