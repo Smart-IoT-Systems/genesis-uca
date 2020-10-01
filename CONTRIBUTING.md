@@ -74,6 +74,39 @@ When submitting an issue, please explain the problem and include additional deta
 
 Labels for bugs if needed
 
+## Building from source
+
+This section provide guidelines to build and run the latest version of GeneSIS from its sources.
+
+### Prerequisites 
+
+GeneSIS requires the following components to be available:
+- Node.js (Latest LTS Version, recommended)
+- NPM (Latest LTS Version, recommended)
+- Java v8, and Java should be in the path
+
+### Build and execute
+
+1. Clone the code:
+
+   ```console
+   $ git clone https://gitlab.com/enact/GeneSIS.git
+   $ cd GeneSIS
+   ```
+
+1. Install the dependencies using NPM
+
+   ```console
+   $ cd src
+   $ npm install .
+   ```
+
+1. Start GeneSIS. Once it is started you can access it at the URL: `http://127.0.0.1:8880`
+
+   ```console
+   $ npm start
+   ```
+
 ## Submitting Changes
 
 Please send a [Pull Request to GeneSIS](https://gitlab.com/enact/GeneSIS/-/merge_requests) with a clear list of what you've done. Please make sure all of your commits are atomic (one feature per commit).
