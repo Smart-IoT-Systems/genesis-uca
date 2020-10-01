@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var logger = require('./logger.js');
 
-const useless_properties = ["add_property","remove_property","get_all_properties",'_runtime', 'container_id'];
+const useless_properties = ["add_property","remove_property","get_all_properties","_runtime", "container_id", "_configure"];
 
 var comparator = function (dm) {
     var that = {};
@@ -54,6 +54,7 @@ var comparator = function (dm) {
                 }
             } else if (tmp_node.name === target_comps[i].name) {
                 var r = that.compareObjects(_.omit(tmp_node, useless_properties), _.omit(target_comps[i], useless_properties));
+                console.log("WWWW>"+ JSON.stringify(r));
                 if (r.length > 0) { // There are some differences
                     if (target_comps[i]._type.indexOf('internal') > -1) {
                         if (target_dm.find_host(target_comps[i]) !== null) {
