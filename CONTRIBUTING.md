@@ -12,6 +12,7 @@ The following is a set of guidelines for contributing to GeneSIS. These are most
   * [Design Decisions](#design-decisions)
 
 [Reporting Bugs](#reporting-bugs)
+
 [Submitting Changes](#submitting-changes)
   * [Pull Request Labels](#pull-request-labels)
 
