@@ -10,7 +10,7 @@
     -   [Deployment Agent](./tutorial/6.Deployment_Agent/)
 	-   [Blue/Green Deployments](./tutorial/7.blue_green_deployments/)
 -   [The GeneSIS Metamodel](./metamodel.md)
--   [Contribute](https://gitlab.com/enact/GeneSIS/-/raw/master/CONTRIBUTING.md)
+-   [Contribute](./CONTRIBUTING.md)
 -   [References](./references)
     -   [Internal Components](./references/internal_component.md)
         - [Node-RED](./references/Node-RED.md)
