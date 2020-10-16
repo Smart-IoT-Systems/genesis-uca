@@ -11,7 +11,7 @@
 	-   [Blue/Green Deployments](./tutorial/7.blue_green_deployments/)
 -   [The GeneSIS Metamodel](./metamodel.md)
 -   [Contribute](./CONTRIBUTING.md)
--   [References](./references)
+-   [References](./references/internal_component.md)
     -   [Internal Components](./references/internal_component.md)
         - [Node-RED](./references/Node-RED.md)
         - [arduino](./references/arduino.md)
