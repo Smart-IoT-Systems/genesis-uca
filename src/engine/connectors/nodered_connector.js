@@ -147,6 +147,9 @@ var nodered_connector = function () {
 
                 response.on('end', function () {
                     logger.log("info", "Request to upload Node-Red flow completed on: " + tgt_host + ":" + tgt_port);
+                    logger.log("info", "Response: "+Buffer.byteLength(data, 'utf8'));
+                    logger.log("info", "Response: "+Buffer.byteLength(data));
+                    logger.log("info", "Response: "+data.length);
                     if(JSON.parse(data).length > 0){
                         for (var w in tgt_tab) { //if success, send feedback
                             bus.emit('link-ok', tgt_tab[w].name);
@@ -158,6 +161,7 @@ var nodered_connector = function () {
                             }
                         }
                     }
+                    logger.log("info", "Response: "+str);
                     resolve();
                 });
 
@@ -175,8 +179,8 @@ var nodered_connector = function () {
 
 
             //This is the data we are posting, it needs to be a string or a buffer
-            req.write(data);
-            req.end();
+            //req.write(data);
+            req.end(data);
         });
     }
 

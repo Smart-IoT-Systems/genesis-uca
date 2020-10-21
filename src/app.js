@@ -12,7 +12,7 @@ var http = require('http');
 
 app.set("port", 8000);
 app.use(bodyParser.json({limit: '50mb'}));
-app.use(bodyParser.urlencoded({limit: '50mb',  extended: true }))
+app.use(bodyParser.urlencoded({limit: '50mb',  extended: true }));
 
 
 //Start the engine
@@ -45,6 +45,9 @@ app.get("/genesis/model_ui", runtime.getDM_UI);
 
 //Update attribute of a component
 app.post("/genesis/component", runtime.update_component);
+
+//Update attribute of a component
+app.post("/genesis/link", runtime.update_link);
 
 //Trigger a deployment of the model in memory
 app.get("/genesis/deploy_model", runtime.push_model);

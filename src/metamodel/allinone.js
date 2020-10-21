@@ -397,6 +397,15 @@ var deployment_model = function (spec) {
         }
     };
 
+    that.change_attribute_link = function (name, attribute, val) { //TODO: make it generic, xpath like stuff
+        let n = that.find_link_named(name);
+        if (n !== undefined) {
+            if (attribute.indexOf("name") < 0 && attribute.indexOf("port") < 0) {
+                n[attribute] = val;
+            }
+        }
+    };
+
 
     that.change_port_name_in_links = function(old_id, new_id){
 

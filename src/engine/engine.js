@@ -79,6 +79,18 @@ var engine = (function () {
 		res.end("OK");
 	};
 
+	that.update_link = function (req, res) {
+		var input = req.body;
+		logger.log("info", "Received request to update Target model in memory " + JSON.stringify(input));
+		try {
+			that.target_model.change_attribute_link(input.name, input.attribute, input.value);
+		} catch (e) {
+			logger.log("error", "Body not valid");
+			res.end("error");
+		}
+		res.end("OK");
+	};
+
 	that.push_model = function (req, res) {
 		req.body = that.target_model;
 		that.deploy(req, res);
