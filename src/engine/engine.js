@@ -380,6 +380,11 @@ var engine = (function () {
 			if (comp.docker_resource.image !== docker_image_nr && comp.docker_resource.image !== "") {
 				docker_image_nr = comp.docker_resource.image;
 			}
+			
+			if(comp.docker_resource.extra_options !== undefined && comp.docker_resource.extra_options !== ""){
+				connector.add_extra_options_all(comp.docker_resource.extra_options);
+			}
+
 			connector.buildAndDeploy(host.ip, host.port, comp.docker_resource.port_bindings, comp.docker_resource.devices, "", docker_image_nr, comp.docker_resource.mounts, comp.docker_resource.links, comp.name, host.name, comp.docker_resource.environment).then(function (id) {
 				if ((comp.nr_flow !== undefined && comp.nr_flow !== "") ||
 					(comp.path_flow !== "" && comp.path_flow !== undefined)) { //if there is a flow to load with the nodered node
@@ -515,6 +520,7 @@ var engine = (function () {
 							// Manage simple docker
 							if (compo.docker_resource.image !== "") {
 								var connector = dc();
+
 								logger.log("info", `Deloyment Strategy : ${compo.deployment_strategy}`);
 								if (compo.deployment_strategy === mm.DeploymentStrategies.BLUE_GREEN) {
 									await connector.initializeDockerSwarm(host); // Idempotent
@@ -526,6 +532,11 @@ var engine = (function () {
 
 									}
 								} else {
+
+									if(compo.docker_resource.extra_options !== undefined && compo.docker_resource.extra_options !== ""){
+										connector.add_extra_options_all(compo.docker_resource.extra_options);
+									}
+
 									logger.log("info", "Deployement Strategy: Normal");
 									var id = await connector.buildAndDeploy(
 										host.ip,

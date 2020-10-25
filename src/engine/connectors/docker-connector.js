@@ -12,6 +12,11 @@ var docker_connector = function () {
 		that.extra_options.push(obj);
 	};
 
+	that.add_extra_options_all = function (obj) {
+		logger.log('info', 'Extra Options initialized: '+ JSON.stringify(obj));
+		that.extra_options=obj;
+	};
+
 	that.stopAndRemove = function (container_id, endpoint, port) {
 		return new Promise(async function (resolve, reject) {
 			that.docker = new Docker({ //TODO:Refactor
