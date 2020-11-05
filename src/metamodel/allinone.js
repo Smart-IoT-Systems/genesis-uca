@@ -94,15 +94,17 @@ var deployment_model = function (spec) {
             });
         }
         //we also need to remove the associated containments
-        var tabc_indexes = [];
+        var tabc_indexes_cont = [];
         for (var i in that.containments) {
-            if (that.containments[i].target.indexOf(component.name) > -1 ||
-                that.containments[i].src.indexOf(component.name) > -1) {
-                tabc_indexes.push(i);
+            var tmp_c_name_target=that.get_comp_name_from_port_id(that.containments[i].target);
+            var tmp_c_name_src=that.get_comp_name_from_port_id(that.containments[i].src);
+            if (component.name === tmp_c_name_target ||
+                component.name === tmp_c_name_src) {
+                    tabc_indexes_cont.push(i);
             }
         }
-        if (tabc_indexes.length > 0) {
-            tabc_indexes.forEach(function (elem) {
+        if (tabc_indexes_cont.length > 0) {
+            tabc_indexes_cont.forEach(function (elem) {
                 that.containments.splice(elem, 1);
             });
         }
