@@ -43,6 +43,7 @@ var deployment_model = function (spec) {
         return this;
     };
 
+    
     that.add_component = function (component) {
         that.components.push(component);
     };
@@ -714,12 +715,67 @@ var device = function (spec) {
 };
 
 
-const DeploymentStrategies = {
-    SINGLE: "Normal",
-    BLUE_GREEN: "Blue/Green",
-    ROLLING: "Rolling Upgrade (Not Yet Implemented)",
-    CANARY: "Canary Release (Not Yet implemented)",
-};
+
+
+/**
+ * Represent availability strategies such as replication or blue/green
+ * deployment.
+ * 
+ * There are two basic strategies, namely 'builtin' and 'Docker
+ * Swarm'.
+ *
+ *    - Selecting 'builtin' implies the deplyment of a separate proxy
+ *      (i.e., NGinx) in front of the replicas and of watchdogs that
+ *      monitor their health (using the provided health check
+ *      script).
+ *
+ *    - Selecting 'DockerSwarm' implies that GeneSIS delegates to
+ *      DockerSwarm the management of the replicas. Note that the
+ *      health check script is not taken into account.
+ */
+class Availability {
+    
+    static defaultSettings () {
+	return new Availability(this.DEFAULT, "", 1);
+    }
+
+    
+    static fromObject (object) {
+	return new Availability(object.strategy || this.DEFAULT,
+				object.healthCheck || "",
+				object.replicaCount || 1);
+    }
+    
+    constructor (strategy, healthCheck, replicaCount) {
+	this.strategy = strategy;
+	this.healthCheck = healthCheck;
+	this.replicaCount = replicaCount;
+    }
+
+    usesDockerSwarm () {
+	return this.useStrategy(Availability.DOCKER_SWARM) && this.isReplicated();
+    }
+
+    isBuiltin () {
+	return this.useStrategy(Availability.BUILTIN) && this.isReplicated();
+    }
+
+    isReplicated() {
+	return this.replicaCount > 1;
+    }
+
+    useStrategy (strategy) {
+	return this.strategy === strategy;
+    }
+	
+}
+
+
+Availability.DOCKER_SWARM = "Docker Swarm";
+
+Availability.BUILTIN = "Builtin";
+
+Availability.DEFAULT = Availability.BUILTIN
 
 
 /******************************************/
@@ -727,8 +783,12 @@ const DeploymentStrategies = {
 /******************************************/
 var software_node = function (spec) {
     var that = component(spec);
-
-    that.deployment_strategy = spec.deployment_strategy || DeploymentStrategies.SINGLE;
+    
+    that.availability = Availability.defaultSettings();
+    console.log(JSON.stringify(spec.availability));
+    if (spec.availability != null) {
+	that.availability = Availability.fromObject(spec.availability);
+    }
     
     that.docker_resource = spec.docker_resource || docker_resource({});
     that.ssh_resource = spec.ssh_resource || ssh_resource({});
@@ -747,6 +807,8 @@ var software_node = function (spec) {
 
     return that;
 };
+
+
 
 /******************************/
 /* Specific Node-red component*/
@@ -1001,6 +1063,5 @@ module.exports = {
     hosting: hosting,
     security_capability: security_capability,
     hardware_capability: hardware_capability,
-    soft_capability: soft_capability,
-    DeploymentStrategies: DeploymentStrategies
+    soft_capability: soft_capability
 }

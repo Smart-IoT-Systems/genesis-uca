@@ -16,6 +16,242 @@ var model_observer = require('./runtime_observer.js');
 var mqtt = require('mqtt');
 var nodered_connector = require('./connectors/nodered_connector.js');
 var fs = require('fs');
+var temp = require("temp");
+var tar = require("tar");
+
+
+
+/**
+ * Manage the deployment of availability strategies, either using
+ * Docker Swarm or using a builtin proxy such as NGinx.
+ */
+class AvailabilityManager {
+
+    constructor (changes, component, host) {
+	this.docker = dc();
+	this.changes = changes;
+	this.component = component;
+	this.host = host;
+    }
+
+    
+    info(message) {
+	logger.info("AVAILABILITY: " + message);
+    }
+
+    
+    error(message) {
+	logger.error("AVAILABILITY: " + message);
+    }
+
+
+    replicate () {
+	const strategy = this.component.availability
+	if (strategy.usesDockerSwarm()) {
+	    return this.replicateUsingDockerSwarm();
+	    
+	} else if (strategy.isBuiltin() ) {
+	    return this.builtinReplication();
+
+	} else {
+	    this.error(`Unknown strategy '${strategy}'!`);
+
+	}
+    }
+
+    
+    async deployOnDockerSwarm () {
+	await this.docker.initializeDockerSwarm(host); // Idempotent
+	if (this.changes.isUpdateOf(this.component)) {
+	    return await this.docker.updateSwarmService(this.host, this.component);
+	    
+	} else {
+	    return await this.docker.startSwarmService(this.host, this.component);
+	    
+	}
+    }
+
+
+    async builtinReplication () {
+	if (this.changes.isUpdateOf(this.component)) {
+	    logger.info("TODO: Implement the comparison");
+	    
+	} else {
+	    try {
+		const networkID = await this.setupDockerNetwork();
+		const endpoints = await this.createReplicas(networkID);
+		const proxyID = await this.deployBuiltinProxy(networkID);
+		await this.reconfigureProxy(proxyID, endpoints);
+		this.info("Builtin deployment complete!");
+		
+	    } catch (error) {
+		this.error("Builtin deployment failed");
+		this.error(error);
+		
+	    }
+	}
+    }
+
+
+    async setupDockerNetwork () {
+	const networkID = `GeneSIS-${this.component.name}`;
+	try{
+	    await this.docker.createNetwork(this.host, networkID);
+	    this.info(`Network ${networkID} created!`);
+	    return networkID;
+	    
+	} catch (error) {
+	    this.error("Unable to create Docker network.");
+	    
+	}
+    }
+
+
+    async createReplicas(networkID) {
+	var endpoints = [];
+	for (var i=0 ; i<this.component.availability.replicaCount ; i++) {
+	    try {
+		const componentName = `${this.component.name}-${i+1}`;
+		const containerSpecs = {
+		    "Image": this.component.docker_resource.image,
+		    "name": componentName, // Must be capitalize 'name'
+		    "Cmd": [ "/bin/bash", "-c",  this.component.ssh_resource.startCommand ]
+		};
+		await this.docker.createContainer(this.host, containerSpecs);
+		await this.docker.connectContainerToNetwork(this.host, networkID, componentName);
+		endpoints.push(componentName);
+		this.info(`Replica ${i} created!`);
+		
+	    } catch (error) {
+		this.error(`Unable to create Replica ${i}`);
+		this.error(error);
+		
+	    }
+
+	}
+
+	this.info(`All replicas created !`);
+	return endpoints;
+    }
+
+
+    async deployBuiltinProxy(networkID) {
+	try {
+	    const proxySpecs = {
+		Image: "fchauvel/enact-nginx:latest",
+		name: `${this.component.name}-proxy`,
+		Cmd: ["/bin/bash", "-c", "nginx -g 'daemon off;'"],
+		Tty: false,
+		AttachStdin: false,
+		AttachStdout: false,
+		AttachStderr: false
+	    };
+	    await this.docker.createContainer(this.host, proxySpecs, true);
+	    await this.docker.connectContainerToNetwork(this.host, networkID, proxySpecs.name);
+	    this.info("Proxy created!");
+
+	    return proxySpecs.name
+
+	} catch (error) {
+	    this.error(`Unable to start proxy`);
+	    throw error;
+
+	}
+    }
+
+    
+    async reconfigureProxy(proxyID, endpoints) {
+	try {
+	    await this.uploadHealthcheckScript(proxyID)
+	    await this.registerEndpoints(proxyID, endpoints);
+	    await this.restartProxy(proxyID);
+	    this.info("Proxy configured!");
+
+	} catch (error) {
+	    this.error("Unable to reconfigure the proxy!")
+	    throw error;
+
+	}
+    }
+
+    
+    async uploadHealthcheckScript(proxyID) {
+	try {
+	    const archive = await this.archiveScript(this.component.availability.healthcheck);
+	    await this.docker.uploadArchive(this.host, proxyID, archive, "/enact");
+	    this.info("Heatlh check script uploaded");
+	    
+	} catch (error) {
+	    this.error("Unable to upload the heatlh script");
+	    this.error(error);
+	    
+	}
+    }
+    
+    /**
+     * Create a tarball containing the healthcheck script.
+     */
+    async archiveScript(healthcheck, options={}) {
+	const OPTION_DEFAULTS = {
+	    scriptName: "healthcheck.sh",
+	    archiveName: "healthcheck.tar.gz",
+	    prefix: "genesis"
+	};
+	options = Object.assign({}, OPTION_DEFAULTS, options);
+	
+	try {	    
+	    const path = await temp.mkdir(options.prefix);
+	    
+	    // Dump the healthcheck code into a file
+	    const script = path + "/" + options.scriptName;
+	    fs.writeFileSync(script, healthcheck);
+	    
+	    // Create a tarball including the script file
+ 	    const archivePath = `${path}/${options.archiveName}`;
+	    await tar.c({   gzip: true,
+			    file: archivePath,
+			    cwd: path
+			},
+			[options.scriptName]);
+	    
+	    this.info(`Archive ready at '${path}/${options.archiveName}'`);
+	    return archivePath;
+
+	} catch (error) {
+	    this.error("Unable to write the health check script on disk!");
+	    throw error
+
+	}
+    }
+
+
+    async registerEndpoints(proxyID, endpoints) {
+	try {
+	    for (var eachEndpoint of endpoints) {
+		const commandSpecs = {
+		    Cmd:  ["/bin/bash", "-c", `./endpoints.sh register ${eachEndpoint}`],
+		}
+		await this.docker.executeCommand(this.host, proxyID, commandSpecs);
+		this.info(`Endpoint ${eachEndpoint} registered to the proxy!`);
+	    }
+	    
+	} catch (error) {
+	    this.error("Unable to register endpoints to the proxy!");
+	    this.error(error);
+	    throw error;
+	    
+	}
+    }
+
+    
+    async restartProxy(proxyID) {
+	this.info(": Proxy restarted")
+    }
+
+}
+
+
+
 
 
 var engine = (function () {
@@ -79,6 +315,7 @@ var engine = (function () {
 		res.end("OK");
 	};
 
+    
 	that.push_model = function (req, res) {
 		req.body = that.target_model;
 		that.deploy(req, res);
@@ -392,61 +629,144 @@ var engine = (function () {
 		});
 	};
 
-	that.deploy_ssh = function (comp, host) {
-		return new Promise(function (resolve, reject) {
-			var ssh_port = host.port;
-			if (host._type === "/infra/docker_host") {
-				ssh_port = "22";
-			}
-			var sc = sshc(host.ip, ssh_port, comp.ssh_resource.credentials.username, comp.ssh_resource.credentials.password, comp.ssh_resource.credentials.sshkey, comp.ssh_resource.credentials.agent);
 
-			//just for fun 0o' let's try the most crappy code ever!
-			//Actually this is not fun :'(
-			
-			
-			let src_upload = comp.ssh_resource.uploadCommand[0];
-			let tgt_upload = comp.ssh_resource.uploadCommand[1];
-			
-			
-			sc.upload_file(src_upload, tgt_upload).then(function () {
-				logger.log("info", "Upload command executed");
-				sc.execute_command(comp.ssh_resource.downloadCommand).then(function () {
-					logger.log("info", "Download command executed");
-					sc.execute_command(comp.ssh_resource.installCommand).then(function () {
-						logger.log("info", "Install command executed");
-						sc.execute_command(comp.ssh_resource.configureCommand).then(function () {
-							logger.log("info", "Configure command executed");
-							sc.execute_command(comp.ssh_resource.startCommand).then(function () {
-								logger.log("info", "Start command executed");
-								bus.emit('ssh-started', host.name);
-								bus.emit('ssh-started', comp.name);
-								bus.emit('node-started', "", comp.name);
-								resolve(true);
-							}).catch(function (err) {
-								logger.log("error", "Start command error " + err);
-								reject(err);
-							});
-						}).catch(function (err) {
-							logger.log("error", "Configure command error " + err);
-							reject(err);
-						});
-					}).catch(function (err) {
-						logger.log("error", "Install command error " + err);
-						reject(err);
-					});
+    /**
+     * Deploy a component using SSH
+     */
+    that.deploy_ssh = function (component, host) {
+	return new Promise(async function (resolve, reject) {
+	    var ssh_port = host.port;
+	    if (host._type === "/infra/docker_host") {
+		ssh_port = "22";
+	    }
+
+	    logger.info(`AVAILABILITY: Deploying ${component.availability.replicaCount} replica(s).` );
+	    logger.info(JSON.stringify(component.availability));
+
+	    if (component.availability.isReplicated()) {
+		logger.info(`Replicated SSH component '${component.name}'`)
+
+		try {
+		    await that.installDockerInRemoteMode(host, component);
+		    host.port = "2376";
+		    const imageName = `${component.name}-livebuilt`
+		    await that.createDockerImageFromSSHResources(host, component, imageName);
+		    component.docker_resource.image = imageName;
+		    component.docker_resource.cmd = component.ssh_resource.startCommand;
+		    that.deploy_docker(component, host);
+		    resolve(true);
+
+		} catch (error) {
+		    logger.error("Could not deploy the replicas");
+		    reject(error);
+
+		}
+
+	    } else {
+		var sc = sshc(host.ip,
+			      ssh_port,
+			      component.ssh_resource.credentials.username,
+			      component.ssh_resource.credentials.password,
+			      component.ssh_resource.credentials.sshkey,
+			      component.ssh_resource.credentials.agent);
+		
+ 		// Just for fun 0o' let's try the most crappy code ever!
+		// Actually this is not fun :'(
+		
+		let src_upload = component.ssh_resource.uploadCommand[0];
+		let tgt_upload = component.ssh_resource.uploadCommand[1];
+		
+		sc.upload_file(src_upload, tgt_upload).then(function () {
+		    logger.info("Upload command executed");
+		    sc.execute_command(component.ssh_resource.downloadCommand).then(function () {
+			logger.info("Download command executed");
+			sc.execute_command(component.ssh_resource.installCommand).then(function () {
+			    logger.info("Install command executed");
+			    sc.execute_command(component.ssh_resource.configureCommand).then(function () {
+				logger.info("Configure command executed");
+				sc.execute_command(component.ssh_resource.startCommand).then(function () {
+				    logger.info("Start command executed");
+				    bus.emit('ssh-started', host.name);
+				    bus.emit('ssh-started', component.name);
+				    bus.emit('node-started', "", component.name);
+				    resolve(true);
+				    
 				}).catch(function (err) {
-					logger.log("error", "Download command error " + err);
-					reject(err);
+				    logger.log("error", "Start command error " + err);
+				    reject(err);
+				    
 				});
-			}).catch(function (err) {
-				logger.log("error", "Upload command error " + err);
+			    }).catch(function (err) {
+				logger.log("error", "Configure command error " + err);
 				reject(err);
+				
+			    });
+			}).catch(function (err) {
+			    logger.log("error", "Install command error " + err);
+			    reject(err);
+			    
 			});
-		});
-	};
 
+		    }).catch(function (err) {
+			logger.log("error", "Download command error " + err);
+			reject(err);
+			
+		    });
+		    
+		}).catch(function (err) {
+		    logger.log("error", "Upload command error " + err);
+		    reject(err);
+		    
+		});
+	    }
+	});
+    };
+
+
+    /**
+     * Install docker on the host, accessible through SSH. We assume
+     * that the host is a Linux-like system qith CURL available.
+     */
+
+    that.DOCKER_INSTALLATION_SCRIPT = "install_docker_in_remote_mode.sh"
+
+    that.INSTALL_DOCKER_COMMAND = `source ${that.DOCKER_INSTALLATION_SCRIPT}`
+    
+    that.installDockerInRemoteMode = async function (host, component) {
+	return new Promise(function (resolve, reject) {
+	    var sshConnection = sshc(host.ip,
+				      host.port,
+				      component.ssh_resource.credentials.username,
+				      component.ssh_resource.credentials.password,
+				      component.ssh_resource.credentials.sshkey,
+				      component.ssh_resource.credentials.agent);
+
+	    sshConnection
+		.upload_file(
+		    that.DOCKER_INSTALLATION_SCRIPT,
+		    that.DOCKER_INSTALLATION_SCRIPT)
+		.then(() => {
+		    sshConnection
+			.execute_command(that.INSTALL_DOCKER_COMMAND)
+			.then(() => {
+			    logger.info(`Remote Docker setup  on host ${host.ip}!`);
+			    resolve(true);
+			    
+			}).catch ((error) => {
+			    logger.error("Unable to install Docker in remote mode!")
+			    reject();
+			});
+		    
+		}).catch ((error) => {
+		    logger.error("Unable to upload the Docker installation script!");
+		    reject();
+		});
+	});
+    };
+    
+    
 	that.deploy_node_red_flow = async function (a_component) {
-		return new Promise(function (resolve, reject) {
+	    return new Promise(function (resolve, reject) {
 			bus.emit('container-config', a_component.name);
 			var nredconnector = nodered_connector();
 			var host = that.dep_model.find_host(a_component);
@@ -468,94 +788,151 @@ var engine = (function () {
 		});
 	};
 
+    
+    that.deploy_docker = async function (component, host) {
+	if (component.docker_resource.image !== "") {
+	    
+	    logger.log("info", `AVAILABILITY: ${JSON.stringify(component.availability)}`);
+
+	    if (component.availability.isReplicated()) {
+		const manager = new AvailabilityManager(that.diff, component, host)
+		manager.replicate();
+
+	    } else {
+		var connector = dc();
+		var id = await connector.buildAndDeploy(
+		    host.ip,
+		    host.port,
+		    component.docker_resource.port_bindings,
+		    component.docker_resource.devices,
+		    component.docker_resource.command,
+		    component.docker_resource.image,
+		    component.docker_resource.mounts,
+		    component.docker_resource.links,
+		    component.name,
+		    host.name,
+		    component.docker_resource.environment);
+	    }
+	}
+	bus.emit('node-started', id, component.name);
+    }
 
 
-	/*
-	 * Deploy a component. Its dependencies and host should be
-	 * previously deployed (see method 'recursive_deploy').
-	 */
-	that.deploy_one_component = async function (compo) { // We wrap in a closure so that each comp deployment comes with its own context
-		//Functions provided by the component itself
-		if (compo._configure !== undefined) {
-			await compo._configure();
-		}
 
-		// if not to be deployed by a deployment agent
-		if (!that.dep_model.need_deployment_agent(compo)) {
-			var host = that.dep_model.find_host_one_level_down(compo);
+    /**
+     * Convert a component installed using SSH resources into a Docker
+     * image.
+     *
+     * To do that, we spawn a new container and execute the SSH
+     * commands specified in the SSH resource. We then download and
+     * install the component, and save the container as a new docker
+     * image.
+     */
+    that.createDockerImageFromSSHResources = function(dockerHost, component, imageName, options={})  {
+	return new Promise(async function (resolve, reject) {
+	    const DEFAULT_OPTIONS = {
+		baseImage:  "debian:10-slim",
+		containerName: "enact-tmp",
 
-			//And if there is an host to deploy on
-			if (host !== undefined) {
+	    }
+	    
+	    options = Object.assign({}, DEFAULT_OPTIONS, options);
+	    
+	    var docker = dc();
 
-				//Manage ThingML nodes
-				if (compo._type.startsWith("/internal/thingml")) {
-					await that.deploy_thingml(compo, host);
+	    const installationScript = [
+		"/bin/bash",
+		"-c",
+		component.ssh_resource.downloadCommand
+		    + "; " + component.ssh_resource.installCommand
+		    + "; " + component.ssh_resource.configureCommand
+	    ];
+	    
+	    try {
+		const containerID = await docker.createContainer(dockerHost,
+								 {
+								     Image: options.baseImage,
+								     Cmd: installationScript,
+								     name: options.containerName
+								 });
+		await docker.saveContainerAsImage(dockerHost,
+						  containerID,
+						  imageName);
+		
+		await docker.removeContainer(dockerHost, options.containerName);
+		logger.info(`New docker image '${imageName}' for component '${component.name}'.`);
+		resolve(true);
+		
+	    } catch (error) {
+		logger.error(error);
+		reject(error);
+		
+	    }
+	});
+    }
 
-				} else {
-					//Manage component on docker
-					if (host._type === "/infra/docker_host") {
+    
 
-						//Manage Node-red on Docker
-						if (compo._type === "/internal/node_red") {
-							await that.deploy_nodered(compo, host);
-
-						} else {
-							// Manage simple docker
-							if (compo.docker_resource.image !== "") {
-								var connector = dc();
-								logger.log("info", `Deloyment Strategy : ${compo.deployment_strategy}`);
-								if (compo.deployment_strategy === mm.DeploymentStrategies.BLUE_GREEN) {
-									await connector.initializeDockerSwarm(host); // Idempotent
-									if (that.diff.isUpdateOf(compo)) {
-										var id = await connector.updateSwarmService(host, compo);
-
-									} else {
-										var id = await connector.startSwarmService(host, compo);
-
-									}
-								} else {
-									logger.log("info", "Deployement Strategy: Normal");
-									var id = await connector.buildAndDeploy(
-										host.ip,
-										host.port,
-										compo.docker_resource.port_bindings,
-										compo.docker_resource.devices,
-										compo.docker_resource.command,
-										compo.docker_resource.image,
-										compo.docker_resource.mounts,
-										compo.docker_resource.links,
-										compo.name,
-										host.name,
-										compo.docker_resource.environment);
-								}
-							}
-							bus.emit('node-started', id, compo.name);
-						}
-					}
-
-					//Manage node-red-flow components
-					if (compo._type === "/internal/node_red_flow") {
-						logger.log('info', 'Deploy a flow');
-						await that.deploy_node_red_flow(compo);
-					}
-
-					//Manage component via Ansible
-					if (compo.ansible_resource.playbook_path !== "" && compo.ansible_resource.playbook_path !== undefined) {
-						var connector = ac(host, ccompo);
-						connector.executePlaybook();
-					}
-
-					//Manage component via ssh
-					if (that.need_ssh(compo)) {
-						logger.log('info', 'Deploy via SSH ' + compo.name);
-						await that.deploy_ssh(compo, host);
-					}
-				}
+    
+    
+	      
+    /*
+     * Deploy a component. Its dependencies and host should be
+     * previously deployed (see method 'recursive_deploy').
+     */
+    that.deploy_one_component = async function (compo) { // We wrap in a closure so that each comp deployment comes with its own context
+	//Functions provided by the component itself
+	if (compo._configure !== undefined) {
+	    await compo._configure();
+	}
+	
+	// if not to be deployed by a deployment agent
+	if (!that.dep_model.need_deployment_agent(compo)) {
+	    var host = that.dep_model.find_host_one_level_down(compo);
+	    
+	    //And if there is an host to deploy on
+	    if (host !== undefined) {
+		
+		//Manage ThingML nodes
+		if (compo._type.startsWith("/internal/thingml")) {
+		    await that.deploy_thingml(compo, host);
+		    
+		} else {
+		    //Manage component on docker
+		    if (host._type === "/infra/docker_host") {
+			
+			//Manage Node-red on Docker
+			if (compo._type === "/internal/node_red") {
+			    await that.deploy_nodered(compo, host);
+			    
+			} else {
+			    that.deploy_docker(compo, host)
 			}
+		    }
+		    
+		    //Manage node-red-flow components
+		    if (compo._type === "/internal/node_red_flow") {
+			logger.log('info', 'Deploy a flow');
+			await that.deploy_node_red_flow(compo);
+		    }
+		    
+		    //Manage component via Ansible
+		    if (compo.ansible_resource.playbook_path !== "" && compo.ansible_resource.playbook_path !== undefined) {
+			var connector = ac(host, ccompo);
+			connector.executePlaybook();
+		    }
+		    
+		    //Manage component via ssh
+		    if (that.need_ssh(compo)) {
+			logger.log('info', 'Deploy via SSH ' + compo.name);
+			await that.deploy_ssh(compo, host);
+		    }
 		}
-	};
+	    }
+	}
+    };
 
-	that.need_ssh = function (compo) {
+    that.need_ssh = function (compo) {
 		if ((compo.ssh_resource.credentials.sshkey !== undefined && compo.ssh_resource.credentials.sshkey !== "") ||
 			(compo.ssh_resource.credentials.agent !== undefined && compo.ssh_resource.credentials.agent !== "") ||
 			(compo.ssh_resource.credentials.password !== undefined && compo.ssh_resource.credentials.password !== "")) {

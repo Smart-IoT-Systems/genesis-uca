@@ -26,39 +26,39 @@ var server = app.listen(app.get('port'), '0.0.0.0', function () {
 	var port = server.address().port;
    logger.log('info','GeneSIS Engine API started on ' + port);
 }); 
+ 
 
-
-//Retrieve all component types registered in the engine
+// Retrieve all component types registered in the engine
 app.get("/genesis/types", runtime.getTypes);
 
-//Initiate deployment
+// Initiate deployment
 app.post("/genesis/deploy", runtime.deploy);
 
-//Send the server logs
+// Send the server logs
 app.get("/genesis/logs", getLogs);
 
-//Send the current deployment model
+// Send the current deployment model
 app.get("/genesis/model", runtime.getDM);
 
-//Send the current deployment model with graph
+// Send the current deployment model with graph
 app.get("/genesis/model_ui", runtime.getDM_UI);
 
-//Update attribute of a component
+// Update attribute of a component
 app.post("/genesis/component", runtime.update_component);
 
-//Trigger a deployment of the model in memory
+// Trigger a deployment of the model in memory
 app.get("/genesis/deploy_model", runtime.push_model);
 
-//Update target model in memory
+// Update target model in memory
 app.post("/genesis/push_model", runtime.update_target_model);
 
-//Retrieve target model
+// Retrieve target model
 app.get("/genesis/get_target_model", runtime.get_targetDM);
 
-//Description of the GeneSIS API
+// Description of the GeneSIS API
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-//Trigger runtime info update
+// Trigger runtime info update
 app.get('/genesis/runtime_info', runtime.getRuntime_info);
 
 function getLogs(req, res){

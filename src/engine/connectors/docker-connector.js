@@ -181,48 +181,227 @@ var docker_connector = function () {
 	}
 
 
+    /**
+     * Create a Docker network that will connect multiple containers.
+     *
+     * See endpoint documentation at 
+     *   https://docs.docker.com/engine/api/v1.37/#operation/NetworkCreate
+     */
+    that.createNetwork = async function(host, networkName) {
+	await that.resetDockerHost(host);
+	const specs = { "Name": networkName };
+	const network = await that.docker.createNetwork(specs);
+	logger.info("Docker network created (ID: '" + network.id +"')" );
+	return network.id
+    };
 
-	/*
-	 * Initialize Docker swarm (i.e., triggers a 'docker swarm init').
-	 *
-	 * The Docker API returns an HTTP Code 503 if Docker Swarm is
-	 * already initialized or if the host is already part of a
-	 * swarm. In this case, we do not raise an error and proceed
-	 * because only need to ensure that the host is initialized
-	 * (idempotency).
-	 *
-	 * See endpoint documentation at
-	 *    https://docs.docker.com/engine/api/v1.37/#operation/SwarmInit
-	 */
-	that.initializeDockerSwarm = function (host) {
-		return new Promise(async function (resolve, reject) {
-			that.docker = new Docker({
-				host: host.ip,
-				port: host.port
-			});
-			that.docker
-				.ping()
-				.then(data => {
-					that.docker
-						.swarmInit({
-							ForceNewCluster: false,
-						}).then(response => {
-							logger.log("info", "SWARM RESPONSE\n" + response);
-							logger.log("info", "Docker Swarm initialized!");
-							resolve(response.ID, component.name);
-						}).catch(error => {
-							if (error.message.search(/503/i) === -1) {
-								logger.error("Docker Swarm error\n" + error);
-								reject(error);
-							}
-							resolve("info", "some-id");
-						});
-				}).catch(error => {
-					reject(error)
-				});
-		});
+
+    that.resetDockerHost = async function(host) {
+	that.docker = new Docker({
+	    host: host.ip,
+	    port: host.port
+	});
+	await that.docker.ping();
+    }
+
+
+    /**
+     * Create and start a container on the given host, according to
+     * the given specifications.
+     */
+    that.createContainer = async function(dockerHost, containerSpecs={}, isDetached=false) {	
+	const DEFAULT_SPECS = {
+	    Image: 'debian:10-slim',
+	    Cmd: ['/bin/bash'],
+	    name: 'debian-test',
+	    Tty: true
 	};
 
+	containerSpecs = Object.assign({}, DEFAULT_SPECS, containerSpecs);
+
+	logger.info(JSON.stringify(containerSpecs));
+	
+	await that.resetDockerHost(dockerHost);
+	try {
+	    const image = that.docker.getImage(containerSpecs.Image);
+	    const details = await image.inspect();
+	    logger.info("Image:" + JSON.stringify(details));
+
+	} catch (error) {
+	    const pullingImage = await that.docker.createImage({fromImage: containerSpecs.Image});
+	    pullingImage.pipe(process.stdout, { end: true });
+	    await that.endOf(pullingImage);
+
+	}
+
+	const container = await that.docker.createContainer(containerSpecs);
+	container.start();
+	if (!isDetached) {
+	    containerLog = await container.attach({stream: true, stdout: true, stderr: true});
+	    containerLog.pipe(process.stdout, {end: true});
+	    await that.endOf(containerLog);
+	}
+	
+	return container.id;
+    };
+    
+
+    that.endOf = function(stream) {
+	return new Promise((resolve, reject) => {
+	    stream.on('error', () => reject());
+	    stream.on('close', () => resolve());
+	    stream.on('end', () => resolve());
+	    stream.on('finish', () => resolve());
+	});
+    }
+    
+    /**
+     * Execute the given command on the container with the given ID.
+     *
+     * See the documentation at
+     * https://docs.docker.com/engine/api/v1.37/#tag/Exec
+     */
+    that.executeCommand = async function(dockerHost, containerID, commandSpecs={}) {
+	const DEFAULT_SPECS = {
+	    Cmd: ["/bin/bash", "-c",  "ls  -l"],
+	    AttachStdout: true,
+	    AttachStderr: true,
+	    Tty: true
+	};
+
+	commandSpecs = Object.assign({}, DEFAULT_SPECS, commandSpecs);
+
+	logger.info(`Executing '${JSON.stringify(commandSpecs)} ...`);
+	
+	await that.resetDockerHost(dockerHost);
+	const container = that.docker.getContainer(containerID);
+	const execution = await container.exec(commandSpecs);
+	const stream = await execution.start();
+	stream.output.pipe(process.stdout, {end: true});
+	await that.endOf(stream.output);
+    };
+
+
+    /**
+     * Save a container into a new image
+     *
+     * See documentation at:
+     *    https://docs.docker.com/engine/api/v1.37/#operation/ImageCommit
+     */
+    that.saveContainerAsImage = async function(dockerHost, containerID, imageName) {
+	await that.resetDockerHost(dockerHost);
+
+	const container = that.docker.getContainer(containerID);
+	const commitSpecs = {
+	    repo: imageName,
+	    comment: 'GeneSIS build'
+	};
+	const commit = await container.commit(commitSpecs);
+	return commit.Id;
+    }
+
+    
+    /* 
+     * Connect a container to an existing network. 
+     *
+     * The container is identified by its ID while the network is
+     * identified by its name.
+     */
+    that.connectContainerToNetwork = async function(dockerHost, networkName, containerID) {
+	await that.resetDockerHost(dockerHost);
+	const network = that.docker.getNetwork(networkName);
+	const inspected = await network.inspect()
+	const containerSpecs = {
+	    "Container": containerID,
+	    "EndpointConfig": null
+	};
+	await network.connect(containerSpecs);
+    };
+
+
+    /**
+     * Destroy a given container, that stop and remove it.
+     *
+     * See API documentation available at
+     * https://docs.docker.com/engine/api/v1.37/#operation/ContainerArchive
+     *
+     */
+    that.removeContainer = async function(dockerHost, containerID) {
+	await that.resetDockerHost(dockerHost);
+	await that.docker.ping();
+	const container = that.docker.getContainer(containerID);
+	await container.remove();
+	return containerID;
+    }
+
+
+    /**
+     * Upload an archive on a given container.
+     *
+     * See API documentation available at
+     * https://docs.docker.com/engine/api/v1.37/#operation/ContainerArchive
+     *
+     * @param container the ID (String) of the container where the
+     * archive is to be uploaded.
+     *
+     * @param archive (String) the path to the archive to upload
+     *
+     * @param path (String) the path where the archive should be
+     * placed on the target container.
+     */
+    that.uploadArchive = async function(dockerHost, containerID, archive, path) {
+	await that.resetDockerHost(dockerHost);
+	logger.info(`Uploading archive on container ${containerID}`);
+	const container = that.docker.getContainer(containerID);
+	const response = await container.putArchive(archive, { path: path });
+	logger.info(`Uploading '${archive}' to' ${containerID}'`);
+	logger.info(`   ${response.statusCode}: ${response.statusMessage}`);
+    };
+    
+
+
+    /**
+     * Initialize Docker swarm (i.e., triggers a 'docker swarm
+     * init') on the given host.
+     *
+     * The Docker API returns an HTTP Code 503 if Docker Swarm is
+     * already initialized or if the host is already part of a
+     * swarm. In this case, we do not raise an error and proceed
+     * because we only need to ensure that the host is initialized
+     * (idempotency).
+     *
+     * See endpoint documentation at
+     *    https://docs.docker.com/engine/api/v1.37/#operation/SwarmInit
+     */
+    that.initializeDockerSwarm = function (host) {
+	return new Promise(async function (resolve, reject) {
+	    that.docker = new Docker({
+		host: host.ip,
+		port: host.port
+	    });
+	    that.docker
+		.ping()
+		.then(data => {
+		    that.docker
+			.swarmInit({
+			    ForceNewCluster: false,
+			}).then(response => {
+			    logger.log("info", "SWARM RESPONSE\n" + response);
+			    logger.log("info", "Docker Swarm initialized!");
+			    resolve(response.ID, component.name);
+			}).catch(error => {
+			    if (error.message.search(/503/i) === -1) {
+				logger.error("Docker Swarm error\n" + error);
+				reject(error);
+			    }
+			    resolve("info", "some-id");
+			});
+		}).catch(error => {
+		    reject(error)
+		});
+	});
+    };
+    
 
 	/*
 	 * Start a new swarm service, from the configuration of the given component.
@@ -355,6 +534,7 @@ var docker_connector = function () {
 
 	return that;
 };
+
 
 
 module.exports = docker_connector;
