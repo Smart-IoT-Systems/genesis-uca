@@ -83,8 +83,10 @@ var deployment_model = function (spec) {
         //we also need to remove the associated links
         var tab_indexes = [];
         for (var i in that.links) {
-            if (that.links[i].target.indexOf(component.name) > -1 ||
-                that.links[i].src.indexOf(component.name) > -1) {
+            var tmp_l_name_target=that.get_comp_name_from_port_id(that.links[i].target);
+            var tmp_l_name_src=that.get_comp_name_from_port_id(that.links[i].src);
+            if (component.name === tmp_l_name_target ||
+                component.name === tmp_l_name_src) {
                 tab_indexes.push(i);
             }
         }
