@@ -85,15 +85,17 @@ var deployment_model = function (spec) {
         for (var i in that.links) {
             var tmp_l_name_target=that.get_comp_name_from_port_id(that.links[i].target);
             var tmp_l_name_src=that.get_comp_name_from_port_id(that.links[i].src);
-            if (component.name === tmp_l_name_target ||
-                component.name === tmp_l_name_src) {
-                tab_indexes.push(i);
+            if (component.name !== tmp_l_name_target &&
+                component.name !== tmp_l_name_src) {
+                tab_indexes.push(that.links[i]);
             }
         }
         if (tab_indexes.length > 0) {
+            /*console.log(JSON.stringify(tab_indexes));
             tab_indexes.forEach(function (elem) {
                 that.links.splice(elem, 1);
-            });
+            });*/
+            that.links=tab_indexes;
         }
         //we also need to remove the associated containments
         var tabc_indexes_cont = [];
