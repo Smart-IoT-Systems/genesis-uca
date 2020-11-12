@@ -165,6 +165,11 @@ var docker_connector = function () {
 
 			if (that.extra_options.length > 0) {
 				that.extra_options.forEach(element => {
+					console.log(JSON.stringify(element));
+					if(element[0] === "Labels"){
+						options.Labels= element[1];
+						console.log(JSON.stringify(options));
+					}
 					options.HostConfig[element[0]] = element[1];
 				});
 				console.log(JSON.stringify(options.HostConfig));
