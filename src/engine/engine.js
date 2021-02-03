@@ -100,6 +100,7 @@ var engine = (function () {
 	that.update_target_model = function (req, res) {
 		let data = req.body;
 		that.target_model = mm.deployment_model({});
+		that.target_model.type_registry = that.modules;
 		that.target_model.name = data.name;
 		that.target_model.revive_components(data.components);
 		that.target_model.revive_links(data.links);
@@ -111,6 +112,8 @@ var engine = (function () {
 				bus.emit('runtime-info', element.name, element._runtime.Status);
 			}
 		});
+
+		logger.log("info", "Model received " + JSON.stringify(that.target_model));
 
 		res.end(JSON.stringify(that.target_model));
 	};
@@ -140,7 +143,7 @@ var engine = (function () {
 					var n_connector = nodered_connector();
 					/*n_connector.setFlow(host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model).then(function () {
 			logger.log("info", "Node-Red Flow Removed!");
-		    });*/
+			});*/
 					logger.log("info", "Host " + host.name);
 					await n_connector.setFlow(device_host.ip, cmpt.required_communication_port[0].port_number, "[]", [], [], that.dep_model);
 					logger.log("info", "Node-Red Flow Removed!");
@@ -166,9 +169,9 @@ var engine = (function () {
 
 			/*if (diff.old_dm.is_top_component(removed[i])) {
 		(function (one_component, d) {
-		    that.recursive_remove(one_component, d);
+			that.recursive_remove(one_component, d);
 		}(removed[i], diff));
-	    }*/
+		}*/
 			var host = diff.old_dm.find_host_one_level_down(removed[i]);
 			var device_host = diff.old_dm.find_host(removed[i]);
 
@@ -380,8 +383,8 @@ var engine = (function () {
 			if (comp.docker_resource.image !== docker_image_nr && comp.docker_resource.image !== "") {
 				docker_image_nr = comp.docker_resource.image;
 			}
-			
-			if(comp.docker_resource.extra_options !== undefined && comp.docker_resource.extra_options !== ""){
+
+			if (comp.docker_resource.extra_options !== undefined && comp.docker_resource.extra_options !== "") {
 				connector.add_extra_options_all(comp.docker_resource.extra_options);
 			}
 
@@ -419,12 +422,12 @@ var engine = (function () {
 
 			//just for fun 0o' let's try the most crappy code ever!
 			//Actually this is not fun :'(
-			
-			
+
+
 			let src_upload = comp.ssh_resource.uploadCommand[0];
 			let tgt_upload = comp.ssh_resource.uploadCommand[1];
-			
-			
+
+
 			sc.upload_file(src_upload, tgt_upload).then(function () {
 				logger.log("info", "Upload command executed");
 				sc.execute_command(comp.ssh_resource.downloadCommand).then(function () {
@@ -533,7 +536,7 @@ var engine = (function () {
 									}
 								} else {
 
-									if(compo.docker_resource.extra_options !== undefined && compo.docker_resource.extra_options !== ""){
+									if (compo.docker_resource.extra_options !== undefined && compo.docker_resource.extra_options !== "") {
 										connector.add_extra_options_all(compo.docker_resource.extra_options);
 									}
 
@@ -705,28 +708,28 @@ var engine = (function () {
 			var manage_links = function (comp_tab) {
 				//For all Node-Red hosted components we generate the websocket proxies
 				/*for (var ct_elem of comp_tab) {
-				    (function (comp_tab, ct_elem) {
-				        if (ct_elem._type === '/internal/node_red') {
-				            var host = that.dep_model.find_host(ct_elem);
+					(function (comp_tab, ct_elem) {
+						if (ct_elem._type === '/internal/node_red') {
+							var host = that.dep_model.find_host(ct_elem);
 
-				            //Get all links that start from the component
-				            var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
-				            //Get all links that end in the component
-				            var tgt_tab = that.dep_model.get_all_inputs_of_component(ct_elem);
+							//Get all links that start from the component
+							var src_tab = that.dep_model.get_all_outputs_of_component(ct_elem);
+							//Get all links that end in the component
+							var tgt_tab = that.dep_model.get_all_inputs_of_component(ct_elem);
 
-				            if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
-				                var noderedconnector = nodered_connector();
-				                noderedconnector.getCurrentFlow(host.ip, ct_elem.provided_communication_port[0].port_number).then(function (the_flow) {
-				                    that.generate_components(host.ip, ct_elem.provided_communication_port[0].port_number, src_tab, tgt_tab, that.dep_model, the_flow);
-				                    bus.emit('link-done');
-				                });
-				            } else {
-				                bus.emit('link-done');
-				            }
-				        } else {
-				            bus.emit('link-done');
-				        }
-				    }(comp_tab, ct_elem));
+							if ((src_tab.length > 0) || (tgt_tab.length > 0)) {
+								var noderedconnector = nodered_connector();
+								noderedconnector.getCurrentFlow(host.ip, ct_elem.provided_communication_port[0].port_number).then(function (the_flow) {
+									that.generate_components(host.ip, ct_elem.provided_communication_port[0].port_number, src_tab, tgt_tab, that.dep_model, the_flow);
+									bus.emit('link-done');
+								});
+							} else {
+								bus.emit('link-done');
+							}
+						} else {
+							bus.emit('link-done');
+						}
+					}(comp_tab, ct_elem));
 				}*/
 				resolve(0);
 			}
@@ -925,7 +928,7 @@ var engine = (function () {
 				var tmp_ = {};
 				tmp_.id = modules[j].id.replace('.js', '');
 				var comp = modules[j].module({});
-				(comp._type.indexOf('external') > -1) ? tmp_.isExternal = true: tmp_.isExternal = false;
+				(comp._type.indexOf('external') > -1) ? tmp_.isExternal = true : tmp_.isExternal = false;
 				tmp_.module = comp;
 				tab.push(tmp_);
 			}
