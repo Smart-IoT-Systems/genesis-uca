@@ -109,7 +109,9 @@ var engine = (function () {
 		//Update runtime info
 		that.dep_model.components.forEach(element => {
 			if (that.target_model.find_node_named(element.name) !== undefined) {
-				bus.emit('runtime-info', element.name, element._runtime.Status);
+				if (element._runtime !== undefined) {
+					bus.emit('runtime-info', element.name, element._runtime.Status);
+				}
 			}
 		});
 
