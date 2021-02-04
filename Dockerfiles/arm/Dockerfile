@@ -13,11 +13,11 @@ RUN apt-get install -y git
 
 RUN npm config set registry http://registry.npmjs.org/
 
-RUN npm install npm@latest -g
-
 RUN npm install -g n
 RUN n stable
 RUN n 11.8.0
+
+RUN npm install npm@latest -g
 
 RUN apt-get clean
 
