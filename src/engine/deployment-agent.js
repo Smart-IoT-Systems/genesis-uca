@@ -42,7 +42,8 @@ var deployment_agent = function (host, host_target, deployment_target) {
         that.flow = '[{"id":"dac41de7.a03033","type":"tab","label":"Deployment Flow"}';
         if (host_target._type === "/infra/device") {
             var id_deployer_node_in_agent = uuidv4();
-            if ((host_target.device_type.indexOf("ardui") !== -1) || (host_target.device_type.indexOf("uno") !== -1) || (host_target.device_type.indexOf("mega") !== -1) || (host_target.device_type.indexOf("leonardo") !== -1)) {
+            if ((host_target.device_type.indexOf("ardui") !== -1) || (host_target.device_type.indexOf("uno") !== -1)
+                || (host_target.device_type.indexOf("mega") !== -1) || (host_target.device_type.indexOf("leonardo") !== -1)) {
                 var lib_strigified = JSON.stringify(that.deployment_target.libraries);
                 var arduitype = host_target.device_type || "uno";
                 var arduicpu = host_target.cpu || "";

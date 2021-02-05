@@ -16,6 +16,7 @@ var model_observer = require('./runtime_observer.js');
 var mqtt = require('mqtt');
 var nodered_connector = require('./connectors/nodered_connector.js');
 var fs = require('fs');
+var config_file = require('../config.json');
 
 
 var engine = (function () {
@@ -45,6 +46,12 @@ var engine = (function () {
 			graph: that.graph
 		};
 		res.end(JSON.stringify(all_in_one));
+	}
+
+	that.getTestResults = function (req, res) {
+		// Do something.
+		bus.emit("tas", req.body);
+		res.end();
 	}
 
 	that.getRuntime_info = function (req, res) {
@@ -897,6 +904,12 @@ var engine = (function () {
 				.then(function () {
 					bus.emit('deployment-completed');
 					logger.log("info", "Deployment completed!");
+					if (config_file.tas) {
+						fetch(tas.endpoint)
+							.then((response) => {
+								console.log(response);
+							}).catch(error => console.error);
+					}
 				});
 
 		} else {
