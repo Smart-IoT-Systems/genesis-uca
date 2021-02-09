@@ -1,7 +1,14 @@
 import React from "react";
 import 'antd/dist/antd.css';
-import { List, Avatar, Button } from 'antd';
+import { List, Avatar, Tag } from 'antd';
 
+
+const evaluateScores = (scores) => {
+    for (let index = 0; index < scores.length; index++) {
+        if (scores[index].score === 0) return false;
+    }
+    return true;
+}
 
 class TestResult extends React.Component {
 
@@ -22,11 +29,10 @@ class TestResult extends React.Component {
                         key={item.key}
                     >
                         <List.Item.Meta
-                            avatar={<Avatar src={'/img/GeneSISLogo.png'} />}
-                            title={item.testCaseId}
+                            avatar={evaluateScores(item.scores) ? <Tag color={"green"}>Passed</Tag> : <Tag color={"red"}>Failed</Tag>}
+                            title={`${item.testCaseId}`}
                             description={JSON.stringify(item.scores)}
                         />
-                        {item.content}
                     </List.Item>
                 )}
             />

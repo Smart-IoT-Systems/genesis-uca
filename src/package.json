@@ -36,6 +36,7 @@
         "morgan": "~1.8.1",
         "mqtt": "^2.18.8",
         "node-ansible-wrapper": "^0.5.6",
+        "node-fetch": "^2.6.1",
         "node-plantuml": "~0.8.1",
         "nodemon": "^1.19.4",
         "path": "~0.12.7",

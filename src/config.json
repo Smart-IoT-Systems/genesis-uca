@@ -1,4 +1,6 @@
 {
-    "tas_connected": false,
-    "tas_endpoint": ""
+    "tas": {
+        "connected": true,
+        "endpoint": "http://192.168.1.21:31057/api/devops/start"
+    }
 }
