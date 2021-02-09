@@ -736,20 +736,22 @@ var device = function (spec) {
 class Availability {
     
     static defaultSettings () {
-	return new Availability(this.DEFAULT, "", 1);
+	return new Availability(this.DEFAULT, "", 1, true);
     }
 
     
     static fromObject (object) {
 	return new Availability(object.strategy || this.DEFAULT,
 				object.healthCheck || "",
-				object.replicaCount || 1);
+				object.replicaCount || 1,
+				object.zeroDownTime || true);
     }
     
-    constructor (strategy, healthCheck, replicaCount) {
+    constructor (strategy, healthCheck, replicaCount, zeroDownTime) {
 	this.strategy = strategy;
 	this.healthCheck = healthCheck;
 	this.replicaCount = replicaCount;
+	this.zeroDownTime = zeroDownTime;
     }
 
     usesDockerSwarm () {
@@ -767,6 +769,10 @@ class Availability {
     useStrategy (strategy) {
 	return this.strategy === strategy;
     }
+
+    requireZeroDownTime() {
+	return this.zeroDownTime;
+    }
 	
 }
 
@@ -776,7 +782,6 @@ Availability.DOCKER_SWARM = "Docker Swarm";
 Availability.BUILTIN = "Builtin";
 
 Availability.DEFAULT = Availability.BUILTIN
-
 
 /******************************************/
 /* Software node (aka. Internal component)*/

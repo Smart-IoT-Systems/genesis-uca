@@ -27,10 +27,11 @@ var tar = require("tar");
  */
 class AvailabilityManager {
 
-    constructor (changes, component, host) {
+    constructor (changes, component, host, port=5000) {
 	this.docker = dc();
 	this.changes = changes;
 	this.component = component;
+	this.port = port
 	this.host = host;
     }
 
@@ -117,7 +118,7 @@ class AvailabilityManager {
 		    "name": componentName, // Must be capitalize 'name'
 		    "Cmd": [ "/bin/bash", "-c",  this.component.ssh_resource.startCommand ]
 		};
-		await this.docker.createContainer(this.host, containerSpecs);
+		await this.docker.createContainer(this.host, containerSpecs, true);
 		await this.docker.connectContainerToNetwork(this.host, networkID, componentName);
 		endpoints.push(componentName);
 		this.info(`Replica ${i} created!`);
@@ -144,7 +145,15 @@ class AvailabilityManager {
 		Tty: false,
 		AttachStdin: false,
 		AttachStdout: false,
-		AttachStderr: false
+		AttachStderr: false,
+		HostConfig: {
+		    PortBindings: {
+			[`${this.port}/tcp`]: [{ HostPort: `${this.port}` }]
+		    },
+		},
+		ExposedPorts: {
+		    [`${this.port}/tcp`]: {}
+		},
 	    };
 	    await this.docker.createContainer(this.host, proxySpecs, true);
 	    await this.docker.connectContainerToNetwork(this.host, networkID, proxySpecs.name);
@@ -162,9 +171,9 @@ class AvailabilityManager {
     
     async reconfigureProxy(proxyID, endpoints) {
 	try {
-	    await this.uploadHealthcheckScript(proxyID)
+	    await this.uploadHealthcheckScript(proxyID);
 	    await this.registerEndpoints(proxyID, endpoints);
-	    await this.restartProxy(proxyID);
+	    await this.restartProxy(proxyID, endpoints[0]);
 	    this.info("Proxy configured!");
 
 	} catch (error) {
@@ -229,7 +238,11 @@ class AvailabilityManager {
 	try {
 	    for (var eachEndpoint of endpoints) {
 		const commandSpecs = {
-		    Cmd:  ["/bin/bash", "-c", `./endpoints.sh register ${eachEndpoint}`],
+		    Cmd:  [
+			"/bin/bash",
+			"-c",
+			`bash ./endpoints.sh register ${this._urlOf(eachEndpoint)}`
+		    ],
 		}
 		await this.docker.executeCommand(this.host, proxyID, commandSpecs);
 		this.info(`Endpoint ${eachEndpoint} registered to the proxy!`);
@@ -244,7 +257,29 @@ class AvailabilityManager {
     }
 
     
-    async restartProxy(proxyID) {
+    _urlOf(endpoint) {
+	// /!\ NGinx 1.19.6 (at least) throws "Invalid host in
+	// upstream" if the endpoint URL starts with 'http://'
+	return `${endpoint}:${this.port}`;
+    }
+
+    
+    async restartProxy(proxyID, activeEndpoint) {
+	try {
+	    const commandSpecs = {
+		Cmd:  ["/bin/bash",
+		       "-c",
+		       `bash ./endpoints.sh initialize ${this.port} ${this._urlOf(activeEndpoint)}`],
+	    }
+	    await this.docker.executeCommand(this.host, proxyID, commandSpecs);
+	    this.info(`Endpoint ${activeEndpoint} activated!`);
+	   
+	} catch (error) {
+	    this.error("Unable to initialize the proxy!");
+	    this.error(error);
+	    throw error;
+	    
+	}
 	this.info(": Proxy restarted")
     }
 
@@ -869,9 +904,7 @@ var engine = (function () {
 		
 	    }
 	});
-    }
-
-    
+    }    
 
     
     
