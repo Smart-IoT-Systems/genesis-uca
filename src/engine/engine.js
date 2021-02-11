@@ -1,3 +1,4 @@
+var AvailabilityManager = require("./availability");
 var mm = require('../metamodel/allinone.js');
 var dc = require('./connectors/docker-connector.js');
 var sshc = require('./connectors/ssh-connector.js');
@@ -21,277 +22,12 @@ var tar = require("tar");
 
 
 
-/**
- * Manage the deployment of availability strategies, either using
- * Docker Swarm or using a builtin proxy such as NGinx.
- */
-class AvailabilityManager {
-
-    constructor (changes, component, host, port=5000) {
-	this.docker = dc();
-	this.changes = changes;
-	this.component = component;
-	this.port = port
-	this.host = host;
-    }
-
-    
-    info(message) {
-	logger.info("AVAILABILITY: " + message);
-    }
-
-    
-    error(message) {
-	logger.error("AVAILABILITY: " + message);
-    }
-
-
-    replicate () {
-	const strategy = this.component.availability
-	if (strategy.usesDockerSwarm()) {
-	    return this.replicateUsingDockerSwarm();
-	    
-	} else if (strategy.isBuiltin() ) {
-	    return this.builtinReplication();
-
-	} else {
-	    this.error(`Unknown strategy '${strategy}'!`);
-
-	}
-    }
-
-    
-    async deployOnDockerSwarm () {
-	await this.docker.initializeDockerSwarm(host); // Idempotent
-	if (this.changes.isUpdateOf(this.component)) {
-	    return await this.docker.updateSwarmService(this.host, this.component);
-	    
-	} else {
-	    return await this.docker.startSwarmService(this.host, this.component);
-	    
-	}
-    }
-
-
-    async builtinReplication () {
-	if (this.changes.isUpdateOf(this.component)) {
-	    logger.info("TODO: Implement the comparison");
-	    
-	} else {
-	    try {
-		const networkID = await this.setupDockerNetwork();
-		const endpoints = await this.createReplicas(networkID);
-		const proxyID = await this.deployBuiltinProxy(networkID);
-		await this.reconfigureProxy(proxyID, endpoints);
-		this.info("Builtin deployment complete!");
-		
-	    } catch (error) {
-		this.error("Builtin deployment failed");
-		this.error(error);
-		
-	    }
-	}
-    }
-
-
-    async setupDockerNetwork () {
-	const networkID = `GeneSIS-${this.component.name}`;
-	try{
-	    await this.docker.createNetwork(this.host, networkID);
-	    this.info(`Network ${networkID} created!`);
-	    return networkID;
-	    
-	} catch (error) {
-	    this.error("Unable to create Docker network.");
-	    
-	}
-    }
-
-
-    async createReplicas(networkID) {
-	var endpoints = [];
-	for (var i=0 ; i<this.component.availability.replicaCount ; i++) {
-	    try {
-		const componentName = `${this.component.name}-${i+1}`;
-		const containerSpecs = {
-		    "Image": this.component.docker_resource.image,
-		    "name": componentName, // Must be capitalize 'name'
-		    "Cmd": [ "/bin/bash", "-c",  this.component.ssh_resource.startCommand ]
-		};
-		await this.docker.createContainer(this.host, containerSpecs, true);
-		await this.docker.connectContainerToNetwork(this.host, networkID, componentName);
-		endpoints.push(componentName);
-		this.info(`Replica ${i} created!`);
-		
-	    } catch (error) {
-		this.error(`Unable to create Replica ${i}`);
-		this.error(error);
-		
-	    }
-
-	}
-
-	this.info(`All replicas created !`);
-	return endpoints;
-    }
-
-
-    async deployBuiltinProxy(networkID) {
-	try {
-	    const proxySpecs = {
-		Image: "fchauvel/enact-nginx:latest",
-		name: `${this.component.name}-proxy`,
-		Cmd: ["/bin/bash", "-c", "nginx -g 'daemon off;'"],
-		Tty: false,
-		AttachStdin: false,
-		AttachStdout: false,
-		AttachStderr: false,
-		HostConfig: {
-		    PortBindings: {
-			[`${this.port}/tcp`]: [{ HostPort: `${this.port}` }]
-		    },
-		},
-		ExposedPorts: {
-		    [`${this.port}/tcp`]: {}
-		},
-	    };
-	    await this.docker.createContainer(this.host, proxySpecs, true);
-	    await this.docker.connectContainerToNetwork(this.host, networkID, proxySpecs.name);
-	    this.info("Proxy created!");
-
-	    return proxySpecs.name
-
-	} catch (error) {
-	    this.error(`Unable to start proxy`);
-	    throw error;
-
-	}
-    }
-
-    
-    async reconfigureProxy(proxyID, endpoints) {
-	try {
-	    await this.uploadHealthcheckScript(proxyID);
-	    await this.registerEndpoints(proxyID, endpoints);
-	    await this.restartProxy(proxyID, endpoints[0]);
-	    this.info("Proxy configured!");
-
-	} catch (error) {
-	    this.error("Unable to reconfigure the proxy!")
-	    throw error;
-
-	}
-    }
-
-    
-    async uploadHealthcheckScript(proxyID) {
-	try {
-	    const archive = await this.archiveScript(this.component.availability.healthcheck);
-	    await this.docker.uploadArchive(this.host, proxyID, archive, "/enact");
-	    this.info("Heatlh check script uploaded");
-	    
-	} catch (error) {
-	    this.error("Unable to upload the heatlh script");
-	    this.error(error);
-	    
-	}
-    }
-    
-    /**
-     * Create a tarball containing the healthcheck script.
-     */
-    async archiveScript(healthcheck, options={}) {
-	const OPTION_DEFAULTS = {
-	    scriptName: "healthcheck.sh",
-	    archiveName: "healthcheck.tar.gz",
-	    prefix: "genesis"
-	};
-	options = Object.assign({}, OPTION_DEFAULTS, options);
-	
-	try {	    
-	    const path = await temp.mkdir(options.prefix);
-	    
-	    // Dump the healthcheck code into a file
-	    const script = path + "/" + options.scriptName;
-	    fs.writeFileSync(script, healthcheck);
-	    
-	    // Create a tarball including the script file
- 	    const archivePath = `${path}/${options.archiveName}`;
-	    await tar.c({   gzip: true,
-			    file: archivePath,
-			    cwd: path
-			},
-			[options.scriptName]);
-	    
-	    this.info(`Archive ready at '${path}/${options.archiveName}'`);
-	    return archivePath;
-
-	} catch (error) {
-	    this.error("Unable to write the health check script on disk!");
-	    throw error
-
-	}
-    }
-
-
-    async registerEndpoints(proxyID, endpoints) {
-	try {
-	    for (var eachEndpoint of endpoints) {
-		const commandSpecs = {
-		    Cmd:  [
-			"/bin/bash",
-			"-c",
-			`bash ./endpoints.sh register ${this._urlOf(eachEndpoint)}`
-		    ],
-		}
-		await this.docker.executeCommand(this.host, proxyID, commandSpecs);
-		this.info(`Endpoint ${eachEndpoint} registered to the proxy!`);
-	    }
-	    
-	} catch (error) {
-	    this.error("Unable to register endpoints to the proxy!");
-	    this.error(error);
-	    throw error;
-	    
-	}
-    }
-
-    
-    _urlOf(endpoint) {
-	// /!\ NGinx 1.19.6 (at least) throws "Invalid host in
-	// upstream" if the endpoint URL starts with 'http://'
-	return `${endpoint}:${this.port}`;
-    }
-
-    
-    async restartProxy(proxyID, activeEndpoint) {
-	try {
-	    const commandSpecs = {
-		Cmd:  ["/bin/bash",
-		       "-c",
-		       `bash ./endpoints.sh initialize ${this.port} ${this._urlOf(activeEndpoint)}`],
-	    }
-	    await this.docker.executeCommand(this.host, proxyID, commandSpecs);
-	    this.info(`Endpoint ${activeEndpoint} activated!`);
-	   
-	} catch (error) {
-	    this.error("Unable to initialize the proxy!");
-	    this.error(error);
-	    throw error;
-	    
-	}
-	this.info(": Proxy restarted")
-    }
-
-}
-
-
-
-
 
 var engine = (function () {
 	var that = {};
 
+    that.availabilityManager = new AvailabilityManager();
+    
 	that.available_types = [];
 	that.modules = [];
 
@@ -338,11 +74,13 @@ var engine = (function () {
 		res.end(JSON.stringify(that.target_model));
 	};
 
-	that.update_component = function (req, res) {
+    that.update_component = function (req, res) {
+	logger.info("UPDATE COMPONENT!");
 		var input = req.body;
 		logger.log("info", "Received request to update Target model in memory " + JSON.stringify(input));
 		try {
 			that.target_model.change_attribute(input.name, input.attribute, input.value);
+
 		} catch (e) {
 			logger.log("error", "Body not valid");
 			res.end("error");
@@ -352,12 +90,14 @@ var engine = (function () {
 
     
 	that.push_model = function (req, res) {
-		req.body = that.target_model;
+	    logger.info("PUSH MODEL!");
+	    req.body = that.target_model;
 		that.deploy(req, res);
 	};
 
 
-	that.update_target_model = function (req, res) {
+    that.update_target_model = function (req, res) {
+	logger.info("UPDATE TARGET MODEL!");
 		let data = req.body;
 		that.target_model = mm.deployment_model({});
 		that.target_model.name = data.name;
@@ -376,7 +116,8 @@ var engine = (function () {
 	};
 
 	that.to_be_removed = function (diff, comp) {
-		var result = false;
+	    logger.info("TO BE REMOVED!");
+	    var result = false;
 		var removed_comp = diff.list_of_removed_components;
 		for (var i in removed_comp) {
 			if (removed_comp[i].name === comp.name) {
@@ -388,30 +129,43 @@ var engine = (function () {
 	};
 
 	that.remove_one_component = async function (cmpt, diff) {
-		var host = diff.old_dm.find_host_one_level_down(cmpt);
-		var device_host = diff.old_dm.find_host(cmpt);
+	    logger.info("REMOVE ONE COMPONENT!");
+	    var host = diff.old_dm.find_host_one_level_down(cmpt);
+	    var device_host = diff.old_dm.find_host(cmpt);
+	    
+	    if (host !== null) {
+		//Need to find the host in the old model
+		if (host._type === "/infra/docker_host") {
+		    await connector.stopAndRemove(cmpt.container_id, device_host.ip, host.port);
 
-		if (host !== null) {
-			//Need to find the host in the old model
-			if (host._type === "/infra/docker_host") {
-				await connector.stopAndRemove(cmpt.container_id, device_host.ip, host.port);
-			} else if (cmpt._type === "/internal/node_red_flow") {
-				if (!that.to_be_removed(diff, host)) {
-					var n_connector = nodered_connector();
-					/*n_connector.setFlow(host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model).then(function () {
+		} else if (cmpt._type === "/internal/node_red_flow") {
+		    if (!that.to_be_removed(diff, host)) {
+			var n_connector = nodered_connector();
+			/*n_connector.setFlow(host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model).then(function () {
+			  logger.log("info", "Node-Red Flow Removed!");
+			  });*/
+			logger.log("info", "Host " + host.name);
+			await n_connector.setFlow(device_host.ip,
+						  cmpt.required_communication_port[0].port_number,
+						  "[]",
+						  [],
+						  [],
+						  that.dep_model);
 			logger.log("info", "Node-Red Flow Removed!");
-		    });*/
-					logger.log("info", "Host " + host.name);
-					await n_connector.setFlow(device_host.ip, cmpt.required_communication_port[0].port_number, "[]", [], [], that.dep_model);
-					logger.log("info", "Node-Red Flow Removed!");
-				}
-			} else if (that.need_ssh(cmpt)) {
-				var ssh_connection = sshc(device_host.ip, host.port, cmpt.ssh_resource.credentials.username, cmpt.ssh_resource.credentials.password, cmpt.ssh_resource.credentials.sshkey, cmpt.ssh_resource.credentials.agent);
-				await ssh_connection.execute_command(cmpt.ssh_resource.stopCommand);
-			}
+		    }
+		    
+		} else if (that.need_ssh(cmpt)) {
+		    var ssh_connection = sshc(device_host.ip,
+					      host.port,
+					      cmpt.ssh_resource.credentials.username,
+					      cmpt.ssh_resource.credentials.password,
+					      cmpt.ssh_resource.credentials.sshkey,
+					      cmpt.ssh_resource.credentials.agent);
+		    await ssh_connection.execute_command(cmpt.ssh_resource.stopCommand);
 		}
+	    }
 	};
-
+    
 	that.remove_containers = async function (diff) {
 		var removed = diff.list_of_removed_components;
 		var removed_hosts = diff.list_removed_hosts;
@@ -445,7 +199,7 @@ var engine = (function () {
 						await n_connector.setFlow(device_host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model);
 						logger.log("info", "Node-Red Flow Removed!");*/
 					}
-				} else if (that.need_ssh(removed[i])) {
+				} else if (that.need_ssh(removed[i]) && !removed[i].availability.isReplicated()) {
 					sshs.push(removed[i]);
 					//var ssh_connection = sshc(device_host.ip, host.port, removed[i].ssh_resource.credentials.username, removed[i].ssh_resource.credentials.password, removed[i].ssh_resource.credentials.sshkey, removed[i].ssh_resource.credentials.agent);
 					//await ssh_connection.execute_command(removed[i].ssh_resource.stopCommand);
@@ -640,63 +394,72 @@ var engine = (function () {
 			if (comp.docker_resource.image !== docker_image_nr && comp.docker_resource.image !== "") {
 				docker_image_nr = comp.docker_resource.image;
 			}
-			connector.buildAndDeploy(host.ip, host.port, comp.docker_resource.port_bindings, comp.docker_resource.devices, "", docker_image_nr, comp.docker_resource.mounts, comp.docker_resource.links, comp.name, host.name, comp.docker_resource.environment).then(function (id) {
-				if ((comp.nr_flow !== undefined && comp.nr_flow !== "") ||
-					(comp.path_flow !== "" && comp.path_flow !== undefined)) { //if there is a flow to load with the nodered node
-					let noderedconnector = nodered_connector();
-					var _data = "";
-					if (comp.path_flow !== "" && comp.path_flow !== undefined) {
-						_data = fs.readFileSync(comp.path_flow);
-					} else {
-						_data = JSON.stringify(comp.nr_flow);
-					}
-					noderedconnector.installAllNodeTypes(host.ip, comp.provided_communication_port[0].port_number, comp.packages).then(function () {
-						noderedconnector.setFlow(host.ip, comp.provided_communication_port[0].port_number, _data, [], [], that.dep_model).then(function () {
-							resolve(comp.name);
-							bus.emit('node-started', id, comp.name);
-						});
-					});
+		    connector.buildAndDeploy(host.ip,
+					     host.port,
+					     comp.docker_resource.port_bindings,
+					     comp.docker_resource.devices,
+					     "",
+					     docker_image_nr,
+					     comp.docker_resource.mounts,
+					     comp.docker_resource.links,
+					     comp.name,
+					     host.name,
+					     comp.docker_resource.environment)
+			.then(function (id) {
+			    if ((comp.nr_flow !== undefined && comp.nr_flow !== "") ||
+				(comp.path_flow !== "" && comp.path_flow !== undefined)) { //if there is a flow to load with the nodered node
+				let noderedconnector = nodered_connector();
+				var _data = "";
+				if (comp.path_flow !== "" && comp.path_flow !== undefined) {
+				    _data = fs.readFileSync(comp.path_flow);
+
+				} else {
+				    _data = JSON.stringify(comp.nr_flow);
+
 				}
+				noderedconnector.installAllNodeTypes(host.ip,
+								     comp.provided_communication_port[0].port_number,
+								     comp.packages)
+				    .then(function () {
+					noderedconnector.setFlow(host.ip,
+								 comp.provided_communication_port[0].port_number,
+								 _data,
+								 [],
+								 [],
+								 that.dep_model)
+					    .then(function () {
+						resolve(comp.name);
+						bus.emit('node-started', id, comp.name);
+					    });
+				    });
+			    }
 			}).catch(function (err) {
-				logger.log('info', "Could not deploy node: " + comp.name + " => " + err);
-				reject(err);
+			    logger.log('info', "Could not deploy node: " + comp.name + " => " + err);
+			    reject(err);
 			});
 		});
 	};
-
-
+    
+    
     /**
      * Deploy a component using SSH
      */
     that.deploy_ssh = function (component, host) {
 	return new Promise(async function (resolve, reject) {
+
 	    var ssh_port = host.port;
 	    if (host._type === "/infra/docker_host") {
 		ssh_port = "22";
 	    }
 
-	    logger.info(`AVAILABILITY: Deploying ${component.availability.replicaCount} replica(s).` );
-	    logger.info(JSON.stringify(component.availability));
-
 	    if (component.availability.isReplicated()) {
-		logger.info(`Replicated SSH component '${component.name}'`)
-
 		try {
-		    await that.installDockerInRemoteMode(host, component);
-		    host.port = "2376";
-		    const imageName = `${component.name}-livebuilt`
-		    await that.createDockerImageFromSSHResources(host, component, imageName);
-		    component.docker_resource.image = imageName;
-		    component.docker_resource.cmd = component.ssh_resource.startCommand;
-		    that.deploy_docker(component, host);
-		    resolve(true);
+		    that.availabilityManager.handle(component, host);
 
 		} catch (error) {
-		    logger.error("Could not deploy the replicas");
-		    reject(error);
-
+		    logger.error(error.message);
+		    
 		}
-
 	    } else {
 		var sc = sshc(host.ip,
 			      ssh_port,
@@ -756,48 +519,6 @@ var engine = (function () {
 	    }
 	});
     };
-
-
-    /**
-     * Install docker on the host, accessible through SSH. We assume
-     * that the host is a Linux-like system qith CURL available.
-     */
-
-    that.DOCKER_INSTALLATION_SCRIPT = "install_docker_in_remote_mode.sh"
-
-    that.INSTALL_DOCKER_COMMAND = `source ${that.DOCKER_INSTALLATION_SCRIPT}`
-    
-    that.installDockerInRemoteMode = async function (host, component) {
-	return new Promise(function (resolve, reject) {
-	    var sshConnection = sshc(host.ip,
-				      host.port,
-				      component.ssh_resource.credentials.username,
-				      component.ssh_resource.credentials.password,
-				      component.ssh_resource.credentials.sshkey,
-				      component.ssh_resource.credentials.agent);
-
-	    sshConnection
-		.upload_file(
-		    that.DOCKER_INSTALLATION_SCRIPT,
-		    that.DOCKER_INSTALLATION_SCRIPT)
-		.then(() => {
-		    sshConnection
-			.execute_command(that.INSTALL_DOCKER_COMMAND)
-			.then(() => {
-			    logger.info(`Remote Docker setup  on host ${host.ip}!`);
-			    resolve(true);
-			    
-			}).catch ((error) => {
-			    logger.error("Unable to install Docker in remote mode!")
-			    reject();
-			});
-		    
-		}).catch ((error) => {
-		    logger.error("Unable to upload the Docker installation script!");
-		    reject();
-		});
-	});
-    };
     
     
 	that.deploy_node_red_flow = async function (a_component) {
@@ -827,11 +548,8 @@ var engine = (function () {
     that.deploy_docker = async function (component, host) {
 	if (component.docker_resource.image !== "") {
 	    
-	    logger.log("info", `AVAILABILITY: ${JSON.stringify(component.availability)}`);
-
 	    if (component.availability.isReplicated()) {
-		const manager = new AvailabilityManager(that.diff, component, host)
-		manager.replicate();
+		that.availabilityManager.handle(component, host);
 
 	    } else {
 		var connector = dc();
@@ -854,61 +572,6 @@ var engine = (function () {
 
 
 
-    /**
-     * Convert a component installed using SSH resources into a Docker
-     * image.
-     *
-     * To do that, we spawn a new container and execute the SSH
-     * commands specified in the SSH resource. We then download and
-     * install the component, and save the container as a new docker
-     * image.
-     */
-    that.createDockerImageFromSSHResources = function(dockerHost, component, imageName, options={})  {
-	return new Promise(async function (resolve, reject) {
-	    const DEFAULT_OPTIONS = {
-		baseImage:  "debian:10-slim",
-		containerName: "enact-tmp",
-
-	    }
-	    
-	    options = Object.assign({}, DEFAULT_OPTIONS, options);
-	    
-	    var docker = dc();
-
-	    const installationScript = [
-		"/bin/bash",
-		"-c",
-		component.ssh_resource.downloadCommand
-		    + "; " + component.ssh_resource.installCommand
-		    + "; " + component.ssh_resource.configureCommand
-	    ];
-	    
-	    try {
-		const containerID = await docker.createContainer(dockerHost,
-								 {
-								     Image: options.baseImage,
-								     Cmd: installationScript,
-								     name: options.containerName
-								 });
-		await docker.saveContainerAsImage(dockerHost,
-						  containerID,
-						  imageName);
-		
-		await docker.removeContainer(dockerHost, options.containerName);
-		logger.info(`New docker image '${imageName}' for component '${component.name}'.`);
-		resolve(true);
-		
-	    } catch (error) {
-		logger.error(error);
-		reject(error);
-		
-	    }
-	});
-    }    
-
-    
-    
-	      
     /*
      * Deploy a component. Its dependencies and host should be
      * previously deployed (see method 'recursive_deploy').
@@ -1034,13 +697,15 @@ var engine = (function () {
 	 * "added hosted". Seems to be just the added component (looking
 	 * at model-comparison.js).
 	 */
-	that.run = function (diff) { //TODO: factorize
+    that.run = function (diff) { //TODO: factorize
+	logger.info("RUN!");
 		return new Promise(async function (resolve, reject) {
 			bus.removeAllListeners('node-error2');
 			bus.removeAllListeners('node-started2');
 			bus.removeAllListeners('link-done');
 
-			var comp = diff.list_of_added_hosted_components;
+		    var comp = diff.list_of_added_hosted_components;
+		    logger.info(diff.list_of_added_hosted_components.map(c => c.name));
 			var tmp = 0;
 			var tmp_link = 0;
 
@@ -1050,7 +715,7 @@ var engine = (function () {
 					tmp = 0;
 
 					manage_links(diff.list_of_added_hosted_components);
-				}
+				} 
 			});
 
 			//We collect all the started events, once they are all received we generate the flow skeleton based on the links
@@ -1105,7 +770,7 @@ var engine = (function () {
 				                var noderedconnector = nodered_connector();
 				                noderedconnector.getCurrentFlow(host.ip, ct_elem.provided_communication_port[0].port_number).then(function (the_flow) {
 				                    that.generate_components(host.ip, ct_elem.provided_communication_port[0].port_number, src_tab, tgt_tab, that.dep_model, the_flow);
-				                    bus.emit('link-done');
+				                    bus.emit'link-done');
 				                });
 				            } else {
 				                bus.emit('link-done');

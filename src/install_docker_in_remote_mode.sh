@@ -7,6 +7,8 @@ set -e # Stop on the first error
 # system clock is lagging behind.
 hwclock --hctosys
 
+export DEBIAN_FRONTEND=noninteractive
+
 DOCKERD_HOME="/etc/systemd/system/docker.service.d"
 CONFIGURATION_FILE="startup_options.conf"
 

@@ -744,7 +744,7 @@ class Availability {
 	return new Availability(object.strategy || this.DEFAULT,
 				object.healthCheck || "",
 				object.replicaCount || 1,
-				object.zeroDownTime || true);
+				object.zeroDownTime === null ? true : object.zeroDownTime);
     }
     
     constructor (strategy, healthCheck, replicaCount, zeroDownTime) {
@@ -790,7 +790,6 @@ var software_node = function (spec) {
     var that = component(spec);
     
     that.availability = Availability.defaultSettings();
-    console.log(JSON.stringify(spec.availability));
     if (spec.availability != null) {
 	that.availability = Availability.fromObject(spec.availability);
     }

@@ -1,0 +1,578 @@
+var comparison_engine = require('./model-comparison.js');
+var dockerConnector = require('./connectors/docker-connector.js');
+var fs = require('fs');
+var lodash = require('lodash');
+var logger = require('./logger.js');
+var sshConnection = require('./connectors/ssh-connector.js');
+var tar = require("tar");
+var temp = require("temp");
+
+
+
+
+/*
+ * Maintains a mapping between components and their "availability"
+ * agent. This agent varies according to the strategy (i.e., built-in
+ * or Docker Swarm).
+ */
+class AvailabilityManager {
+
+    constructor () {
+	this._agents = new Map();
+    }
+
+
+    /*
+     * Manage the availability of a given component. 
+     *
+     * Install from scratch when given a new component, or adjust
+     * configuration of already managed components. If the strategy
+     * has changed, we uninstall the component and select a new agent
+     * that will reinstall according to the new strategy.
+     */
+    async handle(givenComponent, givenHost) {
+	if (this.knowsAbout(givenComponent)) {
+	    const agent = this._agents.get(givenComponent.name);
+	    if (agent.canHandle(givenComponent)) {
+		await agent.update(givenComponent);
+
+	    } else {
+		logger.info(`Availability strategy for '${givenComponent.name}' changed to ${givenComponent.availability.strategy}`);
+		await agent.uninstall();
+		const newAgent = this._selectAgentFor(givenComponent, givenHost);
+		await newAgent.installFromScratch();
+
+	    }
+	    
+	} else {
+	    const agent = this._selectAgentFor(givenComponent, givenHost);
+	    await agent.installFromScratch();
+
+	}
+    }
+
+    
+    knowsAbout(givenComponent) {
+	return this._agents.has(givenComponent.name);
+    }
+    
+
+    /*
+     * Create the right availability agent depending on the availability
+     * strategy that the user has chosen.
+     */
+    _selectAgentFor(givenComponent, givenHost) {
+	var agent = null;
+	if ( givenComponent.availability.usesDockerSwarm() ) {
+	    agent = new DockerSwarmAgent(givenComponent, givenHost);
+
+	} else if ( givenComponent.availability.isBuiltin() ) {
+	    agent = new BuiltinAgent(givenComponent, givenHost);
+
+	} else {
+	    throw new Error(`Unknown availability policy '${givenComponent.availability}'`);
+
+	}
+	this._agents.set(givenComponent.name, agent);
+	logger.info(`Availability mechanisms activated for ${givenComponent.name}`)
+	return agent;
+    }
+
+}
+
+
+
+class AvailabilityAgent {
+
+    constructor(givenComponent, givenHost)  {
+	this._component = givenComponent;
+	this._host = givenHost;
+	this._docker = dockerConnector();
+    }
+
+    /*
+     * Update the components according to both the new availability
+     * policy and the new component configuration.
+     *
+     * We first update the availability policy (in memory), and then
+     * trigger possible adjustment of the running components. Should
+     * both have been updated, the policy should be handled first to
+     * be in place when we update the configuration.
+     */
+    async update(newConfiguration) {
+	this._updateAvailabilityPolicy(newConfiguration);
+	this._updateConfiguration(newConfiguration);
+    }
+
+    
+    async _updateAvailabilityPolicy(givenComponent) {
+	const changes = this._comparePolicies(this._component.availability,
+					      givenComponent.availability);
+	for(const anyChange of changes) {
+	    switch (anyChange.property) {
+
+	    case "strategy":
+		//  Ignored. This is already handled in the method
+		//  AvailabilityManager::handle(component)
+		break;
+
+	    case "replicaCount":
+		await this._updateReplicaCount(anyChange.newValue);
+		break;
+
+	    case "healthCheck":
+		await this._updateHealthCheckScript(anyChange.newValue);
+		break;
+
+	    case "zeroDownTime":
+		await this._updateZeroDownTime(anyChange.newValue);
+		break;
+
+	    default:
+		const message =
+		    `Property '${anyChange}' is not yet supported in availability policies!`;
+		throw new Error(message);
+
+	    }
+	}
+    }
+
+    _comparePolicies(oldPolicy, newPolicy) {
+	var changes = [];
+	if (oldPolicy.strategy !== newPolicy.strategy) {
+	   changes.push({property: "strategy",
+			 newValue: newPolicy.strategy});
+	}
+	if (oldPolicy.replicaCount !== newPolicy.replicaCount) {
+	    changes.push({property: "replicaCount",
+			  newValue: newPolicy.replicaCount});
+	}
+	if (oldPolicy.healthCheck !== newPolicy.healthCheck) {
+	    changes.push({property: "healthCheck",
+			  newValue: newPolicy.healthCheck});
+	}
+	if (oldPolicy.zeroDownTime != newPolicy.zeroDownTime) {
+	    changes.push({property: "zeroDownTime",
+			  newValue: newPolicy.zeroDownTime});
+	}
+	return changes;
+    }
+
+
+    async _updateConfiguration(givenComponent) {
+	const changes = this._compareConfigurations(this._component, givenComponent);
+	if (changes.length > 0) {
+	    this._info(`Changes detected ${changes}`);
+	    await this._updateComponent(givenComponent);
+
+	}
+    }
+
+    _compareConfigurations(oldComponent, newComponent) {
+
+	const uselessProperties = ["add_property",
+				   "remove_property",
+				   "get_all_properties",
+				   "availability"];
+	
+	var changes = []
+	for (const eachProperty in newComponent) {
+	    if (uselessProperties.includes(eachProperty)) continue;
+
+	    if (eachProperty in oldComponent) {
+		if (!lodash.isEqual(oldComponent[eachProperty], newComponent[eachProperty])) {
+		    changes.push(eachProperty);
+		}
+		
+	    } else {
+		changes.push(eachProperty);
+		
+	    }
+	}
+
+	for (const anyProperty in oldComponent) {
+	    if (changes.includes(anyProperty)) continue;
+	    if (uselessProperties.includes(anyProperty)) continue;
+	    if ( !(anyProperty in newComponent) ){
+		changes.push(anyProperty);
+	    }
+	}
+	return changes;
+    }
+
+
+    _info(message) {
+	logger.info("AVAILABILITY: " + message);
+    }
+
+    
+    _error(message) {
+	logger.error("AVAILABILITY: " + message);
+    }
+
+}
+
+
+
+class BuiltinAgent extends AvailabilityAgent {
+
+    constructor (givenComponent, givenHost) {
+	super(givenComponent, givenHost);
+	this._port = 5000; // /!\ Hard-coded
+    }
+
+    
+    canHandle(givenComponent) {
+	return givenComponent.availability.strategy === "Builtin";
+    }
+
+
+    async installFromScratch() {
+	await this._installDockerInRemoteMode();
+	await this._createDockerImageFromSSHResources();
+	await this._deploy();
+    }
+
+    
+    async _installDockerInRemoteMode() {
+	const ssh = sshConnection(this._host.ip,
+				  this._host.port,
+				  this._component.ssh_resource.credentials.username,
+				  this._component.ssh_resource.credentials.password,
+				  this._component.ssh_resource.credentials.sshkey,
+				  this._component.ssh_resource.credentials.agent);
+	try {
+	    const DOCKER_INSTALLATION_SCRIPT = "install_docker_in_remote_mode.sh";
+	    await ssh.upload_file(DOCKER_INSTALLATION_SCRIPT,
+				  DOCKER_INSTALLATION_SCRIPT);
+	    await ssh.execute_command(`source ${DOCKER_INSTALLATION_SCRIPT}`);
+	    this._host.port = "2376";
+	    this._info(`Remote Docker installed on host ${this._host.ip}.`);
+	    
+	} catch (error) {
+	    chainError("Unable to install Docker in remote mode.", error);
+	    
+	}
+    }
+
+
+    async _createDockerImageFromSSHResources() {
+	const baseImage = "debian:10-slim";
+	const imageName = `${this._component.name}-livebuilt`;
+	const containerName = "enact-tmp";
+
+	try {
+	    const installationScript = [
+		"/bin/bash",
+		"-c",
+		this._component.ssh_resource.downloadCommand
+		    + "; " + this._component.ssh_resource.installCommand
+		    + "; " + this._component.ssh_resource.configureCommand
+	    ];
+	    
+	    const containerID =
+		  await this._docker.createContainer(this._host,
+						     {
+							 Image: baseImage,
+							 Cmd: installationScript,
+							 name: containerName
+						     });
+	    await this._docker.saveContainerAsImage(this._host, containerID, imageName);
+	    await this._docker.removeContainer(this._host, containerName);
+	    this._component.docker_resource.image = imageName;	
+	    this._component.docker_resource.cmd = this._component.ssh_resource.startCommand;
+	    this._info(`New docker image '${imageName}' for component '${this._component.name}'.`);
+
+	} catch (error) {
+	    chainError(
+		`Unable to build a Docker image from the SSH resources of '${this._component.name}'.`,
+		error
+	    );
+
+	}    
+	
+    }
+
+    async _deploy() {
+	try {
+	    const networkID = await this._setupDockerNetwork();
+	    const endpoints = await this._createReplicas(networkID);
+	    const proxyID = await this._deployBuiltinProxy(networkID);
+	    await this._reconfigureProxy(proxyID, endpoints);
+	    this._info("Builtin deployment complete!");
+	    
+	} catch (error) {
+	    chainError("Unable to deploy builtin availability mechanisms!",
+		       error);
+	    
+	}
+    }
+
+
+    async _setupDockerNetwork () {
+	const networkID = `GeneSIS-${this._component.name}`;
+	try{
+	    await this._docker.createNetwork(this._host, networkID);
+	    this._info(`Network ${networkID} created!`);
+	    return networkID;
+	    
+	} catch (error) {
+	    chainError("Unable to create a dedicated Docker network!",
+		       error);
+	    
+	}
+    }
+
+
+    async _createReplicas(networkID) {
+	try {
+	    var endpoints = [];
+	    for (var i=0 ; i<this._component.availability.replicaCount ; i++) {
+		
+		const componentName = `${this._component.name}-${i+1}`;
+		const containerSpecs = {
+		    "Image": this._component.docker_resource.image,
+		    "name": componentName, // /!\ Must be capitalized 'name'
+		    "Cmd": [ "/bin/bash", "-c",  this._component.ssh_resource.startCommand ]
+		};
+		await this._docker.createContainer(this._host, containerSpecs, true);
+		await this._docker.connectContainerToNetwork(this._host, networkID, componentName);
+		endpoints.push(componentName);
+		this._info(`Replica ${i} of ${this._component.name} created!`);	
+	    }
+	    this._info("All replicas created !");
+	    return endpoints;
+
+	} catch (error) {
+	    chainError(`Unable to replicate '${this._component.name}'.`, error);
+	    
+	}
+
+    }
+
+
+    async _deployBuiltinProxy(networkID) {
+	try {
+	    const proxySpecs = {
+		Image: "fchauvel/enact-nginx:latest",
+		name: `${this._component.name}-proxy`,
+		Cmd: ["/bin/bash", "-c", "nginx -g 'daemon off;'"],
+		Tty: false,
+		AttachStdin: false,
+		AttachStdout: false,
+		AttachStderr: false,
+		HostConfig: {
+		    PortBindings: {
+			[`${this._port}/tcp`]: [{ HostPort: `${this._port}` }]
+		    },
+		},
+		ExposedPorts: {
+		    [`${this._port}/tcp`]: {}
+		},
+	    };
+	    await this._docker.createContainer(this._host, proxySpecs, true);
+	    await this._docker.connectContainerToNetwork(this._host, networkID, proxySpecs.name);
+	    this._info("Proxy created!");
+	    return proxySpecs.name;
+
+	} catch (error) {
+	    chainError("Unable to deploy the NGinx proxy!", error);
+
+	}
+    }
+
+    
+    async _reconfigureProxy(proxyID, endpoints) {
+	try {
+	    await this._uploadHealthcheckScript(proxyID);
+	    await this._registerEndpoints(proxyID, endpoints);
+	    await this._restartProxy(proxyID, endpoints[0]);
+	    this._info("Proxy configured!");
+
+	} catch (error) {
+	    chainError("Unable to reconfigure NGinx!", error);
+
+	}
+    }
+
+    
+    async _uploadHealthcheckScript(proxyID) {
+	try {
+	    const archive = await this._archiveScript(this._component.availability.healthcheck);
+	    await this._docker.uploadArchive(this._host, proxyID, archive, "/enact");
+	    this._info("Heatlh check script uploaded");
+	    
+	} catch (error) {
+	    chainError("Unable to upload the health script!", error);
+	    
+	}
+    }
+
+
+    /*
+     * Create a TAR archive containing the healthcheck script provided
+     * by the user.
+     */
+    async _archiveScript(healthcheck, options={}) {
+	const OPTION_DEFAULTS = {
+	    scriptName: "healthcheck.sh",
+	    archiveName: "healthcheck.tar.gz",
+	    prefix: "genesis"
+	};
+	options = Object.assign({}, OPTION_DEFAULTS, options);
+	
+	try {	    
+	    const path = await temp.mkdir(options.prefix);
+	    
+	    // Dump the healthcheck code into a file
+	    const script = path + "/" + options.scriptName;
+	    fs.writeFileSync(script, healthcheck);
+	    
+	    // Create a tarball including the script file
+ 	    const archivePath = `${path}/${options.archiveName}`;
+	    await tar.c({   gzip: true,
+			    file: archivePath,
+			    cwd: path
+			},
+			[options.scriptName]);
+	    
+	    this._info(`Archive ready at '${path}/${options.archiveName}'`);
+	    return archivePath;
+
+	} catch (error) {
+	    chainError("Unable to write the health check script on disk!", error);
+
+	}
+    }
+
+
+    async _registerEndpoints(proxyID, endpoints) {
+	try {
+	    for (const eachEndpoint of endpoints) {
+		const commandSpecs = {
+		    Cmd:  [
+			"/bin/bash",
+			"-c",
+			`bash ./endpoints.sh register ${this._urlOf(eachEndpoint)}`
+		    ],
+		}
+		await this._docker.executeCommand(this._host, proxyID, commandSpecs);
+		this._info(`Endpoint ${eachEndpoint} registered to the proxy!`);
+	    }
+	    
+	} catch (error) {
+	    chainError("Unable to register endpoints to the proxy!", error);
+	    
+	}
+    }
+
+    
+    _urlOf(endpoint) {
+	// /!\ NGinx 1.19.6 (at least) throws "Invalid host in
+	// upstream" if the endpoint URL starts with 'http://'
+	return `${endpoint}:${this._port}`;
+    }
+
+    
+    async _restartProxy(proxyID, activeEndpoint) {
+	try {
+	    const commandSpecs = {
+		Cmd:  ["/bin/bash",
+		       "-c",
+		       `bash ./endpoints.sh initialize ${this._port} ${this._urlOf(activeEndpoint)}`],
+	    }
+	    await this._docker.executeCommand(this._host, proxyID, commandSpecs);
+	    this._info(`Endpoint ${activeEndpoint} activated!`);
+	    
+	} catch (error) {
+	    chainError("Unable to initialize the proxy!", error);
+	    
+	}
+
+    }
+
+    
+    async _updateReplicaCount(newCount) {
+	this._info(`Updating the replica count to ${newCount}`);
+    }
+
+    
+    async _updateHealthCheckScript(newScript) {
+	this._info(`Updating the health check to ${newScript}`);
+    }
+
+    
+    async _updateZeroDownTime(newValue) {
+	this._info(`Updating the zeroDownTime to ${newValue}`);
+    }
+
+    
+    async _updateComponent(givenComponent) {
+	this._error("Update of component configuration not yet implemented");	
+    }
+
+    
+    async uninstall(givenComponent) {
+	this._error("Uninstallation is not yet supported!");
+    }
+    
+}
+
+
+class DockerSwarmAgent extends AvailabilityAgent {
+
+    constructor (givenComponent) {
+	super(givenComponent);
+    }
+
+    canHandle(givenComponent) {
+	return givenComponent.availability.strategy === "Docker Swarm";
+    }
+
+    async installFromScratch() {
+	await this._docker.initializeDockerSwarm(this._host); // Idempotent
+	await this._docker.startSwarmService(this._host, this._component);
+    }
+
+    async _updateReplicaCount(newCount) {
+	this._component.availability.replicaCount = newCount;
+    }
+
+    async _updateHealthCheckScript(newScript) {
+	const message = "Health check script are not supported by DockerSwarm";
+	throw new Error(message);
+    }
+
+    async _updateZeroDownTime(newValue) {
+	this._info(`Updating the zeroDownTime to ${newValue}`);
+    }
+
+    async _updateComponent(givenComponent) {
+	return await this._docker.updateSwarmService(this._host, this._component);
+    }
+
+    async uninstall(givenComponent) {
+	this._error("Uninstallation is not yet supported!");
+    }
+
+}
+
+/*
+ * Chain exceptions together for easier debugging.
+ */
+function chainError(message, cause) {
+    var brokenLine = cause.stack
+	.split("\n")
+	.find(line => line.match(/^    at /));
+    const newMessage =
+	  `${message}\n` + 
+	  `Caused by: ${cause.message.replace(/\n/g, "\n|\t")}\n` +
+	  `${brokenLine}\n`;
+
+    throw new Error(newMessage);
+}
+
+
+
+module.exports = AvailabilityManager;
+
