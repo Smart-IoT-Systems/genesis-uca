@@ -1,6 +1,7 @@
 var mm = require('../metamodel/allinone.js');
 var dc = require('./connectors/docker-connector.js');
 var sshc = require('./connectors/ssh-connector.js');
+const fetch = require('node-fetch');
 var bus = require('./event-bus.js');
 var uuidv4 = require('uuid/v4');
 var comparison_engine = require('./model-comparison.js');
@@ -904,8 +905,8 @@ var engine = (function () {
 				.then(function () {
 					bus.emit('deployment-completed');
 					logger.log("info", "Deployment completed!");
-					if (config_file.tas) {
-						fetch(tas.endpoint)
+					if (config_file.tas && config_file.tas.connected) {
+						fetch(config_file.tas.endpoint)
 							.then((response) => {
 								console.log(response);
 							}).catch(error => console.error);
