@@ -6,6 +6,7 @@ var logger = require('./logger.js');
 var sshConnection = require('./connectors/ssh-connector.js');
 var tar = require("tar");
 var temp = require("temp");
+var utils = require("../util.js");
 
 
 
@@ -88,6 +89,7 @@ class AvailabilityAgent {
 	this._component = givenComponent;
 	this._host = givenHost;
 	this._docker = dockerConnector();
+	this._forceComponentUpdate = false;
     }
 
     /*
@@ -100,6 +102,7 @@ class AvailabilityAgent {
      * be in place when we update the configuration.
      */
     async update(newConfiguration) {
+	this._forceComponentUpdate = false;
 	this._updateAvailabilityPolicy(newConfiguration);
 	this._updateConfiguration(newConfiguration);
     }
@@ -161,10 +164,9 @@ class AvailabilityAgent {
 
     async _updateConfiguration(givenComponent) {
 	const changes = this._compareConfigurations(this._component, givenComponent);
-	if (changes.length > 0) {
-	    this._info(`Changes detected ${changes}`);
+	if (this.forceComponentUpdate || changes.length > 0) {
+	    this._info(`Some changes requires a redeployment of the ${this._component.name}`);
 	    await this._updateComponent(givenComponent);
-
 	}
     }
 
@@ -219,6 +221,17 @@ class BuiltinAgent extends AvailabilityAgent {
     constructor (givenComponent, givenHost) {
 	super(givenComponent, givenHost);
 	this._port = 5000; // /!\ Hard-coded
+
+	// Hold the runtime information about the builtin mechanisms
+	// that are deployed
+	this._runtime = {
+	    dockerImage: null,
+	    networkID: null,
+	    lastReplicaID: 0,
+	    activeReplicas: [],
+	    replicasToStop: [],
+	    proxyID: null
+	};
     }
 
     
@@ -250,7 +263,7 @@ class BuiltinAgent extends AvailabilityAgent {
 	    this._info(`Remote Docker installed on host ${this._host.ip}.`);
 	    
 	} catch (error) {
-	    chainError("Unable to install Docker in remote mode.", error);
+	    utils.chainError("Unable to install Docker in remote mode.", error);
 	    
 	}
     }
@@ -279,12 +292,13 @@ class BuiltinAgent extends AvailabilityAgent {
 						     });
 	    await this._docker.saveContainerAsImage(this._host, containerID, imageName);
 	    await this._docker.removeContainer(this._host, containerName);
+	    this._runtime.dockerImage = imageName;
 	    this._component.docker_resource.image = imageName;	
 	    this._component.docker_resource.cmd = this._component.ssh_resource.startCommand;
 	    this._info(`New docker image '${imageName}' for component '${this._component.name}'.`);
 
 	} catch (error) {
-	    chainError(
+	    utils.chainError(
 		`Unable to build a Docker image from the SSH resources of '${this._component.name}'.`,
 		error
 	    );
@@ -295,14 +309,14 @@ class BuiltinAgent extends AvailabilityAgent {
 
     async _deploy() {
 	try {
-	    const networkID = await this._setupDockerNetwork();
-	    const endpoints = await this._createReplicas(networkID);
-	    const proxyID = await this._deployBuiltinProxy(networkID);
-	    await this._reconfigureProxy(proxyID, endpoints);
+	    await this._setupDockerNetwork();
+	    await this._createManyReplicas(this._component.availability.replicaCount);
+	    await this._deployBuiltinProxy();
+	    await this._reconfigureProxy();
 	    this._info("Builtin deployment complete!");
 	    
 	} catch (error) {
-	    chainError("Unable to deploy builtin availability mechanisms!",
+	    utils.chainError("Unable to deploy builtin availability mechanisms!",
 		       error);
 	    
 	}
@@ -310,48 +324,54 @@ class BuiltinAgent extends AvailabilityAgent {
 
 
     async _setupDockerNetwork () {
-	const networkID = `GeneSIS-${this._component.name}`;
+	this._runtime.networkID = `GeneSIS-${this._component.name}`;
 	try{
-	    await this._docker.createNetwork(this._host, networkID);
-	    this._info(`Network ${networkID} created!`);
-	    return networkID;
+	    await this._docker.createNetwork(this._host, this._runtime.networkID);
+	    this._info(`Network ${this._runtime.networkID} created!`);
 	    
 	} catch (error) {
-	    chainError("Unable to create a dedicated Docker network!",
+	    utils.chainError("Unable to create a dedicated Docker network!",
 		       error);
 	    
 	}
     }
 
-
-    async _createReplicas(networkID) {
+    async _createManyReplicas(replicaCount) {
 	try {
-	    var endpoints = [];
-	    for (var i=0 ; i<this._component.availability.replicaCount ; i++) {
-		
-		const componentName = `${this._component.name}-${i+1}`;
-		const containerSpecs = {
-		    "Image": this._component.docker_resource.image,
-		    "name": componentName, // /!\ Must be capitalized 'name'
-		    "Cmd": [ "/bin/bash", "-c",  this._component.ssh_resource.startCommand ]
-		};
-		await this._docker.createContainer(this._host, containerSpecs, true);
-		await this._docker.connectContainerToNetwork(this._host, networkID, componentName);
-		endpoints.push(componentName);
-		this._info(`Replica ${i} of ${this._component.name} created!`);	
+	    for (var i=0 ; i<replicaCount ; i++)  {
+		const name = this._generateReplicaName();
+		await this._createOneReplica(name);
 	    }
-	    this._info("All replicas created !");
-	    return endpoints;
-
+	    
 	} catch (error) {
-	    chainError(`Unable to replicate '${this._component.name}'.`, error);
+	    utils.chainError(`Unable to replicate '${this._component.name}'.`, error);
 	    
 	}
+    }
 
+    
+    _generateReplicaName() {
+	this._runtime.lastReplicaID++;
+	return `${this._component.name}-${this._runtime.lastReplicaID}`;
+    }
+
+    
+    async _createOneReplica(replicaName) {
+	const containerSpecs = {
+	    "Image": this._component.docker_resource.image,
+	    "name": replicaName, // /!\ Must be capitalized 'name'
+	    "Cmd": [ "/bin/bash", "-c",  this._component.ssh_resource.startCommand ]
+	};
+	await this._docker.createContainer(this._host, containerSpecs, true);
+	await this._docker.connectContainerToNetwork(this._host,
+						     this._runtime.networkID,
+						     replicaName);
+	this._runtime.activeReplicas.push(replicaName);
+	this._info(`${replicaName} of ${this._component.name} created!`);	
     }
 
 
-    async _deployBuiltinProxy(networkID) {
+    async _deployBuiltinProxy() {
 	try {
 	    const proxySpecs = {
 		Image: "fchauvel/enact-nginx:latest",
@@ -371,39 +391,42 @@ class BuiltinAgent extends AvailabilityAgent {
 		},
 	    };
 	    await this._docker.createContainer(this._host, proxySpecs, true);
-	    await this._docker.connectContainerToNetwork(this._host, networkID, proxySpecs.name);
+	    await this._docker.connectContainerToNetwork(this._host,
+							 this._runtime.networkID,
+							 proxySpecs.name);
+	    this._runtime.proxyID = proxySpecs.name;
 	    this._info("Proxy created!");
-	    return proxySpecs.name;
 
 	} catch (error) {
-	    chainError("Unable to deploy the NGinx proxy!", error);
+	    utils.chainError("Unable to deploy the NGinx proxy!", error);
 
 	}
     }
 
     
-    async _reconfigureProxy(proxyID, endpoints) {
+    async _reconfigureProxy() {
 	try {
-	    await this._uploadHealthcheckScript(proxyID);
-	    await this._registerEndpoints(proxyID, endpoints);
-	    await this._restartProxy(proxyID, endpoints[0]);
+	    await this._uploadHealthcheckScript(this._component.availability.healthCheck);
+	    await this._registerAllReplicas();
+	    await this._restartProxy();
 	    this._info("Proxy configured!");
 
 	} catch (error) {
-	    chainError("Unable to reconfigure NGinx!", error);
+	    utils.chainError("Unable to reconfigure NGinx!", error);
 
 	}
     }
 
     
-    async _uploadHealthcheckScript(proxyID) {
+    async _uploadHealthcheckScript(script) {
 	try {
-	    const archive = await this._archiveScript(this._component.availability.healthcheck);
-	    await this._docker.uploadArchive(this._host, proxyID, archive, "/enact");
+	    const archive = await this._archiveScript(script);
+	    await this._docker.uploadArchive(this._host,
+					     this._runtime.proxyID, archive, "/enact");
 	    this._info("Heatlh check script uploaded");
 	    
 	} catch (error) {
-	    chainError("Unable to upload the health script!", error);
+	    utils.chainError("Unable to upload the health script!", error);
 	    
 	}
     }
@@ -440,15 +463,15 @@ class BuiltinAgent extends AvailabilityAgent {
 	    return archivePath;
 
 	} catch (error) {
-	    chainError("Unable to write the health check script on disk!", error);
+	    utils.chainError("Unable to write the health check script on disk!", error);
 
 	}
     }
 
 
-    async _registerEndpoints(proxyID, endpoints) {
+    async _registerAllReplicas() {
 	try {
-	    for (const eachEndpoint of endpoints) {
+	    for (const eachEndpoint of this._runtime.activeReplicas) {
 		const commandSpecs = {
 		    Cmd:  [
 			"/bin/bash",
@@ -456,12 +479,15 @@ class BuiltinAgent extends AvailabilityAgent {
 			`bash ./endpoints.sh register ${this._urlOf(eachEndpoint)}`
 		    ],
 		}
-		await this._docker.executeCommand(this._host, proxyID, commandSpecs);
+		await this._docker.executeCommand(this._host,
+						  this._runtime.proxyID,
+						  commandSpecs);
 		this._info(`Endpoint ${eachEndpoint} registered to the proxy!`);
 	    }
 	    
 	} catch (error) {
-	    chainError("Unable to register endpoints to the proxy!", error);
+	    utils.chainError("Unable to register endpoints to the proxy!",
+			     error);
 	    
 	}
     }
@@ -474,18 +500,19 @@ class BuiltinAgent extends AvailabilityAgent {
     }
 
     
-    async _restartProxy(proxyID, activeEndpoint) {
+    async _restartProxy() {
+	const activeEndpoint = this._runtime.activeReplicas[0];
 	try {
 	    const commandSpecs = {
 		Cmd:  ["/bin/bash",
 		       "-c",
 		       `bash ./endpoints.sh initialize ${this._port} ${this._urlOf(activeEndpoint)}`],
 	    }
-	    await this._docker.executeCommand(this._host, proxyID, commandSpecs);
+	    await this._docker.executeCommand(this._host, this._runtime.proxyID, commandSpecs);
 	    this._info(`Endpoint ${activeEndpoint} activated!`);
 	    
 	} catch (error) {
-	    chainError("Unable to initialize the proxy!", error);
+	    utils.chainError("Unable to initialize the proxy!", error);
 	    
 	}
 
@@ -493,30 +520,143 @@ class BuiltinAgent extends AvailabilityAgent {
 
     
     async _updateReplicaCount(newCount) {
-	this._info(`Updating the replica count to ${newCount}`);
+	this._component.availability.replicaCount = newCount;
+	this._forceComponentUpdate = true;
     }
 
     
     async _updateHealthCheckScript(newScript) {
-	this._info(`Updating the health check to ${newScript}`);
+	this._uploadHealthcheckScript(newScript);
     }
 
     
     async _updateZeroDownTime(newValue) {
-	this._info(`Updating the zeroDownTime to ${newValue}`);
+	this._component.availability.zeroDownTime = newValue;
     }
 
     
     async _updateComponent(givenComponent) {
-	this._error("Update of component configuration not yet implemented");	
+	const policy = this._component.availability;
+	await this._deleteDockerImage();
+	await this._createDockerImageFromSSHResources();
+	try {
+	    if (policy.zeroDownTime) {
+		this._markAllReplicasForTermination();
+		await this._createManyReplicas(policy.replicaCount);
+		await this._stopMarkedReplicas();
+		
+	    } else {
+		this._markAllReplicasForTermination();
+		await this._stopMarkedReplicas();
+		await this._createReplicas(policy.replicaCount);
+		await this._restartProxy();
+
+	    }
+	    this._info(`All ${this._component.name} replica(s) updated!`);
+	    
+	} catch (error) {
+	    utils.chainError(`Unable to update all '${this._component.name}' replicas `, error);
+	    
+	}
+	    	
     }
 
     
-    async uninstall(givenComponent) {
-	this._error("Uninstallation is not yet supported!");
+    _markAllReplicasForTermination() {
+	this._runtime.replicasToStop = [];
+	for(const eachReplica of this._runtime.activeReplicas) {
+	    this._runtime.replicasToStop.push(eachReplica);
+	}
     }
+
+
+    async _stopMarkedReplicas() {
+	try {
+	    const replicaCount = this._runtime.replicasToStop.length;
+	    while (this._runtime.replicasToStop.length > 0) {
+		const eachMarkedReplica = this._runtime.replicasToStop.pop();
+		await this._stopReplica(eachMarkedReplica);	    
+	    }
+	    this._info(`${replicaCount} replica(s) of ${this._component.name} stopped.`);
+
+	} catch (error) {
+	    utils.chainError(
+		`Could not stop all selected replicas of ${this._component.name}`,
+		error
+	    );
+	    
+	}
+	
+    }
+
+
+    async _stopReplica(markedReplica) {
+	try {
+	    await this._deregisterReplica(markedReplica);
+	    await this._docker.stopContainer(this._host, markedReplica);
+	    await this._docker.removeContainer(this._host, markedReplica);
+	    
+	} catch (error) {
+	    utils.chainError(`Unable to terminate replica ${markedReplica}.`, error);
+	    
+	}
+    }
+
+
+    /*
+     * Deregister a given replica/endpoint from the proxy.
+     *
+     * This triggers the endpoints.sh on the proxy container. In turn
+     * it removes the given endpoint from the list of endpoints and
+     * terminate the associated watchdog (i.e., a CRON task).
+     */
+    async _deregisterReplica (givenReplica) {
+	try {
+	    const commandSpecs = {
+		Cmd:  [
+		    "/bin/bash",
+		    "-c",
+		    `bash ./endpoints.sh discard ${this._urlOf(givenReplica)}`
+		],
+	    }
+	    await this._docker.executeCommand(this._host,
+					      this._runtime.proxyID,
+					      commandSpecs);
+	    this._info(`Replica ${givenReplica} deregistered from the proxy!`);
+		    
+
+	} catch (error) {
+	    utils.chainError(`Unable to deregister '${givenReplica}'.`, error);
+	    
+	}
+
+    }
+
     
+    async uninstall (givenComponent) {
+	this._markAllReplicasForTermination();
+	await this._stopMarkedReplicas();
+	await this._stopProxy();
+
+    }
+
+
+    async _stopProxy() {
+	try {
+	    const containerID = this._runtime.proxyID;
+	    await this._docker.stopContainer(this._host, containerID);
+	    await this._docker.removeContainer(this._host, containerID);
+
+	} catch (error) {
+	    utils.chainError('Unable to terminate the proxy!', error);
+	    
+	}
+
+    }
+
+        
 }
+
 
 
 class DockerSwarmAgent extends AvailabilityAgent {
@@ -556,22 +696,6 @@ class DockerSwarmAgent extends AvailabilityAgent {
     }
 
 }
-
-/*
- * Chain exceptions together for easier debugging.
- */
-function chainError(message, cause) {
-    var brokenLine = cause.stack
-	.split("\n")
-	.find(line => line.match(/^    at /));
-    const newMessage =
-	  `${message}\n` + 
-	  `Caused by: ${cause.message.replace(/\n/g, "\n|\t")}\n` +
-	  `${brokenLine}\n`;
-
-    throw new Error(newMessage);
-}
-
 
 
 module.exports = AvailabilityManager;

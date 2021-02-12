@@ -319,6 +319,17 @@ var docker_connector = function () {
     };
 
 
+    /*
+     * Stop a running container
+     */
+    that.stopContainer = async function(dockerHost, containerID) {
+	await that.resetDockerHost(dockerHost);
+	await that.docker.ping();
+	const container = that.docker.getContainer(containerID);
+	await container.stop();
+    }
+
+
     /**
      * Destroy a given container, that stop and remove it.
      *
