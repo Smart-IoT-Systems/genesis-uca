@@ -309,6 +309,24 @@ class SiderDemo extends React.Component {
     }
   }
 
+  sendToACM = () => {
+    fetch(config_ui.acm.endpoint + '/acm-model-editor/conflictCheck', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(dm)
+    }).then(response => response.json())
+      .then(response => {
+        if (response.newconflicts) {
+          this.openNotificationWithIcon('Error', 'Actuation Conflict', 'Please check conflict using the Actuation Conflict Manager');
+        } else {
+          this.openNotificationWithIcon('Success', 'Actuation Conflict', 'No conflicts identified');
+        }
+      });
+  }
+
   render() {
 
     return (
@@ -333,6 +351,8 @@ class SiderDemo extends React.Component {
                 title={<span><Icon type="cluster" /><span>Deployment <Icon type="caret-down" /></span></span>}
               >
                 <Menu.Item key="Deploy1" onClick={this.deployModel}>Deploy model in editor</Menu.Item>
+                <Menu.Divider></Menu.Divider>
+                <Menu.Item onClick={this.sendToACM} key="Deploy5">Check Actuation Conflicts</Menu.Item>
                 <Menu.Divider></Menu.Divider>
                 <Menu.Item key="Deploy2" onClick={this.pushModel}>Push model to server</Menu.Item>
                 <Menu.Item key="Deploy3" onClick={this.deploy}>Deploy model on server</Menu.Item>
