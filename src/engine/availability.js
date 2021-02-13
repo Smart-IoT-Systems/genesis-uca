@@ -225,7 +225,6 @@ class BuiltinAgent extends AvailabilityAgent {
 	// Hold the runtime information about the builtin mechanisms
 	// that are deployed
 	this._runtime = {
-	    dockerImage: null,
 	    networkID: null,
 	    lastReplicaID: 0,
 	    activeReplicas: [],
@@ -241,11 +240,29 @@ class BuiltinAgent extends AvailabilityAgent {
 
 
     async installFromScratch() {
-	await this._installDockerInRemoteMode();
-	await this._createDockerImageFromSSHResources();
+	if (this._dockerIsNotAvailable()) {
+	    await this._installDockerInRemoteMode();
+	}
+	if (this._installUsesSSH()) {
+	    await this._createDockerImageFromSSHResources();
+	}
 	await this._deploy();
     }
 
+
+    /*
+     * TODO
+     */
+    _dockerIsNotAvailable () {
+	return true;
+    }
+
+    /*
+     * TODO
+     */
+    _installUsesSSH ()  {
+	return true;
+    }
     
     async _installDockerInRemoteMode() {
 	const ssh = sshConnection(this._host.ip,
@@ -271,9 +288,8 @@ class BuiltinAgent extends AvailabilityAgent {
 
     async _createDockerImageFromSSHResources() {
 	const baseImage = "debian:10-slim";
-	const imageName = `${this._component.name}-livebuilt`;
 	const containerName = "enact-tmp";
-
+	const imageName = this._dockerImageName("latest");
 	try {
 	    const installationScript = [
 		"/bin/bash",
@@ -290,10 +306,11 @@ class BuiltinAgent extends AvailabilityAgent {
 							 Cmd: installationScript,
 							 name: containerName
 						     });
-	    await this._docker.saveContainerAsImage(this._host, containerID, imageName);
+	    await this._docker.saveContainerAsImage(this._host,
+						    containerID,
+						    imageName);
 	    await this._docker.removeContainer(this._host, containerName);
-	    this._runtime.dockerImage = imageName;
-	    this._component.docker_resource.image = imageName;	
+	    this._component.docker_resource.image = imageName;
 	    this._component.docker_resource.cmd = this._component.ssh_resource.startCommand;
 	    this._info(`New docker image '${imageName}' for component '${this._component.name}'.`);
 
@@ -305,6 +322,13 @@ class BuiltinAgent extends AvailabilityAgent {
 
 	}    
 	
+    }
+
+    _dockerImageName(tag) {
+	if (tag === undefined) {
+	    return `${this._component.name}-livebuilt`;
+	}   
+	return `${this._component.name}-livebuilt:${tag}`;
     }
 
     async _deploy() {
@@ -537,7 +561,7 @@ class BuiltinAgent extends AvailabilityAgent {
     
     async _updateComponent(givenComponent) {
 	const policy = this._component.availability;
-	await this._deleteDockerImage();
+	await this._tagImageAsOld();
 	await this._createDockerImageFromSSHResources();
 	try {
 	    if (policy.zeroDownTime) {
@@ -552,6 +576,7 @@ class BuiltinAgent extends AvailabilityAgent {
 		await this._restartProxy();
 
 	    }
+	    await this._deleteOldDockerImage();
 	    this._info(`All ${this._component.name} replica(s) updated!`);
 	    
 	} catch (error) {
@@ -559,6 +584,33 @@ class BuiltinAgent extends AvailabilityAgent {
 	    
 	}
 	    	
+    }
+
+
+    async _tagImageAsOld() {
+	const currentTag = this._dockerImageName("latest");
+	const repository = this._dockerImageName(); // /!\ without the tag!
+	try {
+	    await this._docker.tagImage(this._host, currentTag, repository, "old");
+
+	} catch (error) {
+	    utils.chainError(`Could not tag image '${currentTag}' as '${repository}:old'.`, error);
+	    
+	}
+    }
+
+
+    async _deleteOldDockerImage() {
+	const imageName = this._dockerImageName("old");
+	try {
+	    const forceRemoval = true;
+	    await this._docker.removeImage(this._host, imageName, forceRemoval);
+
+	} catch (error)  {
+	    utils.chainError(`Could not delete Docker image '${imageName}'`, error);
+	    
+	}
+	
     }
 
     

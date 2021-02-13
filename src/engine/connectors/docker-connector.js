@@ -205,6 +205,32 @@ var docker_connector = function () {
     }
 
 
+    /*
+     * Tag the given image with the given tag
+     */
+    that.tagImage = async function(dockerHost,  imageName, repository, tag)  {
+	await that.resetDockerHost(dockerHost);
+	const image = that.docker.getImage(imageName);
+	await image.tag({
+	    repo: repository,
+	    tag: tag
+	});
+    }
+
+
+    /*
+     * Remove the given image (by ID or name)
+     */
+    that.removeImage = async function(dockerHost, imageName, force=false)  {
+	await that.resetDockerHost(dockerHost);
+	const image = that.docker.getImage(imageName);
+	await image.remove({
+	    force: force,
+	    noprune: false
+	});
+    }
+
+
     /**
      * Create and start a container on the given host, according to
      * the given specifications.
@@ -253,6 +279,7 @@ var docker_connector = function () {
 	    stream.on('end', () => resolve());
 	    stream.on('finish', () => resolve());
 	});
+
     }
     
     /**
