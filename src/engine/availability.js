@@ -419,12 +419,35 @@ class BuiltinAgent extends AvailabilityAgent {
 							 this._runtime.networkID,
 							 proxySpecs.name);
 	    this._runtime.proxyID = proxySpecs.name;
+
+	    await this._configureRemoteDockerAPI();
+
 	    this._info("Proxy created!");
 
 	} catch (error) {
-	    utils.chainError("Unable to deploy the NGinx proxy!", error);
+	    utils.chainError("Unable to deploy the proxy!", error);
 
 	}
+    }
+
+
+    async _configureRemoteDockerAPI() {
+	try {
+	    const dockerAPI = `${this._host.ip}:${this._host.port}`; 
+	    const imageName = this._dockerImageName("latest");
+	    const commandSpecs = {
+		Cmd:  ["/bin/bash",
+		       "-c",
+		       `bash ./endpoints.sh configure-docker ${dockerAPI} ${imageName}`],
+	    }
+	    await this._docker.executeCommand(this._host, this._runtime.proxyID, commandSpecs);
+	    this._info(`Remote Docker API set on the proxy`);
+	    
+	} catch (error) {
+	    utils.chainError("Unable to configure the remote Docker API on the proxy!", error);
+	    
+	}
+
     }
 
     
