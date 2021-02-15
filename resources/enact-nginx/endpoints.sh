@@ -27,6 +27,19 @@ ENDPOINT_FILE="${WORKING_DIRECTORY}/endpoints.dat"
 # Port on which the proxy listens.
 ENACT_PROXY_PORT=5000
 
+DOCKER_CONFIG="docker.sh";
+
+# Store the configuration of the remote Docker API (its endpoint),
+# together with the name of the Docker image used to instantiate
+# replicas
+configure_docker_api () {
+    local DOCKER_HOST="${1}";
+    local IMAGE_NAME="${2}";
+    (echo "DOCKER_HOST=${DOCKER_HOST}"
+     echo "IMAGE_NAME=${IMAGE_NAME}") > "${DOCKER_CONFIG}";
+    echo "Configuration stored in '${DOCKER_CONFIG}'";
+}
+
 
 # Check that the given endpoint does appear in the list of known
 # endpoints.
@@ -199,8 +212,8 @@ discard ()  {
 # Initialize the proxy configuration with the given PORT and active
 # endpoint
 initialize () {
-    ENACT_PROXY_PORT="${1}"
-    local active_endpoint="${2}"
+    ENACT_PROXY_PORT="${1}";
+    local active_endpoint="${2}";
 
     activate "${active_endpoint}"   
 }
@@ -237,6 +250,8 @@ on_failure_of () {
 
     if [ "${failed_endpoint}" = "${active_endpoint}" ]
     then
+	local container_name=$(echo "${failed_endpoint}" | sed -e 's/:.*//');
+	bash restart.sh "${DOCKER_CONFIG}" "${container_name}";
 	local upgrade
 	upgrade=$(find_upgrade)
 	if [ $? -ne 0 ]
@@ -379,6 +394,11 @@ usage () {
     echo "  activate [ENDPOINT]"
     echo "      activate the given endpoint;"
     echo ""
+    echo "  configure-docker [REMOTE_API] [IMAGE_NAME]"
+    echo "      save the configuration of the remote Docker engine, as well the the "
+    echo "      name of the Docker image used to instantiate them. These are needed "
+    echo "      used to restart replicas on failure."
+    echo ""
     echo "  discard [ENDPOINT]"
     echo "      remove the given endpoint;"
     echo ""
@@ -413,6 +433,10 @@ do
 	activate)
 	    activate "${2}"
 	    shift 2
+	    ;;
+	configure-docker)
+	    configure_docker_api "${2}" "${3}";
+	    shift 3;
 	    ;;
 	discard)
 	    discard "${2}"
