@@ -13,16 +13,34 @@ var docker_connector = function () {
 	};
 
 	that.add_extra_options_all = function (obj) {
-		logger.log('info', 'Extra Options initialized: '+ JSON.stringify(obj));
-		that.extra_options=obj;
+		logger.log('info', 'Extra Options initialized: ' + JSON.stringify(obj));
+		that.extra_options = obj;
 	};
 
-	that.stopAndRemove = function (container_id, endpoint, port) {
+	that.stopAndRemove = function (container_id, endpoint, port, properties) {
 		return new Promise(async function (resolve, reject) {
-			that.docker = new Docker({ //TODO:Refactor
-				host: endpoint,
-				port: port
-			});
+			let secu_info;
+
+			if (properties !== undefined) {
+				if (properties.length > 0) {
+					secu_info = properties[0];
+				}
+			}
+
+			if (secu_info !== undefined) {
+				that.docker = new Docker({
+					host: endpoint,
+					port: port,
+					ca: properties.ca,
+					cert: properties.cert,
+					key: properties.key
+				});
+			} else {
+				that.docker = new Docker({
+					host: endpoint,
+					port: port
+				});
+			}
 			that.docker.getContainer(container_id).stop(function (done) {
 				that.docker.getContainer(container_id).remove(function (removed) {
 					logger.log('info', 'Docker container removed! ' + container_id);
@@ -32,12 +50,32 @@ var docker_connector = function () {
 		});
 	};
 
-	that.buildAndDeploy = function (endpoint, port, port_bindings, devices, command, image, mounts, links, compo_name, host_id, environment) {
+	that.buildAndDeploy = function (endpoint, port, port_bindings, devices, command, image, mounts, links, compo_name, host_id, environment, properties) {
 		return new Promise(async function (resolve, reject) {
-			that.docker = new Docker({
-				host: endpoint,
-				port: port
-			});
+
+			let secu_info;
+
+			if (properties !== undefined) {
+				if (properties.length > 0) {
+					secu_info = properties[0];
+				}
+			}
+
+			if (secu_info !== undefined) {
+				that.docker = new Docker({
+					host: endpoint,
+					port: port,
+					ca: properties.ca,
+					cert: properties.cert,
+					key: properties.key
+				});
+			} else {
+				that.docker = new Docker({
+					host: endpoint,
+					port: port
+				});
+			}
+
 
 			that.docker
 				.ping()
@@ -119,7 +157,7 @@ var docker_connector = function () {
 			try {
 				options.ExposedPorts = JSON.parse(exposedPort);
 				options.HostConfig.PortBindings = JSON.parse(port);
-			} catch (e) {}
+			} catch (e) { }
 
 			if (links !== undefined) {
 				if (links.length > 0) {
@@ -166,8 +204,8 @@ var docker_connector = function () {
 			if (that.extra_options.length > 0) {
 				that.extra_options.forEach(element => {
 					console.log(JSON.stringify(element));
-					if(element[0] === "Labels"){
-						options.Labels= element[1];
+					if (element[0] === "Labels") {
+						options.Labels = element[1];
 						console.log(JSON.stringify(options));
 					}
 					options.HostConfig[element[0]] = element[1];
@@ -182,11 +220,11 @@ var docker_connector = function () {
 				});
 
 			}).catch(function (err) {
-				if(err.statusCode === 409 && err.message.includes("already in use by container")){
+				if (err.statusCode === 409 && err.message.includes("already in use by container")) {
 					let id_container = err.message.split('"')[3]; //temporary hack
 					logger.log('info', 'Container already started: ' + id_container + ' (' + that.comp_name + ')');
 					resolve(id_container, that.comp_name);
-				}else{
+				} else {
 					bus.emit('container-error', that.comp_name);
 					logger.log('info', 'Error while starting container for: ' + that.comp_name + '\n' + JSON.stringify(err));
 					reject(err);

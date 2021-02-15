@@ -147,7 +147,7 @@ var engine = (function () {
 		if (host !== null) {
 			//Need to find the host in the old model
 			if (host._type === "/infra/docker_host") {
-				await connector.stopAndRemove(cmpt.container_id, device_host.ip, host.port);
+				await connector.stopAndRemove(cmpt.container_id, device_host.ip, host.port, host.properties);
 			} else if (cmpt._type === "/internal/node_red_flow") {
 				if (!that.to_be_removed(diff, host)) {
 					var n_connector = nodered_connector();
@@ -212,7 +212,7 @@ var engine = (function () {
 				var device_host = diff.old_dm.find_host(item);
 				var connector = dc();
 				bus.emit('removed', item.name);
-				await connector.stopAndRemove(item.container_id, device_host.ip, host.port)
+				await connector.stopAndRemove(item.container_id, device_host.ip, host.port, host.properties)
 			}));
 		}
 
@@ -281,7 +281,7 @@ var engine = (function () {
 				nb_deployers++;
 				var con_docker = dc();
 				var c = that.dep_model.find_node_named(cfg);
-				con_docker.stopAndRemove(c.container_id, that.map_host_agent[c.container_id].ip, that.map_host_agent[c.container_id].port).then(function () {
+				con_docker.stopAndRemove(c.container_id, that.map_host_agent[c.container_id].ip, that.map_host_agent[c.container_id].port, host.properties).then(function () {
 					bus.emit('node-started', c.container_id, cfg);
 				});
 				if (nb_deployers >= links_deployer_tab.length) {
@@ -293,7 +293,7 @@ var engine = (function () {
 				nb_deployers++;
 				var con_docker = dc();
 				var c = that.dep_model.find_node_named(cfg);
-				con_docker.stopAndRemove(c.container_id, that.map_host_agent[c.container_id].ip, that.map_host_agent[c.container_id].port).then(function () {
+				con_docker.stopAndRemove(c.container_id, that.map_host_agent[c.container_id].ip, that.map_host_agent[c.container_id].port, host.properties).then(function () {
 					bus.emit('node-error', c.container_id, cfg);
 				});
 				if (nb_deployers >= links_deployer_tab.length) {
@@ -398,7 +398,7 @@ var engine = (function () {
 				connector.add_extra_options_all(comp.docker_resource.extra_options);
 			}
 
-			connector.buildAndDeploy(host.ip, host.port, comp.docker_resource.port_bindings, comp.docker_resource.devices, "", docker_image_nr, comp.docker_resource.mounts, comp.docker_resource.links, comp.name, host.name, comp.docker_resource.environment).then(function (id) {
+			connector.buildAndDeploy(host.ip, host.port, comp.docker_resource.port_bindings, comp.docker_resource.devices, "", docker_image_nr, comp.docker_resource.mounts, comp.docker_resource.links, comp.name, host.name, comp.docker_resource.environment, host.properties).then(function (id) {
 				if ((comp.nr_flow !== undefined && comp.nr_flow !== "") ||
 					(comp.path_flow !== "" && comp.path_flow !== undefined)) { //if there is a flow to load with the nodered node
 					let noderedconnector = nodered_connector();
@@ -562,7 +562,8 @@ var engine = (function () {
 										compo.docker_resource.links,
 										compo.name,
 										host.name,
-										compo.docker_resource.environment);
+										compo.docker_resource.environment,
+										host.properties);
 								}
 							}
 							bus.emit('node-started', id, compo.name);
