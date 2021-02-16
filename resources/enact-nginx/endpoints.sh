@@ -21,7 +21,7 @@ then
 fi  
 
 # The file that contains the list of endpoints/replicas 
-WORKING_DIRECTORY=$(dirname "${0}")
+WORKING_DIRECTORY=$(realpath $(dirname "${0}"))
 ENDPOINT_FILE="${WORKING_DIRECTORY}/endpoints.dat"
 
 # Port on which the proxy listens.
@@ -215,7 +215,8 @@ initialize () {
     ENACT_PROXY_PORT="${1}";
     local active_endpoint="${2}";
 
-    activate "${active_endpoint}"   
+    activate "${active_endpoint}";
+    service cron restart;
 }
 
 
@@ -290,10 +291,9 @@ on_repair_of () {
 
 
 WATCHDOG="${WORKING_DIRECTORY}/watchdog.sh"
-WATCHDOG_LOG="${WORKING_DIRECTORY}/watchdog.log"
 
 # Register a new endpoint in the list of known endpoints, and add a
-# cron job that trigger the watchdog on a regular basis.
+# cron job that triggers the watchdog on a regular basis.
 register () {
     local new_endpoint="${1}"
     is_known "${new_endpoint}"
@@ -309,9 +309,11 @@ register () {
     echo "Endpoint '${new_endpoint} added to '${ENDPOINT_FILE}'."
 
     # Add a CRON job to check the status of the endpoint at a fixed interval
-    tmp_file='cronjob.txt'
+    local replica_name=$(echo "${new_endpoint}" | sed -r 's/:.*//');
+    local log_file="${WORKING_DIRECTORY}/watchdog_${replica_name}.log";
+    local tmp_file='cronjob.txt'
     crontab -l  2>/dev/null | sed "\|${new_endpoint} .*|d" > "${tmp_file}"
-    echo "* * * * * ${WATCHDOG} ${new_endpoint} 2>&1 >> ${WATCHDOG_LOG}" >> "${tmp_file}"
+    echo "* * * * * ${WATCHDOG} ${new_endpoint} 2>&1 >> ${log_file}" >> "${tmp_file}"
     crontab < "${tmp_file}"
     rm -f "${tmp_file}"
     echo "Watchdog setup for endpoint '${new_endpoint}'."

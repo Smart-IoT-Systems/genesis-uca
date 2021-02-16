@@ -187,10 +187,16 @@ var docker_connector = function () {
      * See endpoint documentation at 
      *   https://docs.docker.com/engine/api/v1.37/#operation/NetworkCreate
      */
-    that.createNetwork = async function(host, networkName) {
+    that.createNetwork = async function(host, networkSpecs) {
+	const DEFAULT_SPECS = {
+	    Name: "enact-network",
+	    Driver: "bridge",
+	};
+
+	networkSpecs = Object.assign({}, DEFAULT_SPECS, networkSpecs);
+
 	await that.resetDockerHost(host);
-	const specs = { "Name": networkName };
-	const network = await that.docker.createNetwork(specs);
+	const network = await that.docker.createNetwork(newtworkSpecs);
 	logger.info("Docker network created (ID: '" + network.id +"')" );
 	return network.id
     };

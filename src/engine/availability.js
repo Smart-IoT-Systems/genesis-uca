@@ -350,7 +350,10 @@ class BuiltinAgent extends AvailabilityAgent {
     async _setupDockerNetwork () {
 	this._runtime.networkID = `GeneSIS-${this._component.name}`;
 	try{
-	    await this._docker.createNetwork(this._host, this._runtime.networkID);
+	    const networkSpecs = {
+		Name: this._runtime.networkID
+	    };
+	    await this._docker.createNetwork(this._host, networkSpecs);
 	    this._info(`Network ${this._runtime.networkID} created!`);
 	    
 	} catch (error) {
