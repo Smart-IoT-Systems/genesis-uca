@@ -36,9 +36,9 @@ configure_docker_api () {
     local DOCKER_HOST="${1}";
     local IMAGE_NAME="${2}";
     local COMMAND="${3}";
-    (echo "DOCKER_HOST=${DOCKER_HOST}"
-     echo "IMAGE_NAME=${IMAGE_NAME}"
-     echo "COMMAND=${COMMAND}") > "${DOCKER_CONFIG}";
+    (echo "DOCKER_HOST='${DOCKER_HOST}'"
+     echo "IMAGE_NAME='${IMAGE_NAME}'"
+     echo "COMMAND='${COMMAND}'") > "${DOCKER_CONFIG}";
     echo "Configuration stored in '${DOCKER_CONFIG}'";
 }
 
@@ -403,10 +403,10 @@ usage () {
     echo "  activate [ENDPOINT]"
     echo "      activate the given endpoint;"
     echo ""
-    echo "  configure-docker [REMOTE_API] [IMAGE_NAME]"
-    echo "      save the configuration of the remote Docker engine, as well the the "
-    echo "      name of the Docker image used to instantiate them. These are needed "
-    echo "      used to restart replicas on failure."
+    echo "  configure-docker [REMOTE_API] [IMAGE_NAME] [START_COMMAND]"
+    echo "      save the configuration of the remote Docker engine, the name of the"
+    echo "      Docker image used to instantiate them, as well as the command to "
+    echo "      start the container. These are needed to restart replicas on failure."
     echo ""
     echo "  discard [ENDPOINT]"
     echo "      remove the given endpoint;"
@@ -444,8 +444,8 @@ do
 	    shift 2
 	    ;;
 	configure-docker)
-	    configure_docker_api "${2}" "${3}";
-	    shift 3;
+	    configure_docker_api "${2}" "${3}" "${4}";
+	    shift 4;
 	    ;;
 	discard)
 	    discard "${2}"
