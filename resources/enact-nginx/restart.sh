@@ -111,14 +111,39 @@ remove_container () {
 }
 
 
+# Convert a given shell command into a a JSON array containing every
+# word.
+#
+# For instance, given the command 'cd test-app && bash start.sh' it
+# outputs '[ "cd", "test-app", "&&", "bash", "start.sh" ]'
+to_JSON_array () {
+    local command="${1}";
+    local cleaned=($(echo "${command}" | xargs echo -n));
+    local length="${#cleaned[@]}"
+    local current=0;
+    echo -n '[';
+    for word in "${cleaned[@]}"
+    do
+	current=$((current + 1))
+	echo -n "\"${word}\"";
+	if [ ${current} -lt ${length} ]
+	then
+	    echo -n ", "
+	fi
+    done
+    echo -n ']'
+}
+
+
 create_container () {
     local docker_host=$1;
     local image_name=$2;
     local container_name=$3;
-    local command=$4
+    local command=$4;
+    local command_as_array=$(to_JSON_array "${command}");
     local status_code=$(curl --write-out '%{http_code}' --silent --output "${RESPONSE_FILE}" \
 			     --header "Content-Type: application/json" \
-			     --data "{\"Image\": \"${image_name}\", \"Cmd\": [ \"${command}\" ] }" \
+			     --data "{\"Image\": \"${image_name}\", \"Cmd\": ${command_as_array}  }" \
 			     --request POST "http://${docker_host}/containers/create?name=${container_name}");
     case "${status_code}" in
 	200|201)
