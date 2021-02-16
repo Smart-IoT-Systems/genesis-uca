@@ -19,7 +19,7 @@ log () {
     local category="${1}"
     local message="${2}";
     local timestamp=$(date);
-    echo "${timestamp} ${category}: ${message}" > /dev/tty;
+    echo "${timestamp} ${category}: ${message}";
 }
 
 # Check if the health check script is available
@@ -57,6 +57,7 @@ fi
 # Invoke the health check
 bash "${HEALTH_CHECK}" "${ENDPOINT}"
 status=$?;
+log "INFO" "Heath check for '${ENDPOINT}' returned '${status}'";
 
 # Compare the previous status with health check result and send the
 # appropriate message to the endpoint manager.
