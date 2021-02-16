@@ -36,12 +36,13 @@ configure_docker_api () {
     local DOCKER_HOST="${1}";
     local IMAGE_NAME="${2}";
     local COMMAND="${3}";
+    local NETWORK="${4}";   
     (echo "DOCKER_HOST='${DOCKER_HOST}'"
      echo "IMAGE_NAME='${IMAGE_NAME}'"
-     echo "COMMAND='${COMMAND}'") > "${DOCKER_CONFIG}";
+     echo "COMMAND='${COMMAND}'"
+     echo "NETWORK='${NETWORK}'") > "${DOCKER_CONFIG}";
     echo "Configuration stored in '${DOCKER_CONFIG}'";
 }
-
 
 # Check that the given endpoint does appear in the list of known
 # endpoints.
@@ -403,10 +404,12 @@ usage () {
     echo "  activate [ENDPOINT]"
     echo "      activate the given endpoint;"
     echo ""
-    echo "  configure-docker [REMOTE_API] [IMAGE_NAME] [START_COMMAND]"
-    echo "      save the configuration of the remote Docker engine, the name of the"
-    echo "      Docker image used to instantiate them, as well as the command to "
-    echo "      start the container. These are needed to restart replicas on failure."
+    echo "  configure-docker [REMOTE_API] [IMAGE_NAME] [START_COMMAND] [NETWORK]"
+    echo "      save the configuration of the remote Docker engine, including: "
+    echo "         1. the endpoint of the remote Docker API"
+    echo "         2. the name of the Docker image used to instantiate replicas,"
+    echo "         3. the command to start the replicas/containers"
+    echo "         4. the name of the Docker network where replicas belong"
     echo ""
     echo "  discard [ENDPOINT]"
     echo "      remove the given endpoint;"
@@ -444,8 +447,8 @@ do
 	    shift 2
 	    ;;
 	configure-docker)
-	    configure_docker_api "${2}" "${3}" "${4}";
-	    shift 4;
+	    configure_docker_api "${2}" "${3}" "${4}" "${5}";
+	    shift 5;
 	    ;;
 	discard)
 	    discard "${2}"

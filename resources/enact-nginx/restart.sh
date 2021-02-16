@@ -31,6 +31,7 @@ load_docker_configuration () {
     echo " - Host: '${DOCKER_HOST}'";
     echo " - Image: '${IMAGE_NAME}'";
     echo " - Command: '${COMMAND}'";
+    echo " - Network: '${NETWORK}'";
 }
 
 
@@ -111,39 +112,15 @@ remove_container () {
 }
 
 
-# Convert a given shell command into a a JSON array containing every
-# word.
-#
-# For instance, given the command 'cd test-app && bash start.sh' it
-# outputs '[ "cd", "test-app", "&&", "bash", "start.sh" ]'
-to_JSON_array () {
-    local command="${1}";
-    local cleaned=($(echo "${command}" | xargs echo -n));
-    local length="${#cleaned[@]}"
-    local current=0;
-    echo -n '[';
-    for word in "${cleaned[@]}"
-    do
-	current=$((current + 1))
-	echo -n "\"${word}\"";
-	if [ ${current} -lt ${length} ]
-	then
-	    echo -n ", "
-	fi
-    done
-    echo -n ']'
-}
-
-
 create_container () {
     local docker_host=$1;
     local image_name=$2;
     local container_name=$3;
     local command=$4;
-    local command_as_array=$(to_JSON_array "${command}");
+    local payload="{\"Image\": \"${image_name}\", \"Cmd\": [ \"/bin/bash\", \"-c\", \"${command}\" ] }";
     local status_code=$(curl --write-out '%{http_code}' --silent --output "${RESPONSE_FILE}" \
 			     --header "Content-Type: application/json" \
-			     --data "{\"Image\": \"${image_name}\", \"Cmd\": ${command_as_array}  }" \
+			     --data "${payload}" \
 			     --request POST "http://${docker_host}/containers/create?name=${container_name}");
     case "${status_code}" in
 	200|201)
@@ -162,6 +139,34 @@ create_container () {
 	    return ${UNKNOWN_ERROR};
 	    ;;
     esac    
+}
+
+
+attach_to_network () {
+    local docker_host=$1;
+    local network_name=$2;
+    local container_name=$3;
+
+    local payload="{\"Container\": \"${container_name}\"}"
+    status_code=$(curl --write-out '%{http_code}' --silent --output "${RESPONSE_FILE}" \
+		       --header "Content-Type: application/json" \
+		       --data "${payload}" \
+		       --request POST "http://${docker_host}/networks/${network_name}/connect");
+    case "${status_code}" in
+	200|201) 
+	    echo "Container '${container_name}' connected to '${network_name}'";
+	    return 0;
+	    ;;
+	404)
+	    echo "Error: Container '${container_name}' or network '${network_name}' not found.";
+	    return ${NO_SUCH_CONTAINER};
+	    ;;
+	*)
+	    unexpected_error "Could not container '${container_name}' to container '${network_name}'" \
+			     "${status_code}" "${docker_host}";
+	    return ${UNKNOWN_ERROR};
+	    ;;
+    esac
 }
 
 
@@ -224,4 +229,11 @@ if [ $? -ne 0 ]
 then
     exit 1;
 fi
+
+attach_to_network "${DOCKER_HOST}" "${NETWORK}" "${CONTAINER_NAME}"
+if [ $? -ne 0 ]
+then
+    exit 1;
+fi
+
 start_container "${DOCKER_HOST}" "${CONTAINER_NAME}";

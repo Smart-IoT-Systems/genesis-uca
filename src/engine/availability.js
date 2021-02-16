@@ -439,10 +439,11 @@ class BuiltinAgent extends AvailabilityAgent {
 	    const dockerAPI = `${this._host.ip}:${this._host.port}`; 
 	    const imageName = this._dockerImageName("latest");
 	    const command = this._component.docker_resource.cmd;
+	    const networkID = this._runtime.networkID;
 	    const commandSpecs = {
 		Cmd:  ["/bin/bash",
 		       "-c",
-		       `bash ./endpoints.sh configure-docker ${dockerAPI} ${imageName} '${command}'`],
+		       `bash ./endpoints.sh configure-docker ${dockerAPI} ${imageName} '${command}' ${networkID} `],
 	    }
 	    await this._docker.executeCommand(this._host, this._runtime.proxyID, commandSpecs);
 	    this._info(`Remote Docker API set on the proxy`);
