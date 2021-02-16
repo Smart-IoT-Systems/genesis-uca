@@ -196,7 +196,7 @@ var docker_connector = function () {
 	networkSpecs = Object.assign({}, DEFAULT_SPECS, networkSpecs);
 
 	await that.resetDockerHost(host);
-	const network = await that.docker.createNetwork(newtworkSpecs);
+	const network = await that.docker.createNetwork(networkSpecs);
 	logger.info("Docker network created (ID: '" + network.id +"')" );
 	return network.id
     };

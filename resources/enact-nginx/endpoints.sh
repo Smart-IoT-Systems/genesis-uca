@@ -35,8 +35,10 @@ DOCKER_CONFIG="docker.sh";
 configure_docker_api () {
     local DOCKER_HOST="${1}";
     local IMAGE_NAME="${2}";
+    local COMMAND="${3}";
     (echo "DOCKER_HOST=${DOCKER_HOST}"
-     echo "IMAGE_NAME=${IMAGE_NAME}") > "${DOCKER_CONFIG}";
+     echo "IMAGE_NAME=${IMAGE_NAME}"
+     echo "COMMAND=${COMMAND}") > "${DOCKER_CONFIG}";
     echo "Configuration stored in '${DOCKER_CONFIG}'";
 }
 
@@ -49,7 +51,7 @@ is_known () {
     then
 	return 0
     fi
-    return  1
+    return 1
 }
 
 
@@ -240,7 +242,14 @@ on_failure_of () {
     fi
 
     mark "${failed_endpoint}" "down"
-    
+
+    # Try restarting the failed endpoint!
+    local container_name=$(echo "${failed_endpoint}" | sed -e 's/:.*//');
+    bash "${WORKING_DIRECTORY}/restart.sh" \
+	 "${WORKING_DIRECTORY}/${DOCKER_CONFIG}" \
+	 "${container_name}";
+
+    # Meanwhile, we search for a replacement
     local active_endpoint
     active_endpoint=$(find_active)
     if [ $? -ne 0 ]
@@ -251,16 +260,14 @@ on_failure_of () {
 
     if [ "${failed_endpoint}" = "${active_endpoint}" ]
     then
-	local container_name=$(echo "${failed_endpoint}" | sed -e 's/:.*//');
-	bash restart.sh "${DOCKER_CONFIG}" "${container_name}";
-	local upgrade
-	upgrade=$(find_upgrade)
+	local replacement
+	replacement=$(find_upgrade)
 	if [ $? -ne 0 ]
 	then
 	    echo "No backup endpoint for '${active_endpoint}'."
 	    return 3
 	else
-	    activate "${upgrade}"
+	    activate "${replacement}"
 	fi
     fi
 }
@@ -278,7 +285,7 @@ on_repair_of () {
 
     mark "${repaired_endpoint}" "up"
 
-    local upgrade_endpoint
+    local replacement_endpoint
     upgrade_endpoint=$(find_upgrade)
     if [ $? -ne 0 ]
     then

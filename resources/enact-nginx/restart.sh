@@ -24,12 +24,13 @@ load_docker_configuration () {
     if [ ! -e "${configuration_file}" ];
     then
 	echo "Error: Cannot find configuration file '${configuration_file}'";
-	exit   1;
+	exit 1;
     fi
     source "${configuration_file}";
-    echo "Configuration loaded from '${configuration_file}':" > /dev/tty
-    echo " - DOCKER_HOST: '${DOCKER_HOST}'" > /dev/tty;
-    echo " - IMAGE: '${IMAGE_NAME}'" > /dev/tty;
+    echo "Configuration loaded from '${configuration_file}':";
+    echo " - Host: '${DOCKER_HOST}'";
+    echo " - Image: '${IMAGE_NAME}'";
+    echo " - Command: '${COMMAND}'";
 }
 
 
@@ -38,11 +39,11 @@ unexpected_error () {
     local status_code=$2;
     local docker_host=$3;
     local error_message=$(cat "${RESPONSE_FILE}" | jq .message);
-    echo "Error: ${description}." > /dev/tty;
-    echo "       Received HTTP code '${status_code}' from host '${docker_host}'." > /dev/tty;
+    echo "Error: ${description}.";
+    echo "       Received HTTP code '${status_code}' from host '${docker_host}'.";
     if [ -s "${RESPONSE_FILE}"  ]
     then
-	echo "       ${error_message}" > /dev/tty;
+	echo "       ${error_message}";
     else
 	echo "       No response received.";
     fi
@@ -57,17 +58,17 @@ stop_container () {
 			     --request POST "http://${docker_host}/containers/${containerID}/stop?t=1");
     case "${status_code}" in
 	200|204|304)
-	    echo "Container '${containerID}' stopped." > /dev/tty;
+	    echo "Container '${containerID}' stopped.";
 	    return 0;
 	    ;;
 	404)
-	    echo "Error: Could not stop container '${container_name}'." > /dev/tty;
-	    echo "       There is no such container (code 404)'." > /dev/tty;	    
+	    echo "Error: Could not stop container '${container_name}'.";
+	    echo "       There is no such container (code 404)'.";	    
 	    return ${NO_SUCH_CONTAINER};
 	    ;;
 	500)
-	    echo "Error: Could not stop container '${container_name}'." > /dev/tty;
-	    echo "       Internal server error (code 500)'." > /dev/tty;	    
+	    echo "Error: Could not stop container '${container_name}'.";
+	    echo "       Internal server error (code 500)'.";	    
 	    return ${SERVER_ERROR};
 	    ;;
 	*)
@@ -88,17 +89,17 @@ remove_container () {
     
     case "${status_code}" in
 	200|204)
-	    echo "Container '${containerID}' removed." > /dev/tty;
+	    echo "Container '${containerID}' removed.";
 	    return 0;
 	    ;;
 	404)
-	    echo "Error: Could not remove container '${container_name}'." > /dev/tty;
-	    echo "       There is no such container (code 404)'." > /dev/tty;	    
+	    echo "Error: Could not remove container '${container_name}'.";
+	    echo "       There is no such container (code 404)'.";	    
 	    return ${NO_SUCH_CONTAINER};
 	    ;;
 	500)
-	    echo "Error: Could not remove container '${container_name}'." > /dev/tty;
-	    echo "       Internal server error (code 500)'." > /dev/tty;	    
+	    echo "Error: Could not remove container '${container_name}'.";
+	    echo "       Internal server error (code 500)'.";	    
 	    return ${SERVER_ERROR};
 	    ;;
 	*)
@@ -114,19 +115,20 @@ create_container () {
     local docker_host=$1;
     local image_name=$2;
     local container_name=$3;
+    local command=$4
     local status_code=$(curl --write-out '%{http_code}' --silent --output "${RESPONSE_FILE}" \
 			     --header "Content-Type: application/json" \
-			     --data "{\"Image\": \"${image_name}\"}" \
+			     --data "{\"Image\": \"${image_name}\", \"Cmd\": [ \"${command}\" ] }" \
 			     --request POST "http://${docker_host}/containers/create?name=${container_name}");
     case "${status_code}" in
 	200|201)
 	    local containerID=$(cat "${RESPONSE_FILE}" | jq .Id);
-	    echo "New container '${container_name}' from image '${image_name}' created!" > /dev/tty;
-	    echo "ID: ${containerID}" > /dev/tty;
+	    echo "New container '${container_name}' from image '${image_name}' created!";
+	    echo "ID: ${containerID}";
 	    return 0;
 	    ;;
 	409)
-	    echo "Error: Container '${container_name}' aleady exist!"  > /dev/tty;
+	    echo "Error: Container '${container_name}' aleady exist!";
 	    return ${CONTAINER_EXISTS};
 	    ;;
 	*)
@@ -146,12 +148,12 @@ start_container () {
 			     --request POST "http://${docker_host}/containers/${container_name}/start");
     case "${status_code}" in
 	200|204|304)
-	    echo "Container '${container_name}' started!" > /dev/tty;
+	    echo "Container '${container_name}' started!";
 	    return 0;
 	    ;;
 	404)
-	    echo "Error: Cannot start container '${container_name}'"  > /dev/tty;
-	    echo "       No such container (code 404)"  > /dev/tty;
+	    echo "Error: Cannot start container '${container_name}'";
+	    echo "       No such container (code 404)";
 	    return ${NO_SUCH_CONTAINER};
 	    ;;
 	*)
@@ -192,8 +194,7 @@ then
     exit 1;
 fi
 
-
-container_id=$(create_container "${DOCKER_HOST}" "${IMAGE_NAME}" "${CONTAINER_NAME}");
+create_container "${DOCKER_HOST}" "${IMAGE_NAME}" "${CONTAINER_NAME}" "${COMMAND}";
 if [ $? -ne 0 ]
 then
     exit 1;
