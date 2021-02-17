@@ -181,7 +181,7 @@ class SiderDemo extends React.Component {
         dm.revive_links(data.dm.links);
         dm.revive_containments(data.dm.containments);
         //Then we update the graph
-        cy.json(data.graph);
+        window.cy.json(data.graph);
         //Including runtime status
         fetch("/genesis/runtime_info")
           .then(response => response.json())
@@ -268,6 +268,7 @@ class SiderDemo extends React.Component {
 
     fetch('/genesis/deploy', {
       method: 'POST',
+      mode: 'no-cors',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
