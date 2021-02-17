@@ -517,6 +517,12 @@ var engine = (function () {
 			//And if there is an host to deploy on
 			if (host !== undefined) {
 
+				//Manage node-red-flow components
+				if (!host.needDeployer && compo._type === "/internal/arduino") {
+					logger.log('info', 'Deploy an arduino sketch');
+					bus.emit('node-started', null, compo.name);
+				}
+
 				//Manage ThingML nodes
 				if (compo._type.startsWith("/internal/thingml")) {
 					await that.deploy_thingml(compo, host);
@@ -575,6 +581,8 @@ var engine = (function () {
 						logger.log('info', 'Deploy a flow');
 						await that.deploy_node_red_flow(compo);
 					}
+
+
 
 					//Manage component via Ansible
 					if (compo.ansible_resource.playbook_path !== "" && compo.ansible_resource.playbook_path !== undefined) {
