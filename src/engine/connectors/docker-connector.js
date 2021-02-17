@@ -181,6 +181,19 @@ var docker_connector = function () {
 	}
 
 
+    that.isReady = async function(host) {
+	try {
+	    that.resetDockerHost(host);
+	    return await that.docker.ping();
+
+	} catch (error) {
+	    logger.error(`DOCKER: Unable to reach Docker host at ${host.ip}:${host.port}!`);
+	    return false;
+	    
+	}
+    }
+
+
     /**
      * Create a Docker network that will connect multiple containers.
      *

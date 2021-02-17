@@ -59,8 +59,10 @@ class AvailabilityManager {
     
 
     /*
-     * Create the right availability agent depending on the availability
-     * strategy that the user has chosen.
+     * Create the right availability agent depending on the
+     * availability strategy that the user has chosen. If the
+     * component lacks a DockerResource, we wrap it into a SSH
+     * Adapter, which builds the Docker image from the SSH resource.
      */
     _selectAgentFor(givenComponent, givenHost) {
 	var agent = null;
@@ -74,6 +76,18 @@ class AvailabilityManager {
 	    throw new Error(`Unknown availability policy '${givenComponent.availability}'`);
 
 	}
+
+	if (!givenComponent.hasDockerResource())  {
+	    if (givenComponent.hasSSHResource()) {
+		agent = new SSHAdapter(agent);
+
+	    } else  {
+		const message = `Availability requires either Docker or SSH resources`;
+		throw new Error(message);
+
+	    }
+	}
+	
 	this._agents.set(givenComponent.name, agent);
 	logger.info(`Availability mechanisms activated for ${givenComponent.name}`)
 	return agent;
@@ -240,29 +254,18 @@ class BuiltinAgent extends AvailabilityAgent {
 
 
     async installFromScratch() {
-	if (this._dockerIsNotAvailable()) {
-	    await this._installDockerInRemoteMode();
-	}
-	if (this._installUsesSSH()) {
-	    await this._createDockerImageFromSSHResources();
-	}
+	await this.ensureHostIsReady();
 	await this._deploy();
     }
 
 
-    /*
-     * TODO
-     */
-    _dockerIsNotAvailable () {
-	return true;
+    async ensureHostIsReady () {
+	const hostIsReady = await this._docker.isReady(this._host);
+	if (!hostIsReady) {
+	    await this._installDockerInRemoteMode();
+	}
     }
-
-    /*
-     * TODO
-     */
-    _installUsesSSH ()  {
-	return true;
-    }
+    
     
     async _installDockerInRemoteMode() {
 	const ssh = sshConnection(this._host.ip,
@@ -283,52 +286,6 @@ class BuiltinAgent extends AvailabilityAgent {
 	    utils.chainError("Unable to install Docker in remote mode.", error);
 	    
 	}
-    }
-
-
-    async _createDockerImageFromSSHResources() {
-	const baseImage = "debian:10-slim";
-	const containerName = "enact-tmp";
-	const imageName = this._dockerImageName("latest");
-	try {
-	    const installationScript = [
-		"/bin/bash",
-		"-c",
-		this._component.ssh_resource.downloadCommand
-		    + "; " + this._component.ssh_resource.installCommand
-		    + "; " + this._component.ssh_resource.configureCommand
-	    ];
-	    
-	    const containerID =
-		  await this._docker.createContainer(this._host,
-						     {
-							 Image: baseImage,
-							 Cmd: installationScript,
-							 name: containerName
-						     });
-	    await this._docker.saveContainerAsImage(this._host,
-						    containerID,
-						    imageName);
-	    await this._docker.removeContainer(this._host, containerName);
-	    this._component.docker_resource.image = imageName;
-	    this._component.docker_resource.cmd = this._component.ssh_resource.startCommand;
-	    this._info(`New docker image '${imageName}' for component '${this._component.name}'.`);
-
-	} catch (error) {
-	    utils.chainError(
-		`Unable to build a Docker image from the SSH resources of '${this._component.name}'.`,
-		error
-	    );
-
-	}    
-	
-    }
-
-    _dockerImageName(tag) {
-	if (tag === undefined) {
-	    return `${this._component.name}-livebuilt`;
-	}   
-	return `${this._component.name}-livebuilt:${tag}`;
     }
 
     async _deploy() {
@@ -437,7 +394,7 @@ class BuiltinAgent extends AvailabilityAgent {
     async _configureRemoteDockerAPI() {
 	try {
 	    const dockerAPI = `${this._host.ip}:${this._host.port}`; 
-	    const imageName = this._dockerImageName("latest");
+	    const imageName = this._component.docker_resource.image;
 	    const command = this._component.docker_resource.cmd;
 	    const networkID = this._runtime.networkID;
 	    const commandSpecs = {
@@ -589,8 +546,6 @@ class BuiltinAgent extends AvailabilityAgent {
     
     async _updateComponent(givenComponent) {
 	const policy = this._component.availability;
-	await this._tagImageAsOld();
-	await this._createDockerImageFromSSHResources();
 	try {
 	    if (policy.zeroDownTime) {
 		this._markAllReplicasForTermination();
@@ -604,7 +559,6 @@ class BuiltinAgent extends AvailabilityAgent {
 		await this._restartProxy();
 
 	    }
-	    await this._deleteOldDockerImage();
 	    this._info(`All ${this._component.name} replica(s) updated!`);
 	    
 	} catch (error) {
@@ -615,31 +569,6 @@ class BuiltinAgent extends AvailabilityAgent {
     }
 
 
-    async _tagImageAsOld() {
-	const currentTag = this._dockerImageName("latest");
-	const repository = this._dockerImageName(); // /!\ without the tag!
-	try {
-	    await this._docker.tagImage(this._host, currentTag, repository, "old");
-
-	} catch (error) {
-	    utils.chainError(`Could not tag image '${currentTag}' as '${repository}:old'.`, error);
-	    
-	}
-    }
-
-
-    async _deleteOldDockerImage() {
-	const imageName = this._dockerImageName("old");
-	try {
-	    const forceRemoval = true;
-	    await this._docker.removeImage(this._host, imageName, forceRemoval);
-
-	} catch (error)  {
-	    utils.chainError(`Could not delete Docker image '${imageName}'`, error);
-	    
-	}
-	
-    }
 
     
     _markAllReplicasForTermination() {
@@ -717,7 +646,6 @@ class BuiltinAgent extends AvailabilityAgent {
 	this._markAllReplicasForTermination();
 	await this._stopMarkedReplicas();
 	await this._stopProxy();
-
     }
 
 
@@ -775,6 +703,167 @@ class DockerSwarmAgent extends AvailabilityAgent {
 	this._error("Uninstallation is not yet supported!");
     }
 
+}
+
+
+/* 
+ * This is an adapter class, which ensure that the SSH resources
+ * associated with the target component first converted into a
+ * DockerResources so that the installation can proceed.
+ */
+class SSHAdapter extends AvailabilityAgent {
+
+    constructor (delegate) {
+	super(null);
+	this._delegate = delegate;
+    }
+
+
+    canHandle(givenComponent) {
+	return this._delegate.canHandle(givenComponent)
+	    && givenComponent.givenComponent.hasSSHResource();   
+    }
+
+    
+    async installFromScratch() {
+	await this._delegate.ensureHostIsReady();
+	await this._createDockerImageFromSSHResources();	
+	await this._delegate.installFromScratch();
+    }
+    
+    
+    async _createDockerImageFromSSHResources() {
+	const baseImage = "debian:10-slim";
+	const containerName = "enact-tmp";
+	const imageName = this._dockerImageName("latest");
+	try {
+	    const installationScript = [
+		"/bin/bash",
+		"-c",
+		this._sshResource.downloadCommand
+		    + "; " + this._sshResource.installCommand
+		    + "; " + this._sshResource.configureCommand
+	    ];
+	    
+	    const containerID =
+		  await this.docker.createContainer(this.host,
+						     {
+							 Image: baseImage,
+							 Cmd: installationScript,
+							 name: containerName
+						     });
+	    await this.docker.saveContainerAsImage(this.host,
+						    containerID,
+						    imageName);
+	    await this.docker.removeContainer(this.host, containerName);
+	    this._dockerResource.image = imageName;
+	    this._dockerResource.cmd = this._sshResource.startCommand;
+	    this._info(`New docker image '${imageName}' for component '${this.component.name}'.`);
+
+	} catch (error) {
+	    utils.chainError(
+		`Unable to build a Docker image from the SSH resources of '${this.component.name}'.`,
+		error
+	    );
+
+	}    
+	
+    }
+
+    
+    get docker() {
+	return this._delegate._docker;
+    }
+
+    
+    get host() {
+	return this._delegate._host;
+    }
+
+    _dockerImageName(tag) {
+	if (tag === undefined) {
+	    return `${this.component.name}-livebuilt`;
+	}   
+	return `${this.component.name}-livebuilt:${tag}`;
+    }
+
+    
+    get _sshResource()  {
+	return this._delegate._component.ssh_resource;
+    }
+
+    
+    get _dockerResource() {
+	return this._delegate._component.docker_resource;
+    }
+
+
+    get component() {
+	return this._delegate._component;
+    }
+
+
+    async _updateReplicaCount(newCount) {
+	this._delegate._updateReplicaCount(newCount);
+    }
+
+    
+    async _updateHealthCheckScript(newScript) {
+	this._delegate._updateHealthCheckScript(newScript);
+    }
+
+    
+    async _updateZeroDownTime(newValue) {
+	this._delegate._updateZeroDownTime(newValue);
+    }
+
+    
+    async _updateComponent(givenComponent) {
+	try {
+	    await this._tagImageAsOld();
+	    await this._createDockerImageFromSSHResources();
+	    await this._delegate.updateComponent(givenComponent);
+	    await this._deleteDockerImage("old");
+
+	} catch (error) {
+	    utils.chainError(`Unable to update all '${this.component.name}' replicas `, error);
+	    
+	}
+    }
+
+
+    async _tagImageAsOld() {
+	const currentTag = this._dockerImageName("latest");
+	const repository = this._dockerImageName(); // /!\ without the tag!
+	try {
+	    await this.docker.tagImage(this.host, currentTag, repository, "old");
+
+	} catch (error) {
+	    utils.chainError(`Could not tag image '${currentTag}' as '${repository}:old'.`, error);
+	    
+	}
+    }
+
+
+    async _deleteDockerImage(tag) {
+	const imageName = this._dockerImageName(tag);
+	try {
+	    const forceRemoval = true;
+	    await this.docker.removeImage(this.host, imageName, forceRemoval);
+
+	} catch (error)  {
+	    utils.chainError(`Could not delete Docker image '${imageName}'`, error);
+	    
+	}
+	
+    }
+
+    
+    async uninstall(givenComponent) {
+	await this._delegate.uninstall(givenComponent);
+	await this._deleteDockerImage("latest");
+    }
+    
 }
 
 

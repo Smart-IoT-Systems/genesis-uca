@@ -788,6 +788,22 @@ Availability.DEFAULT = Availability.BUILTIN
 /******************************************/
 var software_node = function (spec) {
     var that = component(spec);
+
+    // Check if the component includes a proper Docker resource
+    that.hasDockerResource = function ()  {
+	return (that.docker_resource !== null
+		&& that.docker_resource.image
+		&& that.docker_resource.command);
+    }
+
+    // Check if the component includes a proper SSH resource
+    that.hasSSHResource = function () {
+	return (that.ssh_resource !== null
+		&& that.ssh_resource.startCommand
+		&& that.ssh_resource.downloadCommand
+		&& that.ssh_resource.installCommand);
+    }
+	
     
     that.availability = Availability.defaultSettings();
     if (spec.availability != null) {
