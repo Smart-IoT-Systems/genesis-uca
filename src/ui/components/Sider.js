@@ -47,7 +47,7 @@ class SiderDemo extends React.Component {
     this.setTestShow = this.setTestShow.bind(this);
     window.testShow = this.setTestShow;
     this.openNotificationWithIcon = this.openNotificationWithIcon.bind(this);
-    window.openNotificationWithIcon = this.openNotificationWithIcon;
+    window.openNotificationWithIcon = this.openNotificationWithIcon
   }
 
 
@@ -254,7 +254,7 @@ class SiderDemo extends React.Component {
       .then(response => {
         console.log(JSON.stringify(response));
 
-        window.openNotificationWithIcon('success', 'Model Pushed', 'Model sent!');
+        this.openNotificationWithIcon('success', 'Model Pushed', 'Model sent!');
       });
   };
 
@@ -323,9 +323,9 @@ class SiderDemo extends React.Component {
     }).then(response => response.json())
       .then(response => {
         if (response.newconflicts) {
-          this.openNotificationWithIcon('Error', 'Actuation Conflict', 'Please check conflict using the Actuation Conflict Manager');
+          window.openNotificationWithIcon('Error', 'Actuation Conflict', 'Please check conflict using the Actuation Conflict Manager');
         } else {
-          this.openNotificationWithIcon('Success', 'Actuation Conflict', 'No conflicts identified');
+          window.openNotificationWithIcon('Success', 'Actuation Conflict', 'No conflicts identified');
         }
       });
   }
