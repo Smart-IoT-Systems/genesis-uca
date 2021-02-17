@@ -46,6 +46,7 @@ class SiderDemo extends React.Component {
     window.loader = load;
     this.setTestShow = this.setTestShow.bind(this);
     window.testShow = this.setTestShow;
+    this.openNotificationWithIcon = this.openNotificationWithIcon.bind(this);
   }
 
 
