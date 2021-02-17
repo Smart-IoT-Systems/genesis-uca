@@ -684,7 +684,7 @@ var engine = (function () {
 			bus.on('node-started2', function (container_id, comp_name) {
 				tmp++;
 				//Add container id to the component
-				console.log("Started node: " + tmp + " :::: " + comp.length);
+				logger.log('info', "Started node: " + tmp + " :::: " + comp.length + "( " + comp_name + " )");
 				var compon = that.dep_model.find_node_named(comp_name);
 				compon.container_id = container_id;
 
