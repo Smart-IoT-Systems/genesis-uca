@@ -268,10 +268,10 @@ class SiderDemo extends React.Component {
 
     fetch('/genesis/deploy', {
       method: 'POST',
-      mode: 'no-cors',
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
       },
       body: JSON.stringify(all_in_one)
     }).then(response => response.json())
