@@ -47,6 +47,7 @@ class SiderDemo extends React.Component {
     this.setTestShow = this.setTestShow.bind(this);
     window.testShow = this.setTestShow;
     this.openNotificationWithIcon = this.openNotificationWithIcon.bind(this);
+    window.openNotificationWithIcon = this.openNotificationWithIcon;
   }
 
 
@@ -253,7 +254,7 @@ class SiderDemo extends React.Component {
       .then(response => {
         console.log(JSON.stringify(response));
 
-        this.openNotificationWithIcon('success', 'Model Pushed', 'Model sent!');
+        window.openNotificationWithIcon('success', 'Model Pushed', 'Model sent!');
       });
   };
 
