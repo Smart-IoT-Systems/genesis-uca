@@ -685,6 +685,7 @@ var engine = (function () {
 				tmp++;
 				//Add container id to the component
 				logger.log('info', "Started node: " + tmp + " :::: " + comp.length + "( " + comp_name + " )");
+				logger.log('info', "==> " + JSON.stringify(comp));
 				var compon = that.dep_model.find_node_named(comp_name);
 				compon.container_id = container_id;
 
