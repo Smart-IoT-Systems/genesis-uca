@@ -116,7 +116,6 @@ var engine = (function () {
 	};
 
 	that.to_be_removed = function (diff, comp) {
-	    logger.info("TO BE REMOVED!");
 	    var result = false;
 		var removed_comp = diff.list_of_removed_components;
 		for (var i in removed_comp) {
@@ -129,7 +128,6 @@ var engine = (function () {
 	};
 
 	that.remove_one_component = async function (cmpt, diff) {
-	    logger.info("REMOVE ONE COMPONENT!");
 	    var host = diff.old_dm.find_host_one_level_down(cmpt);
 	    var device_host = diff.old_dm.find_host(cmpt);
 	    
@@ -199,7 +197,7 @@ var engine = (function () {
 						await n_connector.setFlow(device_host.ip, removed[i].required_communication_port[0].port_number, "[]", [], [], that.dep_model);
 						logger.log("info", "Node-Red Flow Removed!");*/
 					}
-				} else if (that.need_ssh(removed[i]) && !removed[i].availability.isReplicated()) {
+				} else if (that.need_ssh(removed[i]) && !removed[i].hasAvailabilityPolicy()) {
 					sshs.push(removed[i]);
 					//var ssh_connection = sshc(device_host.ip, host.port, removed[i].ssh_resource.credentials.username, removed[i].ssh_resource.credentials.password, removed[i].ssh_resource.credentials.sshkey, removed[i].ssh_resource.credentials.agent);
 					//await ssh_connection.execute_command(removed[i].ssh_resource.stopCommand);
@@ -452,7 +450,7 @@ var engine = (function () {
 		ssh_port = "22";
 	    }
 
-	    if (component.availability.isReplicated()) {
+	    if (component.hasAvailabilityPolicy()) {
 		try {
 		    that.availabilityManager.handle(component, host);
 
@@ -547,8 +545,10 @@ var engine = (function () {
     
     that.deploy_docker = async function (component, host) {
 	if (component.docker_resource.image !== "") {
-	    
-	    if (component.availability.isReplicated()) {
+
+	    logger.info(`Component ${component.name} has Av. Policy: ` + component.hasAvailabilityPolicy());
+	    logger.info(JSON.stringify(component.availability));
+	    if (component.hasAvailabilityPolicy()) {
 		that.availabilityManager.handle(component, host);
 
 	    } else {

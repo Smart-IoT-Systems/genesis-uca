@@ -234,7 +234,6 @@ class BuiltinAgent extends AvailabilityAgent {
 
     constructor (givenComponent, givenHost) {
 	super(givenComponent, givenHost);
-	this._port = 5000; // /!\ Hard-coded
 
 	// Hold the runtime information about the builtin mechanisms
 	// that are deployed
@@ -357,6 +356,7 @@ class BuiltinAgent extends AvailabilityAgent {
 
     async _deployBuiltinProxy() {
 	try {
+	    const exposedPort = this._component.availability.exposedPort;
 	    const proxySpecs = {
 		Image: "fchauvel/enact-nginx:latest",
 		name: `${this._component.name}-proxy`,
@@ -367,11 +367,11 @@ class BuiltinAgent extends AvailabilityAgent {
 		AttachStderr: false,
 		HostConfig: {
 		    PortBindings: {
-			[`${this._port}/tcp`]: [{ HostPort: `${this._port}` }]
+			[`${exposedPort}/tcp`]: [{ HostPort: `${exposedPort}` }]
 		    },
 		},
 		ExposedPorts: {
-		    [`${this._port}/tcp`]: {}
+		    [`${exposedPort}/tcp`]: {}
 		},
 	    };
 	    await this._docker.createContainer(this._host, proxySpecs, true);
@@ -505,17 +505,18 @@ class BuiltinAgent extends AvailabilityAgent {
     _urlOf(endpoint) {
 	// /!\ NGinx 1.19.6 (at least) throws "Invalid host in
 	// upstream" if the endpoint URL starts with 'http://'
-	return `${endpoint}:${this._port}`;
+	return `${endpoint}:${this._component.availability.exposedPort}`;
     }
 
     
     async _restartProxy() {
 	const activeEndpoint = this._runtime.activeReplicas[0];
+	const exposedPort = this._component.availability.exposedPort;
 	try {
 	    const commandSpecs = {
 		Cmd:  ["/bin/bash",
 		       "-c",
-		       `bash ./endpoints.sh initialize ${this._port} ${this._urlOf(activeEndpoint)}`],
+		       `bash ./endpoints.sh initialize ${exposedPort} ${this._urlOf(activeEndpoint)}`],
 	    }
 	    await this._docker.executeCommand(this._host, this._runtime.proxyID, commandSpecs);
 	    this._info(`Endpoint ${activeEndpoint} activated!`);

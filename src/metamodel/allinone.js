@@ -744,26 +744,24 @@ class Availability {
 	return new Availability(object.strategy || this.DEFAULT,
 				object.healthCheck || "",
 				object.replicaCount || 1,
-				object.zeroDownTime === null ? true : object.zeroDownTime);
+				object.zeroDownTime === null ? true : object.zeroDownTime,
+				object.exposedPort || 80);
     }
     
-    constructor (strategy, healthCheck, replicaCount, zeroDownTime) {
+    constructor (strategy, healthCheck, replicaCount, zeroDownTime, exposedPort) {
 	this.strategy = strategy;
 	this.healthCheck = healthCheck;
 	this.replicaCount = replicaCount;
 	this.zeroDownTime = zeroDownTime;
+	this.exposedPort = exposedPort;
     }
 
     usesDockerSwarm () {
-	return this.useStrategy(Availability.DOCKER_SWARM) && this.isReplicated();
+	return this.useStrategy(Availability.DOCKER_SWARM);
     }
 
     isBuiltin () {
-	return this.useStrategy(Availability.BUILTIN) && this.isReplicated();
-    }
-
-    isReplicated() {
-	return this.replicaCount > 1;
+	return this.useStrategy(Availability.BUILTIN);
     }
 
     useStrategy (strategy) {
@@ -789,6 +787,15 @@ Availability.DEFAULT = Availability.BUILTIN
 var software_node = function (spec) {
     var that = component(spec);
 
+    // Check if the component  has an availability Policy
+    that.hasAvailabilityPolicy = function ()  {
+	return (that.availability !== null
+		&& that.availability.strategy
+		&& that.availability.replicaCount
+		&& that.availability.zeroDownTime !== undefined);
+    }
+
+    
     // Check if the component includes a proper Docker resource
     that.hasDockerResource = function ()  {
 	return (that.docker_resource !== null
