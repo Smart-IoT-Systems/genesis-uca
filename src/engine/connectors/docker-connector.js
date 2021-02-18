@@ -1,6 +1,7 @@
 var Docker = require('dockerode');
 var bus = require('../event-bus.js');
 var logger = require('../logger.js');
+var utils = require("../../util.js");
 
 var docker_connector = function () {
 	var that = {};
@@ -181,6 +182,9 @@ var docker_connector = function () {
 	}
 
 
+    /*
+     * Check the given Docker host is ready and configured in remote mode
+     */
     that.isReady = async function(host) {
 	try {
 	    that.resetDockerHost(host);
@@ -194,7 +198,7 @@ var docker_connector = function () {
     }
 
 
-    /**
+    /*
      * Create a Docker network that will connect multiple containers.
      *
      * See endpoint documentation at 
@@ -407,189 +411,140 @@ var docker_connector = function () {
      * placed on the target container.
      */
     that.uploadArchive = async function(dockerHost, containerID, archive, path) {
-	await that.resetDockerHost(dockerHost);
-	logger.info(`Uploading archive on container ${containerID}`);
-	const container = that.docker.getContainer(containerID);
-	const response = await container.putArchive(archive, { path: path });
-	logger.info(`Uploading '${archive}' to' ${containerID}'`);
-	logger.info(`   ${response.statusCode}: ${response.statusMessage}`);
+	try {
+	    await that.resetDockerHost(dockerHost);
+	    const container = that.docker.getContainer(containerID);
+	    const response = await container.putArchive(archive, { path: path });
+	    logger.info(`File '${archive}' uploaded on container '${containerID}'`);
+
+	} catch (error) {
+	    utils.chainError(`Cannot upload '${archive}' on container '${containerID}'`,
+			     error);
+	    
+	}
     };
     
 
 
-    /**
+    /*
      * Initialize Docker swarm (i.e., triggers a 'docker swarm
      * init') on the given host.
      *
      * The Docker API returns an HTTP Code 503 if Docker Swarm is
      * already initialized or if the host is already part of a
      * swarm. In this case, we do not raise an error and proceed
-     * because we only need to ensure that the host is initialized
-     * (idempotency).
+     * because we only need to guarantee idempotency.
      *
      * See endpoint documentation at
      *    https://docs.docker.com/engine/api/v1.37/#operation/SwarmInit
      */
-    that.initializeDockerSwarm = function (host) {
-	return new Promise(async function (resolve, reject) {
-	    that.docker = new Docker({
-		host: host.ip,
-		port: host.port
-	    });
-	    that.docker
-		.ping()
-		.then(data => {
-		    that.docker
-			.swarmInit({
-			    ForceNewCluster: false,
-			}).then(response => {
-			    logger.log("info", "SWARM RESPONSE\n" + response);
-			    logger.log("info", "Docker Swarm initialized!");
-			    resolve(response.ID, component.name);
-			}).catch(error => {
-			    if (error.message.search(/503/i) === -1) {
-				logger.error("Docker Swarm error\n" + error);
-				reject(error);
-			    }
-			    resolve("info", "some-id");
-			});
-		}).catch(error => {
-		    reject(error)
-		});
-	});
+    that.initializeDockerSwarm = async function (host) {
+	try {
+	    await that.resetDockerHost(host);
+	    await that.swarmInit({ ForceNewCluster: false });
+	    logger.info(`Docker swarm initialized on host ${host.ip}`);
+
+	} catch (error) {
+	    if (error.message.search(/503/i) === -1)   {
+		utils.chainError(`Unable to initialize Docker Swarm on host ${host.ip}.`,
+				 error);
+
+	    } else {
+		logger.info(`Docker Swarm already initialized on host ${host.ip}`);
+
+	    }
+	}
     };
     
 
-	/*
-	 * Start a new swarm service, from the configuration of the given component.
-	 *
-	 * See the documentation available at:
-	 *      https://docs.docker.com/engine/api/v1.37/#operation/ServiceCreate
-	 */
-	that.startSwarmService = function (host, component) {
-		return new Promise(async function (resolve, reject) {
-			that.docker = new Docker({
-				host: host.ip,
-				port: host.port
-			});
-			that.docker
-				.ping()
-				.then(function (response) {
-					that.docker.createService({
-						"Name": component.name,
-						"TaskTemplate": {
-							"ContainerSpec": {
-								"Image": component.docker_resource.image
-							}
-						}
-					}).then(response => {
-						logger.info(Object.keys(response));
-						const identifier = response.id;
-						logger.info(`Swarm service '${component.name}' started with ID '${identifier}'.`);
-						resolve(identifier, component.name);
+    /*
+     * Start a new swarm service, from the configuration of the given component.
+     *
+     * See the documentation available at:
+     *      https://docs.docker.com/engine/api/v1.37/#operation/ServiceCreate
+     */
+    that.startSwarmService = async function (host, component) {
+	try {
+	    await that.resetDockerHost(host);
+	    const response = await that.docker
+		  .createService({ "Name": component.name,
+				   "TaskTemplate": {
+				       "ContainerSpec": {
+					   "Image": component.docker_resource.image
+				       }
+				   }
+				 });
+	    const identifier = response.id;
+	    logger.info(`Swarm service '${component.name}' started with ID '${identifier}'.`);
+	    
 
-					}).catch(error => {
-						logger.error(error.message);
-						reject(error);
+	} catch (error) {
+	    const message = `Could not start Swarm service '${component.name}`;
+	    utils.chainError(message, error);
+	    
+	}
 
-					});
+    }
+	
 
-				}).catch(error => {
-					logger.error(error.message);
-					reject(error)
+    /*
+     * Update an existing service, from the given component.
+     *
+     * Blue/Green deployments are implemented using the parameter
+     * UpdateConfig order: start-first", which forces Docker swarm to provision first new
+     * containers before it take down the older ones.
+     *
+     * See Docker endpoint documentation at:
+     *   https://docs.docker.com/engine/api/v1.37/#operation/ServiceUpdate
+     */
+    that.updateSwarmService = async function (host, component) {
+	try {
+	    await that.resetDockerHost(host);
+	    const service = that.docker.getService(component.name);
+	    const inspected = await service.inspect();
+	    const version = parseInt(inspected.Version.Index);
+	    const specification = {
+		"Name": component.name,
+		"version": version, // This key must be lowercase!
+		"TaskTemplate": {
+		    "ContainerSpec": {
+			"Image": component.docker_resource.image
+		    },
+		    "Resources": {
+			"Limits": {},
+			"Reservations": {}
+		    },
+		    "RestartPolicy": {},
+		    "Placement": {}
+		},
+		"Mode": {
+		    "Replicated": {
+			"Replicas": 1
+		    }
+		},
+		"UpdateConfig": {
+		    "Parallelism": 1,
+		    "Order": "start-first"
+		},
+		"EndpointSpec": {
+		    "ExposedPorts": [{
+			"Protocol": "tcp",
+			"Port": 6379
+		    }]
+		}
+	    };
+	    await service.update(specification);
+	    logger.info(`Swarm service '${component.name}' updated!`);
+			    
+	} catch (error) {
+	    const message = `Unable to update Swarm service ${component.name}.`;
+	    utils.chainError(message, error);
+	    
+	}
 
-				});
-
-		});
-	};
-
-
-	/*
-	 * Update an existing service, from the given component.
-	 *
-	 * Blue/Green deployments are implemented using the parameter
-	 * UpdateConfig order: start-first", which forces Docker swarm to provision first new
-	 * containers before it take down the older ones.
-	 *
-	 * See Docker endpoint documentation at:
-	 *   https://docs.docker.com/engine/api/v1.37/#operation/ServiceUpdate
-	 */
-	that.updateSwarmService = function (host, component) {
-		return new Promise(async function (resolve, reject) {
-			that.docker = new Docker({
-				host: host.ip,
-				port: host.port
-			});
-			that.docker
-				.ping()
-				.then(function (data) {
-					logger.info(`Docker host is reachable at ${host.ip}`);
-					logger.info(`Updating Swarm service ${component.name} ` +
-						`with ID ${component.id}!`);
-					const service = that.docker.getService(component.name);
-					const inspected = service
-						.inspect()
-						.then(data => {
-							logger.info(JSON.stringify(data));
-							const version = parseInt(data.Version.Index);
-							logger.info(`Version = ${version}`);
-							var specification = {
-								"Name": component.name,
-								"version": version, // The key must be lowercase!
-								"TaskTemplate": {
-									"ContainerSpec": {
-										"Image": component.docker_resource.image
-									},
-									"Resources": {
-										"Limits": {},
-										"Reservations": {}
-									},
-									"RestartPolicy": {},
-									"Placement": {}
-								},
-								"Mode": {
-									"Replicated": {
-										"Replicas": 1
-									}
-								},
-								"UpdateConfig": {
-									"Parallelism": 1,
-									"Order": "start-first"
-								},
-								"EndpointSpec": {
-									"ExposedPorts": [{
-										"Protocol": "tcp",
-										"Port": 6379
-									}]
-								}
-							};
-							service.update(
-								specification,
-								(error, response) => {
-									if (error !== null) {
-										logger.error(error);
-										reject(error);
-									}
-
-									logger.info(JSON.stringify(response));
-									logger.info(`Swarm service '${component.name}' updated!`);
-									resolve(response.id, component.name);
-								});
-						}).catch(error => {
-							logger.error(error.message);
-							reject(error);
-						});
-				}).catch(error => {
-					logger.error(error.message);
-					reject(error);
-
-				});
-		});
-
-	};
-
-
-	return that;
+    }
+    
+    return that;
 };
 
 
