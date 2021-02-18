@@ -1,7 +1,9 @@
 var Docker = require('dockerode');
 var bus = require('../event-bus.js');
+var lodash = require('lodash');
 var logger = require('../logger.js');
 var utils = require("../../util.js");
+
 
 var docker_connector = function () {
 	var that = {};
@@ -440,8 +442,12 @@ var docker_connector = function () {
      */
     that.initializeDockerSwarm = async function (host) {
 	try {
+	    console.log(JSON.stringify(host));
 	    await that.resetDockerHost(host);
-	    await that.swarmInit({ ForceNewCluster: false });
+	    await that.docker.swarmInit({
+		ListenAddr: "0.0.0.0:4567",
+		ForceNewCluster: false
+	    });
 	    logger.info(`Docker swarm initialized on host ${host.ip}`);
 
 	} catch (error) {
@@ -463,19 +469,31 @@ var docker_connector = function () {
      * See the documentation available at:
      *      https://docs.docker.com/engine/api/v1.37/#operation/ServiceCreate
      */
-    that.startSwarmService = async function (host, component) {
+    that.startSwarmService = async function (host, component, serviceSpecs) {
+	const DEFAULT_SPECS = {
+	    "Name": component.name,
+	    "TaskTemplate": {
+		"ContainerSpec": {
+		    "Image": component.docker_resource.image
+		}
+	    },
+	    "EndpointSpec": {
+		"Ports": [
+		    {
+			"Protocol": "tcp",
+			"PublishedPort": 5000,
+			"TargetPort": 5000
+		    }
+		]
+	    }
+	};
+
+	serviceSpecs = lodash.assign({}, DEFAULT_SPECS, serviceSpecs);
+	
 	try {
 	    await that.resetDockerHost(host);
-	    const response = await that.docker
-		  .createService({ "Name": component.name,
-				   "TaskTemplate": {
-				       "ContainerSpec": {
-					   "Image": component.docker_resource.image
-				       }
-				   }
-				 });
-	    const identifier = response.id;
-	    logger.info(`Swarm service '${component.name}' started with ID '${identifier}'.`);
+	    const response = await that.docker.createService(serviceSpecs);
+	    logger.info(`Swarm service '${component.name}' started with ID '${response.id}'.`);
 	    
 
 	} catch (error) {
@@ -497,13 +515,13 @@ var docker_connector = function () {
      * See Docker endpoint documentation at:
      *   https://docs.docker.com/engine/api/v1.37/#operation/ServiceUpdate
      */
-    that.updateSwarmService = async function (host, component) {
+    that.updateSwarmService = async function (host, component, specifications) {
 	try {
 	    await that.resetDockerHost(host);
 	    const service = that.docker.getService(component.name);
 	    const inspected = await service.inspect();
 	    const version = parseInt(inspected.Version.Index);
-	    const specification = {
+	    const DEFAULT_SPECS = {
 		"Name": component.name,
 		"version": version, // This key must be lowercase!
 		"TaskTemplate": {
@@ -519,21 +537,19 @@ var docker_connector = function () {
 		},
 		"Mode": {
 		    "Replicated": {
-			"Replicas": 1
+			"Replicas": component.availability.replicaCount
 		    }
 		},
 		"UpdateConfig": {
 		    "Parallelism": 1,
-		    "Order": "start-first"
+		    "Order": component.availability.zeroDownTime ? "start-first" : "stop-first",
 		},
 		"EndpointSpec": {
-		    "ExposedPorts": [{
-			"Protocol": "tcp",
-			"Port": 6379
-		    }]
+		    "ExposedPorts": []
 		}
 	    };
-	    await service.update(specification);
+	    specifications = lodash.assign({}, DEFAULT_SPECS, specifications);
+	    await service.update(specifications);
 	    logger.info(`Swarm service '${component.name}' updated!`);
 			    
 	} catch (error) {

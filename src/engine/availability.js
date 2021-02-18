@@ -670,8 +670,8 @@ class BuiltinAgent extends AvailabilityAgent {
 
 class DockerSwarmAgent extends AvailabilityAgent {
 
-    constructor (givenComponent) {
-	super(givenComponent);
+    constructor (givenComponent, givenHost) {
+	super(givenComponent, givenHost);
     }
 
     canHandle(givenComponent) {
@@ -679,11 +679,55 @@ class DockerSwarmAgent extends AvailabilityAgent {
     }
 
     async installFromScratch() {
-	await this._docker.initializeDockerSwarm(this._host); // Idempotent
-	await this._docker.startSwarmService(this._host, this._component);
+	try {
+	    await this._docker.initializeDockerSwarm(this._host); // Idempotent
+	    const exposedPort = this._component.availability.exposedPort;
+	    await this._docker.startSwarmService(
+		this._host,
+		this._component,
+		{
+		    "Name": this._component.name,
+		    "TaskTemplate": {
+			"ContainerSpec": {
+			    "Image": this._component.docker_resource.image
+			}
+		    },
+		    "Mode": {
+			"Replicated": {
+			    "Replicas": this._component.availability.replicaCount,
+			}
+		    },
+		    "UpdateConfig": {
+			"Parallelism": 1,
+			"Order": this._getSwarmUpdateOrder(),
+		    },
+		    "EndpointSpec": {
+			"Ports": [
+			    {
+				"Protocol": "tcp",
+				"PublishedPort": exposedPort,
+				"TargetPort": exposedPort
+			    }
+			]
+		    }
+		}
+	    );
+	} catch (error) {
+	    const message = `Unable to create a Swarm service for Component ${this._component.name}`;
+	    utils.chainError(message, error);
+
+	}
+    }
+
+    _getSwarmUpdateOrder () {
+	if (this._component.availability.zeroDownTime) {
+	    return "start-first";
+	}
+	return  "stop-first";
     }
 
     async _updateReplicaCount(newCount) {
+	this.forceComponentUpdate = true;
 	this._component.availability.replicaCount = newCount;
     }
 
@@ -693,11 +737,47 @@ class DockerSwarmAgent extends AvailabilityAgent {
     }
 
     async _updateZeroDownTime(newValue) {
-	this._info(`Updating the zeroDownTime to ${newValue}`);
+	this._component.availability.zeroDownTime = newValue;
     }
 
     async _updateComponent(givenComponent) {
-	return await this._docker.updateSwarmService(this._host, this._component);
+	const exposedPort = givenComponent.availability.exposedPort;
+	const specifications = {
+	    "Name": givenComponent.name,
+	    "TaskTemplate": {
+		"ContainerSpec": {
+		    "Image": givenComponent.docker_resource.image
+		}
+	    },
+	    "Mode": {
+		"Replicated": {
+		    "Replicas": givenComponent.availability.replicaCount,
+		}
+	    },
+	    "UpdateConfig": {
+		"Parallelism": 1,
+		"Order": this._getSwarmUpdateOrder(),
+	    },
+	    "EndpointSpec": {
+		"Ports": [
+		    {
+			"Protocol": "tcp",
+			"Port": exposedPort
+		    }
+		]
+	    }
+	};
+
+	try {
+	    return await this._docker.updateSwarmService(this._host,
+							 this._component,
+							 specifications);
+
+	} catch (error) {
+	    const message = `Unable to update Swarm service for component ${this._component.name}`;
+	    utils.chainError(message, error);
+
+	}
     }
 
     async uninstall(givenComponent) {
