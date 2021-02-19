@@ -532,23 +532,22 @@ var engine = (function () {
 	});
     };
     
-    //<<<<<<< ours
     
     that.deploy_docker = async function (component, host) {
 	if (component.docker_resource.image !== "") {
 	    
 	    if (component.hasAvailabilityPolicy()) {
-		that.availabilityManager.handle(component, host);
+		return that.availabilityManager.handle(component, host);
 		
 	    } else {
-		var connector = dc();
+		var connector = dc(); 
 		
 		if (component.docker_resource.extra_options !== undefined
 		    && component.docker_resource.extra_options !== "") {
 		    connector.add_extra_options_all(compo.docker_resource.extra_options);
 		}
 		
-		var id = await connector.buildAndDeploy(
+		const id = await connector.buildAndDeploy(
 		    host.ip,
 		    host.port,
 		    component.docker_resource.port_bindings,
@@ -560,6 +559,7 @@ var engine = (function () {
 		    component.name,
 		    host.name,
 		    component.docker_resource.environment);
+		return id;
 	    }
 	}
     };
@@ -602,8 +602,9 @@ var engine = (function () {
 			    
 			} else {
 			    // Manage simple docker
+			    var id = "unknown";
 			    if (compo.docker_resource.image !== "") {
-				that.deploy_docker(compo, host);
+				id = that.deploy_docker(compo, host);
 				
 			    }
 			    bus.emit('node-started', id, compo.name);
