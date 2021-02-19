@@ -546,8 +546,6 @@ var engine = (function () {
     that.deploy_docker = async function (component, host) {
 	if (component.docker_resource.image !== "") {
 
-	    logger.info(`Component ${component.name} has Av. Policy: ` + component.hasAvailabilityPolicy());
-	    logger.info(JSON.stringify(component.availability));
 	    if (component.hasAvailabilityPolicy()) {
 		that.availabilityManager.handle(component, host);
 
@@ -569,7 +567,6 @@ var engine = (function () {
 	}
 	bus.emit('node-started', id, component.name);
     }
-
 
 
     /*
