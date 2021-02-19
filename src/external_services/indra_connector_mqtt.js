@@ -19,8 +19,8 @@ var options = {
     protocolId: 'MQTT',
     protocolVersion: 4,
     clientId: 'genesis',
-    username: 'nicolas',
-    password: 'ENACT9012'
+    username: 'xx',
+    password: 'xx'
 };
 
 

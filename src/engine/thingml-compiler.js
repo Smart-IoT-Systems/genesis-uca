@@ -4,6 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var AdmZip = require('adm-zip');
 var logger = require('./logger.js');
+var rimraf = require("rimraf");
 
 var thingml_compiler = function (node) {
     var that = {};
@@ -18,7 +19,7 @@ var thingml_compiler = function (node) {
             return;
         }
 
-        var files = fs.readdirSync(dirpath);
+        /*var files = fs.readdirSync(dirpath);
         if (files) {
             files.forEach(function (file) {
                 var filepath = path.resolve(dirpath, file);
@@ -29,7 +30,9 @@ var thingml_compiler = function (node) {
                     fs.unlinkSync(filepath);
                 }
             });
-        }
+        }*/
+
+        rimraf.sync(dirpath);
     };
 
     that.unzipSources = function (source, callback) {
