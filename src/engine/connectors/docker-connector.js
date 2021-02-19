@@ -495,7 +495,6 @@ var docker_connector = function () {
 	    const response = await that.docker.createService(serviceSpecs);
 	    logger.info(`Swarm service '${component.name}' started with ID '${response.id}'.`);
 	    
-
 	} catch (error) {
 	    const message = `Could not start Swarm service '${component.name}`;
 	    utils.chainError(message, error);
@@ -519,8 +518,8 @@ var docker_connector = function () {
 	try {
 	    await that.resetDockerHost(host);
 	    const service = that.docker.getService(component.name);
-	    const inspected = await service.inspect();
-	    const version = parseInt(inspected.Version.Index);
+	    const serviceInfo = await service.inspect();
+	    const version = parseInt(serviceInfo.Version.Index);
 	    const DEFAULT_SPECS = {
 		"Name": component.name,
 		"version": version, // This key must be lowercase!
@@ -558,6 +557,25 @@ var docker_connector = function () {
 	    
 	}
 
+    }
+
+
+    /*
+     * Remove the docker Swarm service associated to the given
+     * component.
+     */
+    that.removeService = async function(host, component) {
+	try {
+	    await that.resetDockerHost(host);
+	    const service = that.docker.getService(component.name);
+	    await service.remove();
+	    logger.info(`Service '${component.name}' removed.`);
+
+	} catch (error) {
+	    const message = `Unable to remove service ${component.name}`;
+	    utils.chainError(message, error);
+
+	}
     }
     
     return that;

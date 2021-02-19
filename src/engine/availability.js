@@ -106,6 +106,43 @@ class AvailabilityAgent {
 	this._forceComponentUpdate = false;
     }
 
+
+    /*  
+     * Ensure that Docker is available on the given host. Install
+     * Docker otherwise.
+     *
+     * Needed for both the Builtin and DockerSwarm Agent
+     */
+    async ensureDockerIsAvailable () {
+	const hostIsReady = await this._docker.isReady(this._host);
+	if (!hostIsReady) {
+	    await this._installDockerInRemoteMode();
+	}
+    }
+    
+
+    async _installDockerInRemoteMode() {
+	const ssh = sshConnection(this._host.ip,
+				  this._host.port,
+				  this._component.ssh_resource.credentials.username,
+				  this._component.ssh_resource.credentials.password,
+				  this._component.ssh_resource.credentials.sshkey,
+				  this._component.ssh_resource.credentials.agent);
+	try {
+	    const DOCKER_INSTALLATION_SCRIPT = "install_docker_in_remote_mode.sh";
+	    await ssh.upload_file(DOCKER_INSTALLATION_SCRIPT,
+				  DOCKER_INSTALLATION_SCRIPT);
+	    await ssh.execute_command(`source ${DOCKER_INSTALLATION_SCRIPT}`);
+	    this._host.port = "2376";
+	    this._info(`Remote Docker installed on host ${this._host.ip}.`);
+	    
+	} catch (error) {
+	    utils.chainError("Unable to install Docker in remote mode.", error);
+	    
+	}
+    }
+
+    
     /*
      * Update the components according to both the new availability
      * policy and the new component configuration.
@@ -236,7 +273,7 @@ class BuiltinAgent extends AvailabilityAgent {
 	super(givenComponent, givenHost);
 
 	// Hold the runtime information about the builtin mechanisms
-	// that are deployed
+	// that are deployed. Lost if GeneSIS shutdowns
 	this._runtime = {
 	    networkID: null,
 	    lastReplicaID: 0,
@@ -253,39 +290,10 @@ class BuiltinAgent extends AvailabilityAgent {
 
 
     async installFromScratch() {
-	await this.ensureHostIsReady();
+	await this.ensureDockerIsAvailable();
 	await this._deploy();
     }
-
-
-    async ensureHostIsReady () {
-	const hostIsReady = await this._docker.isReady(this._host);
-	if (!hostIsReady) {
-	    await this._installDockerInRemoteMode();
-	}
-    }
-    
-    
-    async _installDockerInRemoteMode() {
-	const ssh = sshConnection(this._host.ip,
-				  this._host.port,
-				  this._component.ssh_resource.credentials.username,
-				  this._component.ssh_resource.credentials.password,
-				  this._component.ssh_resource.credentials.sshkey,
-				  this._component.ssh_resource.credentials.agent);
-	try {
-	    const DOCKER_INSTALLATION_SCRIPT = "install_docker_in_remote_mode.sh";
-	    await ssh.upload_file(DOCKER_INSTALLATION_SCRIPT,
-				  DOCKER_INSTALLATION_SCRIPT);
-	    await ssh.execute_command(`source ${DOCKER_INSTALLATION_SCRIPT}`);
-	    this._host.port = "2376";
-	    this._info(`Remote Docker installed on host ${this._host.ip}.`);
-	    
-	} catch (error) {
-	    utils.chainError("Unable to install Docker in remote mode.", error);
-	    
-	}
-    }
+        
 
     async _deploy() {
 	try {
@@ -389,7 +397,6 @@ class BuiltinAgent extends AvailabilityAgent {
 
 	}
     }
-
 
     async _configureRemoteDockerAPI() {
 	try {
@@ -569,8 +576,6 @@ class BuiltinAgent extends AvailabilityAgent {
 	    	
     }
 
-
-
     
     _markAllReplicasForTermination() {
 	this._runtime.replicasToStop = [];
@@ -662,7 +667,6 @@ class BuiltinAgent extends AvailabilityAgent {
 	}
 
     }
-
         
 }
 
@@ -679,6 +683,7 @@ class DockerSwarmAgent extends AvailabilityAgent {
     }
 
     async installFromScratch() {
+	this.ensureDockerIsAvailable();
 	try {
 	    await this._docker.initializeDockerSwarm(this._host); // Idempotent
 	    const exposedPort = this._component.availability.exposedPort;
@@ -781,7 +786,14 @@ class DockerSwarmAgent extends AvailabilityAgent {
     }
 
     async uninstall(givenComponent) {
-	this._error("Uninstallation is not yet supported!");
+	try {
+	    await this._docker.removeService(givenComponent);
+
+	} catch (error) {
+	    const message = `Unable to uninstall component '${givenComponent.name}'`;
+	    utils.chainError(message, error);
+	    
+	}
     }
 
 }
@@ -807,7 +819,7 @@ class SSHAdapter extends AvailabilityAgent {
 
     
     async installFromScratch() {
-	await this._delegate.ensureHostIsReady();
+	await this._delegate.ensureDockerIsAvailable();
 	await this._createDockerImageFromSSHResources();	
 	await this._delegate.installFromScratch();
     }
