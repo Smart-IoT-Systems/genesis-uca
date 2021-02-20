@@ -165,7 +165,7 @@ can connect to our host and check that a Swarm service has been
 provisioned and that two containers (the replicas) are indeed up and
 running.
 
-```console
+```shell-session
 root@debian:~# docker service ls
 ID             NAME          MODE         REPLICAS   IMAGE                    PORTS
 whcmxi7trg6i   a_component   replicated   2/2        fchauvel/test-app:v1.0   *:5000->5000/tcp
@@ -181,7 +181,7 @@ then see whether the service status does change. When we list again
 the container, we can see that a new container has been provisioned
 (with ID 1a08b2b4f5a0).
 
-```console
+```shell-session
 root@debian:~# docker stop b99c32
 b99c32
 root@debian:~# docker service ls
@@ -251,7 +251,7 @@ accessible through SSH.
 Initially, our host is only available through SSH, and Docker is not
 available there as we shown below.
 
-```shell
+```shell-session
 $ ssh root@192.168.1.162
 root@192.168.1.162's password:
 Linux debian 4.19.0-12-amd64 #1 SMP Debian 4.19.152-1 (2020-10-18) x86_64
@@ -276,8 +276,8 @@ create a new container, connects to this container and execute all the
 command specified in the SSH resource. GeneSIS then saved this
 container as a new Docker image.
 
-```
-ssh root@192.168.1.162
+```shell-session
+$ ssh root@192.168.1.162
 root@192.168.1.162's password:
 root@debian:~# docker images
 REPOSITORY              TAG       IMAGE ID       CREATED         SIZE
@@ -297,7 +297,7 @@ If we now look at the containers running on our host, we see three: two
 replicas (instances of the `a_component-livebuilt` image) and the
 proxy, instance of the `fchauvel/enact-proxy` image);
 
-```console
+```shell-session
 root@debian:~# docker ps -a
 CONTAINER ID   IMAGE                          COMMAND                  CREATED              STATUS          PORTS                            NAMES
 ffbbc8bfb493   fchauvel/enact-nginx:latest    "/docker-entrypoint.…"   45 seconds ago       Up 44 seconds   80/tcp, 0.0.0.0:5000->5000/tcp   a_component-proxy
@@ -340,8 +340,8 @@ Once GeneSIS has deployed our application, we can login on the host
 using SSH and check that 3 Docker containers are now running: Two
 replicas of our service and the NGinx proxy.
 
-```console
-ssh root@192.168.1.162
+```shell-session
+$ ssh root@192.168.1.162
 root@192.168.1.162's password:
 root@debian:~# docker ps -a
 CONTAINER ID   IMAGE                          COMMAND                  CREATED              STATUS              PORTS                            NAMES
@@ -351,13 +351,16 @@ b41891e8e973   fchauvel/enact-nginx:latest    "/docker-entrypoint.…"   About a
 ```
 
 Now, let's modify our deployment model, say for instance to increase
-the number of replica from 2 to 4. When we redeploy our application, we
-can see that GeneSIS first provisions the 4 new replica instance before to
-terminate the existing one. As we show below, there are now 7
-containers running on our host: the NGinx proxy, 2 old containers and
-4 new containers.
+the number of replica from 2 to 4. When we redeploy our application,
+we can see that GeneSIS first provisions the 4 new replica instance
+before to terminate the existing one. As we show below, there are now
+7 containers running on our host: the NGinx proxy, 2 old containers
+and 4 new containers. Note that the two old replicas are not anymore
+linked to the image `a_component-livebuilt:latest`, because a new
+image has been created and marked as latest, the one linked to the new
+replicas.
 
-```
+```shell-session
 root@debian:~# docker ps -a
 CONTAINER ID   IMAGE                          COMMAND                  CREATED          STATUS         PORTS                            NAMES
 cf558cfbe26d   a_component-livebuilt:latest   "/bin/bash -c 'cd te…"   8 seconds ago    Up 7 seconds                                    a_component-6
@@ -365,15 +368,15 @@ cf558cfbe26d   a_component-livebuilt:latest   "/bin/bash -c 'cd te…"   8 secon
 f0fc795a0c03   a_component-livebuilt:latest   "/bin/bash -c 'cd te…"   9 seconds ago    Up 8 seconds                                    a_component-4
 5f121c4689c2   a_component-livebuilt:latest   "/bin/bash -c 'cd te…"   10 seconds ago   Up 9 seconds                                    a_component-3
 b41891e8e973   fchauvel/enact-nginx:latest    "/docker-entrypoint.…"   2 minutes ago    Up 2 minutes   80/tcp, 0.0.0.0:5000->5000/tcp   a_component-proxy
-1041c31c215b   a_component-livebuilt:latest   "/bin/bash -c 'cd te…"   2 minutes ago    Up 2 minutes                                    a_component-2
-43f590859a50   a_component-livebuilt:latest   "/bin/bash -c 'cd te…"   2 minutes ago    Up 2 minutes                                    a_component-1
+1041c31c215b   699693af5831                   "/bin/bash -c 'cd te…"   2 minutes ago    Up 2 minutes                                    a_component-2
+43f590859a50   699693af5831                   "/bin/bash -c 'cd te…"   2 minutes ago    Up 2 minutes                                    a_component-1
 ```
 
 If we wait a few more seconds, we see that GeneSIS eventually stops
 and removes these older containers, and there only remains the NGinx
 proxy and its four service replicas (numbered 3, 4, 5, and 6).
 
-```console
+```shell-session
 root@debian:~# docker ps -a
 CONTAINER ID   IMAGE                          COMMAND                  CREATED          STATUS          PORTS                            NAMES
 cf558cfbe26d   a_component-livebuilt:latest   "/bin/bash -c 'cd te…"   33 seconds ago   Up 32 seconds                                    a_component-6
@@ -414,7 +417,7 @@ are still up and running. As you can see below, each watchdog (one per
 replica) creates a log file `watchdog_a_component-X.log`, where we can
 see the result of the health checks.
 
-```shell
+```shell-session
 root@debian:~# docker exec -it a_component-proxy /bin/bash
 root@ffbbc8bfb493:/enact# ls -l
 ls -l
@@ -446,7 +449,7 @@ let's stop one of the replica container, say `a_component-1`. Once we
 issue he command `docker stop a_component-1`, we see that the
 container is indeed marked as 'Exited'.
 
-```shell
+```shell-session
 $ ssh root@192.168.1.162
 root@192.168.1.162's password:
 root@debian:~# docker ps -a
@@ -470,7 +473,7 @@ which we are connected to the NGinx proxy, we can see in the log
 file that the watchdog has detected the failure, remove the failed
 container and provisioned a replacement.
 
-```shell
+```shell-session
 root@ffbbc8bfb493:/enact# cat watchdog_a_component-1.log
 cat watchdog_a_component-1.log
 Fri Feb 19 20:36:01 UTC 2021 INFO: Heath check for 'a_component-1:5000' returned '0'
@@ -503,7 +506,7 @@ root@ffbbc8bfb493:/enact#
 Finally, on our second SSH connection to our host, we can check that
 indeed, three containers are still up and running.
 
-```shell
+```shell-session
 root@debian:~# docker ps -a
 CONTAINER ID   IMAGE                          COMMAND                  CREATED          STATUS          PORTS                            NAMES
 73684efd1b7f   a_component-livebuilt:latest   "/bin/bash -c 'cd te…"   16 seconds ago   Up 15 seconds                                    a_component-1
