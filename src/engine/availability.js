@@ -38,7 +38,10 @@ class AvailabilityManager {
                 await agent.update(givenComponent);
 
             } else {
-                logger.info(`Availability strategy for '${givenComponent.name}' changed to ${givenComponent.availability.strategy}`);
+                logger.info(
+                    `Availability strategy for '${givenComponent.name}'` +
+                    `changed to ${givenComponent.availability.strategy}`
+                );
                 await agent.uninstall();
                 const newAgent = this._selectAgentFor(givenComponent, givenHost);
                 await newAgent.installFromScratch();
@@ -73,7 +76,9 @@ class AvailabilityManager {
             agent = new BuiltinAgent(givenComponent, givenHost);
 
         } else {
-            throw new Error(`Unknown availability policy '${givenComponent.availability}'`);
+            const message =
+                  `Unknown availability policy ${givenComponent.availability}'`;
+            throw new Error(message);
 
         }
 
@@ -82,14 +87,17 @@ class AvailabilityManager {
                 agent = new SSHAdapter(agent);
 
             } else  {
-                const message = `Availability requires either Docker or SSH resources`;
+                const message =
+                      `Availability requires either Docker or SSH resources`;
                 throw new Error(message);
 
             }
         }
 
         this._agents.set(givenComponent.name, agent);
-        logger.info(`Availability mechanisms activated for ${givenComponent.name}`)
+        logger.info(
+            `Availability mechanisms activated for ${givenComponent.name}`
+        );
         return agent;
     }
 
@@ -106,6 +114,19 @@ class AvailabilityAgent {
         this._forceComponentUpdate = false;
     }
 
+    // Overloaded by subclasses
+    get component () {
+        return this._component;
+    }
+
+    // Overridden by subclasses
+    get host () {
+        return this._host;
+    }
+
+    get docker () {
+        return this._docker;
+    }
 
     /*
      * Ensure that Docker is available on the given host. Install
@@ -114,7 +135,7 @@ class AvailabilityAgent {
      * Needed for both the Builtin and DockerSwarm Agent
      */
     async ensureDockerIsAvailable () {
-        const hostIsReady = await this._docker.isReady(this._host);
+        const hostIsReady = await this.docker.isReady(this.host);
         if (!hostIsReady) {
             await this._installDockerInRemoteMode();
         }
@@ -122,19 +143,19 @@ class AvailabilityAgent {
 
 
     async _installDockerInRemoteMode() {
-        const ssh = sshConnection(this._host.ip,
-                                  this._host.port,
-                                  this._component.ssh_resource.credentials.username,
-                                  this._component.ssh_resource.credentials.password,
-                                  this._component.ssh_resource.credentials.sshkey,
-                                  this._component.ssh_resource.credentials.agent);
+        const ssh = sshConnection(this.host.ip,
+                                  this.host.port,
+                                  this.component.ssh_resource.credentials.username,
+                                  this.component.ssh_resource.credentials.password,
+                                  this.component.ssh_resource.credentials.sshkey,
+                                  this.component.ssh_resource.credentials.agent);
         try {
             const DOCKER_INSTALLATION_SCRIPT = "install_docker_in_remote_mode.sh";
             await ssh.upload_file(DOCKER_INSTALLATION_SCRIPT,
                                   DOCKER_INSTALLATION_SCRIPT);
             await ssh.execute_command(`source ${DOCKER_INSTALLATION_SCRIPT}`);
-            this._host.port = "2376";
-            this._info(`Remote Docker installed on host ${this._host.ip}.`);
+            this.host.port = "2376";
+            this._info(`Remote Docker installed on host ${this.host.ip}.`);
 
         } catch (error) {
             utils.chainError("Unable to install Docker in remote mode.", error);
@@ -157,14 +178,13 @@ class AvailabilityAgent {
         this._updateAvailabilityPolicy(newConfiguration);
         this._updateConfiguration(newConfiguration);
     }
-  
+
 
     async _updateAvailabilityPolicy(givenComponent) {
-        const changes = this._comparePolicies(this._component.availability,
+        const changes = this._comparePolicies(this.component.availability,
                                               givenComponent.availability);
         for(const anyChange of changes) {
             switch (anyChange.property) {
-
             case "strategy":
                 //  Ignored. This is already handled in the method
                 //  AvailabilityManager::handle(component)
@@ -214,9 +234,9 @@ class AvailabilityAgent {
 
 
     async _updateConfiguration(givenComponent) {
-        const changes = this._compareConfigurations(this._component, givenComponent);
+        const changes = this._compareConfigurations(this.component, givenComponent);
         if (this.forceComponentUpdate || changes.length > 0) {
-            this._info(`Some changes requires a redeployment of the ${this._component.name}`);
+            this._info(`Some changes requires a redeployment of the ${this.component.name}`);
             await this._updateComponent(givenComponent);
         }
     }
@@ -298,7 +318,7 @@ class BuiltinAgent extends AvailabilityAgent {
     async _deploy() {
         try {
             await this._setupDockerNetwork();
-            await this._createManyReplicas(this._component.availability.replicaCount);
+            await this._createManyReplicas(this.component.availability.replicaCount);
             await this._deployBuiltinProxy();
             await this._reconfigureProxy();
             this._info("Builtin deployment complete!");
@@ -312,12 +332,12 @@ class BuiltinAgent extends AvailabilityAgent {
 
 
     async _setupDockerNetwork () {
-        this._runtime.networkID = `GeneSIS-${this._component.name}`;
+        this._runtime.networkID = `GeneSIS-${this.component.name}`;
         try{
             const networkSpecs = {
                 Name: this._runtime.networkID
             };
-            await this._docker.createNetwork(this._host, networkSpecs);
+            await this.docker.createNetwork(this.host, networkSpecs);
             this._info(`Network ${this._runtime.networkID} created!`);
 
         } catch (error) {
@@ -335,7 +355,7 @@ class BuiltinAgent extends AvailabilityAgent {
             }
 
         } catch (error) {
-            utils.chainError(`Unable to replicate '${this._component.name}'.`, error);
+            utils.chainError(`Unable to replicate '${this.component.name}'.`, error);
 
         }
     }
@@ -343,31 +363,31 @@ class BuiltinAgent extends AvailabilityAgent {
 
     _generateReplicaName() {
         this._runtime.lastReplicaID++;
-        return `${this._component.name}-${this._runtime.lastReplicaID}`;
+        return `${this.component.name}-${this._runtime.lastReplicaID}`;
     }
 
 
     async _createOneReplica(replicaName) {
         const containerSpecs = {
-            "Image": this._component.docker_resource.image,
+            "Image": this.component.docker_resource.image,
             "name": replicaName, // /!\ Must be capitalized 'name'
-            "Cmd": [ "/bin/bash", "-c",  this._component.ssh_resource.startCommand ]
+            "Cmd": [ "/bin/bash", "-c",  this.component.ssh_resource.startCommand ]
         };
-        await this._docker.createContainer(this._host, containerSpecs, true);
-        await this._docker.connectContainerToNetwork(this._host,
+        await this.docker.createContainer(this.host, containerSpecs, true);
+        await this.docker.connectContainerToNetwork(this.host,
                                                      this._runtime.networkID,
                                                      replicaName);
         this._runtime.activeReplicas.push(replicaName);
-        this._info(`${replicaName} of ${this._component.name} created!`);
+        this._info(`${replicaName} of ${this.component.name} created!`);
     }
 
 
     async _deployBuiltinProxy() {
         try {
-            const exposedPort = this._component.availability.exposedPort;
+            const exposedPort = this.component.availability.exposedPort;
             const proxySpecs = {
                 Image: "fchauvel/enact-nginx:latest",
-                name: `${this._component.name}-proxy`,
+                name: `${this.component.name}-proxy`,
                 Cmd: ["/bin/bash", "-c", "nginx -g 'daemon off;'"],
                 Tty: false,
                 AttachStdin: false,
@@ -382,8 +402,8 @@ class BuiltinAgent extends AvailabilityAgent {
                     [`${exposedPort}/tcp`]: {}
                 },
             };
-            await this._docker.createContainer(this._host, proxySpecs, true);
-            await this._docker.connectContainerToNetwork(this._host,
+            await this.docker.createContainer(this.host, proxySpecs, true);
+            await this.docker.connectContainerToNetwork(this.host,
                                                          this._runtime.networkID,
                                                          proxySpecs.name);
             this._runtime.proxyID = proxySpecs.name;
@@ -400,16 +420,16 @@ class BuiltinAgent extends AvailabilityAgent {
 
     async _configureRemoteDockerAPI() {
         try {
-            const dockerAPI = `${this._host.ip}:${this._host.port}`;
-            const imageName = this._component.docker_resource.image;
-            const command = this._component.docker_resource.cmd;
+            const dockerAPI = `${this.host.ip}:${this.host.port}`;
+            const imageName = this.component.docker_resource.image;
+            const command = this.component.docker_resource.cmd;
             const networkID = this._runtime.networkID;
             const commandSpecs = {
                 Cmd:  ["/bin/bash",
                        "-c",
                        `bash ./endpoints.sh configure-docker ${dockerAPI} ${imageName} '${command}' ${networkID} `],
             }
-            await this._docker.executeCommand(this._host, this._runtime.proxyID, commandSpecs);
+            await this.docker.executeCommand(this.host, this._runtime.proxyID, commandSpecs);
             this._info(`Remote Docker API set on the proxy`);
 
         } catch (error) {
@@ -422,7 +442,7 @@ class BuiltinAgent extends AvailabilityAgent {
 
     async _reconfigureProxy() {
         try {
-            await this._uploadHealthcheckScript(this._component.availability.healthCheck);
+            await this._uploadHealthcheckScript(this.component.availability.healthCheck);
             await this._registerAllReplicas();
             await this._restartProxy();
             this._info("Proxy configured!");
@@ -437,7 +457,7 @@ class BuiltinAgent extends AvailabilityAgent {
     async _uploadHealthcheckScript(script) {
         try {
             const archive = await this._archiveScript(script);
-            await this._docker.uploadArchive(this._host,
+            await this.docker.uploadArchive(this.host,
                                              this._runtime.proxyID, archive, "/enact");
             this._info("Heatlh check script uploaded");
 
@@ -495,7 +515,7 @@ class BuiltinAgent extends AvailabilityAgent {
                         `bash ./endpoints.sh register ${this._urlOf(eachEndpoint)}`
                     ],
                 }
-                await this._docker.executeCommand(this._host,
+                await this.docker.executeCommand(this.host,
                                                   this._runtime.proxyID,
                                                   commandSpecs);
                 this._info(`Endpoint ${eachEndpoint} registered to the proxy!`);
@@ -512,20 +532,20 @@ class BuiltinAgent extends AvailabilityAgent {
     _urlOf(endpoint) {
         // /!\ NGinx 1.19.6 (at least) throws "Invalid host in
         // upstream" if the endpoint URL starts with 'http://'
-        return `${endpoint}:${this._component.availability.exposedPort}`;
+        return `${endpoint}:${this.component.availability.exposedPort}`;
     }
 
 
     async _restartProxy() {
         const activeEndpoint = this._runtime.activeReplicas[0];
-        const exposedPort = this._component.availability.exposedPort;
+        const exposedPort = this.component.availability.exposedPort;
         try {
             const commandSpecs = {
                 Cmd:  ["/bin/bash",
                        "-c",
                        `bash ./endpoints.sh initialize ${exposedPort} ${this._urlOf(activeEndpoint)}`],
             }
-            await this._docker.executeCommand(this._host, this._runtime.proxyID, commandSpecs);
+            await this.docker.executeCommand(this.host, this._runtime.proxyID, commandSpecs);
             this._info(`Endpoint ${activeEndpoint} activated!`);
 
         } catch (error) {
@@ -537,7 +557,7 @@ class BuiltinAgent extends AvailabilityAgent {
 
 
     async _updateReplicaCount(newCount) {
-        this._component.availability.replicaCount = newCount;
+        this.component.availability.replicaCount = newCount;
         this._forceComponentUpdate = true;
     }
 
@@ -548,12 +568,12 @@ class BuiltinAgent extends AvailabilityAgent {
 
 
     async _updateZeroDownTime(newValue) {
-        this._component.availability.zeroDownTime = newValue;
+        this.component.availability.zeroDownTime = newValue;
     }
 
 
     async _updateComponent(givenComponent) {
-        const policy = this._component.availability;
+        const policy = this.component.availability;
         try {
             if (policy.zeroDownTime) {
                 this._markAllReplicasForTermination();
@@ -567,10 +587,10 @@ class BuiltinAgent extends AvailabilityAgent {
                 await this._restartProxy();
 
             }
-            this._info(`All ${this._component.name} replica(s) updated!`);
+            this._info(`All ${this.component.name} replica(s) updated!`);
 
         } catch (error) {
-            utils.chainError(`Unable to update all '${this._component.name}' replicas `, error);
+            utils.chainError(`Unable to update all '${this.component.name}' replicas `, error);
 
         }
     }
@@ -591,11 +611,11 @@ class BuiltinAgent extends AvailabilityAgent {
                 const eachMarkedReplica = this._runtime.replicasToStop.pop();
                 await this._stopReplica(eachMarkedReplica);
             }
-            this._info(`${replicaCount} replica(s) of ${this._component.name} stopped.`);
+            this._info(`${replicaCount} replica(s) of ${this.component.name} stopped.`);
 
         } catch (error) {
             utils.chainError(
-                `Could not stop all selected replicas of ${this._component.name}`,
+                `Could not stop all selected replicas of ${this.component.name}`,
                 error
             );
 
@@ -607,8 +627,8 @@ class BuiltinAgent extends AvailabilityAgent {
     async _stopReplica(markedReplica) {
         try {
             await this._deregisterReplica(markedReplica);
-            await this._docker.stopContainer(this._host, markedReplica);
-            await this._docker.removeContainer(this._host, markedReplica);
+            await this.docker.stopContainer(this.host, markedReplica);
+            await this.docker.removeContainer(this.host, markedReplica);
 
         } catch (error) {
             utils.chainError(`Unable to terminate replica ${markedReplica}.`, error);
@@ -633,7 +653,7 @@ class BuiltinAgent extends AvailabilityAgent {
                     `bash ./endpoints.sh discard ${this._urlOf(givenReplica)}`
                 ],
             }
-            await this._docker.executeCommand(this._host,
+            await this.docker.executeCommand(this.host,
                                               this._runtime.proxyID,
                                               commandSpecs);
             this._info(`Replica ${givenReplica} deregistered from the proxy!`);
@@ -657,8 +677,8 @@ class BuiltinAgent extends AvailabilityAgent {
     async _stopProxy() {
         try {
             const containerID = this._runtime.proxyID;
-            await this._docker.stopContainer(this._host, containerID);
-            await this._docker.removeContainer(this._host, containerID);
+            await this.docker.stopContainer(this.host, containerID);
+            await this.docker.removeContainer(this.host, containerID);
 
         } catch (error) {
             utils.chainError('Unable to terminate the proxy!', error);
@@ -671,7 +691,7 @@ class BuiltinAgent extends AvailabilityAgent {
 
 
 /*
- * Manage availability on top of Docker swarm. 
+ * Manage availability on top of Docker swarm.
  *
  * Not much logic here. Here simply delegate the management to Docker
  * Swarm.
@@ -689,21 +709,21 @@ class DockerSwarmAgent extends AvailabilityAgent {
     async installFromScratch() {
         this.ensureDockerIsAvailable();
         try {
-            await this._docker.initializeDockerSwarm(this._host); // Idempotent
-            const exposedPort = this._component.availability.exposedPort;
-            await this._docker.startSwarmService(
-                this._host,
-                this._component,
+            await this.docker.initializeDockerSwarm(this.host); // Idempotent
+            const exposedPort = this.component.availability.exposedPort;
+            await this.docker.startSwarmService(
+                this.host,
+                this.component,
                 {
-                    "Name": this._component.name,
+                    "Name": this.component.name,
                     "TaskTemplate": {
                         "ContainerSpec": {
-                            "Image": this._component.docker_resource.image
+                            "Image": this.component.docker_resource.image
                         }
                     },
                     "Mode": {
                         "Replicated": {
-                            "Replicas": this._component.availability.replicaCount,
+                            "Replicas": this.component.availability.replicaCount,
                         }
                     },
                     "UpdateConfig": {
@@ -722,14 +742,14 @@ class DockerSwarmAgent extends AvailabilityAgent {
                 }
             );
         } catch (error) {
-            const message = `Unable to create a Swarm service for Component ${this._component.name}`;
+            const message = `Unable to create a Swarm service for Component ${this.component.name}`;
             utils.chainError(message, error);
 
         }
     }
 
     _getSwarmUpdateOrder () {
-        if (this._component.availability.zeroDownTime) {
+        if (this.component.availability.zeroDownTime) {
             return "start-first";
         }
         return  "stop-first";
@@ -737,7 +757,7 @@ class DockerSwarmAgent extends AvailabilityAgent {
 
     async _updateReplicaCount(newCount) {
         this.forceComponentUpdate = true;
-        this._component.availability.replicaCount = newCount;
+        this.component.availability.replicaCount = newCount;
     }
 
     async _updateHealthCheckScript(newScript) {
@@ -746,7 +766,7 @@ class DockerSwarmAgent extends AvailabilityAgent {
     }
 
     async _updateZeroDownTime(newValue) {
-        this._component.availability.zeroDownTime = newValue;
+        this.component.availability.zeroDownTime = newValue;
     }
 
     async _updateComponent(givenComponent) {
@@ -778,12 +798,12 @@ class DockerSwarmAgent extends AvailabilityAgent {
         };
 
         try {
-            return await this._docker.updateSwarmService(this._host,
-                                                         this._component,
-                                                         specifications);
+            return await this.docker.updateSwarmService(this.host,
+                                                        this.component,
+                                                        specifications);
 
         } catch (error) {
-            const message = `Unable to update Swarm service for component ${this._component.name}`;
+            const message = `Unable to update Swarm service for component ${this.component.name}`;
             utils.chainError(message, error);
 
         }
@@ -791,7 +811,7 @@ class DockerSwarmAgent extends AvailabilityAgent {
 
     async uninstall(givenComponent) {
         try {
-            await this._docker.removeService(givenComponent);
+            await this.docker.removeService(givenComponent);
 
         } catch (error) {
             const message = `Unable to uninstall component '${givenComponent.name}'`;
@@ -867,7 +887,12 @@ class SSHAdapter extends AvailabilityAgent {
     }
 
 
-    get docker() {
+    get component () {
+        return this._delegate.component;
+    }
+
+
+    get docker () {
         return this._delegate._docker;
     }
 
@@ -894,11 +919,6 @@ class SSHAdapter extends AvailabilityAgent {
     }
 
 
-    get component() {
-        return this._delegate._component;
-    }
-
-
     async _updateReplicaCount(newCount) {
         this._delegate._updateReplicaCount(newCount);
     }
@@ -919,16 +939,14 @@ class SSHAdapter extends AvailabilityAgent {
     }
 
 
-    async _updateConfiguration(givenComponent) {
-        this._delegate._updateConfiguration(givenComponent);
-    }
-
- 
+    /*
+     * Override the default behavior inherited from AvailabilityAgent.
+     */
     async _updateComponent(givenComponent) {
         try {
             await this._tagImageAsOld();
             await this._createDockerImageFromSSHResources();
-            await this._delegate.updateComponent(givenComponent);
+            await this._delegate._updateComponent(givenComponent);
             await this._deleteDockerImage("old");
 
         } catch (error) {
