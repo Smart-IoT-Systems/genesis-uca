@@ -34,6 +34,7 @@ build:
 
 publish:
   stage:package
+  script:
    - docker load -i image/genesis.tar
    - echo "$CI_LOG"
    - echo "$CI_REGISTRY_PASS" | docker login -u "$CI_REGISTRY_LOG" --password-stdin
