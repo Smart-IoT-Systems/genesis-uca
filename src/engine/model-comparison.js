@@ -31,14 +31,28 @@ var comparator = function (dm) {
 	 * Check if the given component is updated, as opposed to
 	 * merely added or removed.
 	 */
-	result.isUpdateOf = function(component) {
-	    const isUpdate = this.list_of_added_components.some(c => c.name === component.name)
-		  && this.list_of_removed_components.some(c => c.name === component.name);
-	    logger.info(`Component ${component.name} updated? ${isUpdate}!`);
+	result.isUpdateOf = function(givenComponent) {
+	    const isUpdate = this.list_of_added_components.some(c => c.name === givenComponent.name)
+		  && this.list_of_removed_components.some(c => c.name === givenComponent.name);
+	    logger.info(`Component ${givenComponent.name} updated? ${isUpdate}!`);
 	    return isUpdate;
 	}
 
-        //Added Hosts and components
+	/*
+	 * Collect all the differences for a given component
+	 */
+	result.onlyFor = function(givenComponent) {
+	    const oldComponent = this
+		  .old_dm.components
+		  .find(c => c.name === givenComponent.name);
+	    const newComponent = target_dm.components
+		  .find(c => c.name === givenComponent.name);
+	    return that.compareObjects(oldComponent, newComponent);
+	}
+
+	
+
+        //Added Hosts and componentOAs
         var target_comps = target_dm.components;
         for (var i in target_comps) {
             var tmp_node = dm.find_node_named(target_comps[i].name);
