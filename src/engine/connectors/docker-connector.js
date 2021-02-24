@@ -314,7 +314,7 @@ var docker_connector = function () {
      * Create and start a container on the given host, according to
      * the given specifications.
      */
-    that.createContainer = async function(dockerHost, containerSpecs={}, isDetached=false) {
+    that.createContainer = async function(dockerHost, containerSpecs={}) {
         const DEFAULT_SPECS = {
             Image: 'debian:10-slim',
             Cmd: ['/bin/bash'],
@@ -324,13 +324,10 @@ var docker_connector = function () {
 
         containerSpecs = Object.assign({}, DEFAULT_SPECS, containerSpecs);
 
-        logger.info(JSON.stringify(containerSpecs));
-
         await that.resetDockerHost(dockerHost);
         try {
             const image = that.docker.getImage(containerSpecs.Image);
             const details = await image.inspect();
-            logger.info("Image:" + JSON.stringify(details));
 
         } catch (error) {
             const pullingImage = await that.docker.createImage({fromImage: containerSpecs.Image});
@@ -340,14 +337,30 @@ var docker_connector = function () {
         }
 
         const container = await that.docker.createContainer(containerSpecs);
-        container.start();
-        if (!isDetached) {
-            containerLog = await container.attach({stream: true, stdout: true, stderr: true});
-            containerLog.pipe(process.stdout, {end: true});
-            await that.endOf(containerLog);
-        }
-
         return container.id;
+    };
+
+
+    /*
+     * Start the container with the given ID (could be its name).
+     */
+    that.startContainer = async function(host, containerId, isDetached=false) {
+        try {
+            await that.resetDockerHost(host);
+            const container = that.docker.getContainer(containerId);
+            container.start();
+            if (!isDetached) {
+                containerLog = await container.attach({stream: true, stdout: true, stderr: true});
+                containerLog.pipe(process.stdout, {end: true});
+                await that.endOf(containerLog);
+
+            }
+
+        } catch (error) {
+            const message = `Unable to start container ${containerId}`;
+            utils.chainError(message, error);
+
+        }
     };
 
 
@@ -376,8 +389,6 @@ var docker_connector = function () {
         };
 
         commandSpecs = Object.assign({}, DEFAULT_SPECS, commandSpecs);
-
-        logger.info(`Executing '${JSON.stringify(commandSpecs)} ...`);
 
         await that.resetDockerHost(dockerHost);
         const container = that.docker.getContainer(containerID);
@@ -417,7 +428,7 @@ var docker_connector = function () {
     that.connectContainerToNetwork = async function(dockerHost, networkName, containerID) {
         await that.resetDockerHost(dockerHost);
         const network = that.docker.getNetwork(networkName);
-        const inspected = await network.inspect()
+        const inspected = await network.inspect();
         const containerSpecs = {
             "Container": containerID,
             "EndpointConfig": null
@@ -450,7 +461,7 @@ var docker_connector = function () {
         const container = that.docker.getContainer(containerID);
         await container.remove();
         return containerID;
-    }
+    };
 
 
     /**
@@ -484,7 +495,7 @@ var docker_connector = function () {
 
 
     /*
-     * Initialize Docker swarm (i.e., triggers a 'docker swarm
+     * Initialise Docker swarm (i.e., triggers a 'docker swarm
      * init') on the given host.
      *
      * The Docker API returns an HTTP Code 503 if Docker Swarm is
@@ -556,7 +567,7 @@ var docker_connector = function () {
 
         }
 
-    }
+    };
 
 
     /*
@@ -612,7 +623,7 @@ var docker_connector = function () {
 
         }
 
-    }
+    };
 
 
     /*
@@ -631,7 +642,7 @@ var docker_connector = function () {
             utils.chainError(message, error);
 
         }
-    }
+    };
 
     return that;
 };

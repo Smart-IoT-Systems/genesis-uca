@@ -69,7 +69,7 @@ class AvailabilityManager {
      */
     _selectAgentFor(givenComponent, givenHost) {
         var agent = null;
-        if ( givenComponent.availability.usesDockerSwarm() ) {
+        if ( givenComponent.availability.usesDockerSwarm() ){
             agent = new DockerSwarmAgent(givenComponent, givenHost);
 
         } else if ( givenComponent.availability.isBuiltin() ) {
@@ -114,12 +114,12 @@ class AvailabilityAgent {
         this._forceComponentUpdate = false;
     }
 
-    // Overloaded by subclasses
+    // Overloaded by sub-classes
     get component () {
         return this._component;
     }
 
-    // Overridden by subclasses
+    // Overridden by sub-classes
     get host () {
         return this._host;
     }
@@ -248,7 +248,7 @@ class AvailabilityAgent {
                                    "get_all_properties",
                                    "availability"];
 
-        var changes = []
+        var changes = [];
         for (const eachProperty in newComponent) {
             if (uselessProperties.includes(eachProperty)) continue;
 
@@ -318,7 +318,7 @@ class BuiltinAgent extends AvailabilityAgent {
     async _deploy() {
         try {
             await this._setupDockerNetwork();
-            await this._createManyReplicas(this.component.availability.replicaCount);
+            await this._createAndStartReplicas(this.component.availability.replicaCount);
             await this._deployBuiltinProxy();
             await this._reconfigureProxy();
             this._info("Builtin deployment complete!");
@@ -347,15 +347,17 @@ class BuiltinAgent extends AvailabilityAgent {
         }
     }
 
-    async _createManyReplicas(replicaCount) {
+    async _createAndStartReplicas(replicaCount) {
         try {
             for (var i=0 ; i<replicaCount ; i++)  {
                 const name = this._generateReplicaName();
-                await this._createOneReplica(name);
+                await this._createReplica(name);
+                await this._startReplica(name);
             }
 
         } catch (error) {
-            utils.chainError(`Unable to replicate '${this.component.name}'.`, error);
+            utils.chainError(`Unable to replicate '${this.component.name}'.`,
+                             error);
 
         }
     }
@@ -367,7 +369,7 @@ class BuiltinAgent extends AvailabilityAgent {
     }
 
 
-    async _createOneReplica(replicaName) {
+    async _createReplica(replicaName) {
         const containerSpecs = {
             "Image": this.component.docker_resource.image,
             "name": replicaName, // /!\ Must be capitalized 'name'
@@ -379,6 +381,23 @@ class BuiltinAgent extends AvailabilityAgent {
                                                      replicaName);
         this._runtime.activeReplicas.push(replicaName);
         this._info(`${replicaName} of ${this.component.name} created!`);
+    }
+
+
+    /**
+     * Start the container underlying the given replica
+     */
+    async _startReplica(givenReplica) {
+        const detached = true;
+        try {
+            this.docker.startContainer(this.host, givenReplica, detached);
+            this._info(`Replica '${givenReplica}' started!`);
+
+        } catch (error) {
+            const message = `Could not start replica ${givenReplica}`;
+            utils.chainError(message, error);
+
+        }
     }
 
 
@@ -402,10 +421,15 @@ class BuiltinAgent extends AvailabilityAgent {
                     [`${exposedPort}/tcp`]: {}
                 },
             };
-            await this.docker.createContainer(this.host, proxySpecs, true);
+
+            await this.docker.createContainer(this.host, proxySpecs);
+
             await this.docker.connectContainerToNetwork(this.host,
-                                                         this._runtime.networkID,
-                                                         proxySpecs.name);
+                                                        this._runtime.networkID,
+                                                        proxySpecs.name);
+
+            await this.docker.startContainer(this.host,  proxySpecs.name, true);
+
             this._runtime.proxyID = proxySpecs.name;
 
             await this._configureRemoteDockerAPI();
@@ -514,7 +538,7 @@ class BuiltinAgent extends AvailabilityAgent {
                         "-c",
                         `bash ./endpoints.sh register ${this._urlOf(eachEndpoint)}`
                     ],
-                }
+                };
                 await this.docker.executeCommand(this.host,
                                                   this._runtime.proxyID,
                                                   commandSpecs);
@@ -577,20 +601,55 @@ class BuiltinAgent extends AvailabilityAgent {
         try {
             if (policy.zeroDownTime) {
                 this._markAllReplicasForTermination();
-                await this._createManyReplicas(policy.replicaCount);
+                await this._createAndStartReplicas(policy.replicaCount);
                 await this._stopMarkedReplicas();
 
             } else {
                 this._markAllReplicasForTermination();
+                const newReplicas = await this._createReplicas(policy.replicaCount);
                 await this._stopMarkedReplicas();
-                await this._createReplicas(policy.replicaCount);
+                await this._startReplicas(newReplicas);
                 await this._restartProxy();
 
             }
             this._info(`All ${this.component.name} replica(s) updated!`);
 
         } catch (error) {
-            utils.chainError(`Unable to update all '${this.component.name}' replicas `, error);
+            utils.chainError(`Unable to update all '${this.component.name}' replicas.`, error);
+
+        }
+    }
+
+
+    async _createReplicas(replicaCount) {
+        try {
+            const replicaNames = [];
+            for (var i=0 ; i<replicaCount ; i++) {
+                const givenName = this._generateReplicaName();
+                this._createReplica(givenName);
+                replicaNames.push(givenName);
+            }
+            return replicaNames;
+
+        } catch (error) {
+            const message = `Could not create the  needed ${replicaCount} replica!`;
+            utils.chainError(message, error);
+
+        }
+    }
+
+
+    async _startReplicas(givenReplicas) {
+        try {
+            for (const eachReplica of givenReplicas) {
+                this.docker.startContainer(this.host, eachReplica);
+                this._info(`Replica ${eachReplica} started!`);
+
+            }
+
+        } catch (error) {
+            const message = `Unable to start replicas ${givenReplicas}`;
+            utils.chainError(message, error);
 
         }
     }
@@ -868,9 +927,12 @@ class SSHAdapter extends AvailabilityAgent {
                                                          Cmd: installationScript,
                                                          name: containerName
                                                      });
+            await this.docker.startContainer(this.host, containerID, false);
             await this.docker.saveContainerAsImage(this.host,
                                                     containerID,
-                                                    imageName);
+                                                   imageName);
+            // /!\ No need to stop the container, because it was running
+            // in interactive mode and is thus already stopped-
             await this.docker.removeContainer(this.host, containerName);
             this._dockerResource.image = imageName;
             this._dockerResource.cmd = this._sshResource.startCommand;
