@@ -53,67 +53,53 @@ var docker_connector = function () {
         });
     };
 
-    that.buildAndDeploy = function (endpoint, port, port_bindings, devices, command, image, mounts, links, compo_name, host_id, environment, properties) {
-        return new Promise(async function (resolve, reject) {
 
-            let secu_info;
+    that.buildAndDeploy = async function (endpoint, port, port_bindings, devices, command, image, mounts, links, compo_name, host_id, environment, properties) {
+        let secu_info;
 
-            if (properties !== undefined) {
-                if (properties.length > 0) {
-                    secu_info = properties[0];
-                }
+        if (properties !== undefined) {
+            if (properties.length > 0) {
+                secu_info = properties[0];
             }
+        }
 
-            if (secu_info !== undefined) {
-                that.docker = new Docker({
-                    host: endpoint,
-                    port: port,
-                    ca: properties.ca,
-                    cert: properties.cert,
-                    key: properties.key
-                });
-            } else {
-                that.docker = new Docker({
-                    host: endpoint,
-                    port: port
-                });
+        if (secu_info !== undefined) {
+            that.docker = new Docker({
+                host: endpoint,
+                port: port,
+                ca: properties.ca,
+                cert: properties.cert,
+                key: properties.key
+            });
+
+        } else {
+            that.docker = new Docker({
+                host: endpoint,
+                port: port
+            });
+
+        }
+
+        try {
+            await that.docker.ping();
+            logger.info(`Docker Host ${host_id} is reachable ${endpoint}`);
+            that.comp_name = compo_name;
+            const stream = await that.docker.pull(image);
+            bus.emit('host-config', host_id);
+            if (stream !== null) {
+                stream.pipe(process.stdout, { end: true });
+                await that.endOf(stream);
             }
+            return await that.createContainerAndStart(port_bindings, command, image, devices, mounts, links, environment);
 
+        } catch (error) {
+            bus.emit('container-error', host_id);
+            const message = `Unable to build and deploy image '${image}' on '${host_id}'`;
+            utils.chainError(message, error);
 
-            that.docker
-                .ping()
-                .then(function (data) {
-                    logger.log("info", "Docker Host (" + host_id + ") is reachable " + endpoint);
-                    that.comp_name = compo_name;
-                    that.docker.pull(image, function (err, stream) {
-                        bus.emit('host-config', host_id);
-                        if (stream !== null) {
-                            stream.pipe(process.stdout, {
-                                end: true
-                            });
-                            stream.on('end', function () {
-                                that.createContainerAndStart(port_bindings, command, image, devices, mounts, links, environment).then(function (id) {
-                                    resolve(id);
-                                }).catch(function (err) {
-                                    reject(err);
-                                });
-                            });
-                        } else {
-                            that.createContainerAndStart(port_bindings, command, image, devices, mounts, links, environment).then(function (id) {
-                                resolve(id);
-                            }).catch(function (err) {
-                                reject(err);
-                            });
-                        }
-                    });
-                }).catch(function (err) {
-                    logger.log("info", "Docker Host is not reachable " + err);
-                    bus.emit('container-error', host_id);
-                    return;
-                });
+        }
 
-        });
-    }
+    };
 
     that.createContainerAndStart = function (port_bindings, command, image, devices, mounts, links, environment) {
         //Create a container from an image
@@ -271,7 +257,7 @@ var docker_connector = function () {
         await that.resetDockerHost(host);
         const network = await that.docker.createNetwork(networkSpecs);
         logger.info("Docker network created (ID: '" + network.id +"')" );
-        return network.id
+        return network.id;
     };
 
 
@@ -281,7 +267,7 @@ var docker_connector = function () {
             port: host.port
         });
         await that.docker.ping();
-    }
+    };
 
 
     /*
@@ -294,7 +280,7 @@ var docker_connector = function () {
             repo: repository,
             tag: tag
         });
-    }
+    };
 
 
     /*

@@ -444,68 +444,58 @@ var engine = (function () {
     };
 
 
-    /**
-     * Deploy a component using SSH
+    /*
+     * Deploy a component using SSH.
+     *
+     * We first check whether the component has an availability
+     * policy. If it does, we delegate the installation to the
+     * availability manager. Otherwise, we upload the needed
+     * file and then execute the SSH commands specified in the SSH
+     * resource.
+     *
      */
-    that.deploy_ssh = function (component, host) {
-        return new Promise(async function (resolve, reject) {
+    that.deploy_ssh = async function (component, host) {
+        let ssh_port = host.port;
+        if (host._type === "/infra/docker_host") {
+            ssh_port = "22";
 
-            var ssh_port = host.port;
-            if (host._type === "/infra/docker_host") {
-                ssh_port = "22";
-            }
+        }
 
+        try {
             if (component.hasAvailabilityPolicy()) {
-                try {
-                    that.availabilityManager.handle(component, host);
-
-                } catch (error) {
-                    logger.error(error.message);
-                    reject(error);
-                }
+                that.availabilityManager.handle(component, host);
 
             } else {
-                let src_upload = comp.ssh_resource.uploadCommand[0];
-                let tgt_upload = comp.ssh_resource.uploadCommand[1];
+                // Upload the needed file
+                const source = comp.ssh_resource.uploadCommand[0];
+                const target = comp.ssh_resource.uploadCommand[1];
+                await sc.upload_file(source, target);
+                logger.info("Upload command executed successfully.");
 
-                sc.upload_file(src_upload, tgt_upload).then(function () {
-                    logger.log("info", "Upload command executed");
-                    sc.execute_command(comp.ssh_resource.downloadCommand).then(function () {
-                        logger.log("info", "Download command executed");
-                        sc.execute_command(comp.ssh_resource.installCommand).then(function () {
-                            logger.log("info", "Install command executed");
-                            sc.execute_command(comp.ssh_resource.configureCommand).then(function () {
-                                logger.log("info", "Configure command executed");
-                                sc.execute_command(comp.ssh_resource.startCommand).then(function () {
-                                    logger.log("info", "Start command executed");
-                                    bus.emit('ssh-started', host.name);
-                                    bus.emit('ssh-started', comp.name);
-                                    bus.emit('node-started', "", comp.name);
-                                    resolve(true);
-                                }).catch(function (err) {
-                                    logger.log("error", "Start command error " + err);
-                                    reject(err);
-                                });
-                            }).catch(function (err) {
-                                logger.log("error", "Configure command error " + err);
-                                reject(err);
-                            });
-                        }).catch(function (err) {
-                            logger.log("error", "Install command error " + err);
-                            reject(err);
-                        });
-                    }).catch(function (err) {
-                        logger.log("error", "Download command error " + err);
-                        reject(err);
+                // Execute the commands specified in the SSH resource
+                const sshCommandOrder = [ "downloadCommand", "installCommand",
+                                          "configureCommand", "startCommand"
+                                        ];
 
-                    });
-                }).catch(function (err) {
-                    logger.log("error", "Upload command error " + err);
-                    reject(err);
+                for (let eachCommandName of sshCommandOrder) {
+                    const sshCommand = comp.ssh_resource.get[eachCommandName];
+                    await sc.execute_command(sshCommand);
+                    logger.info(`${eachCommandName} executed successfully.`);
 
-                });
+                }
+
             }
-        });
+
+            bus.emit('ssh-started', host.name);
+            bus.emit('ssh-started', comp.name);
+            bus.emit('node-started', "", comp.name);
+
+        } catch (error) {
+            const message = `Unable deploy component ${comp.name}' using SSH`;
+            utils.chainError(message, error);
+
+        }
+
     };
 
 
