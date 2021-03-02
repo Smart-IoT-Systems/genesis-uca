@@ -23,11 +23,11 @@ var deployment_agent = function (host, host_target, deployment_target) {
 
     that.compute_ip_address = function () {
         return new Promise(function (resolve, reject) {
-            if(process.env.IP_GENESIS !== undefined){
+            if (process.env.IP_GENESIS !== undefined) {
                 resolve(process.env.IP_GENESIS);
-            }else{
+            } else {
                 const internalIp = require('internal-ip');
-                var result= internalIp.v4.sync();
+                var result = internalIp.v4.sync();
                 resolve(result);
             }
         });
@@ -42,23 +42,24 @@ var deployment_agent = function (host, host_target, deployment_target) {
         that.flow = '[{"id":"dac41de7.a03033","type":"tab","label":"Deployment Flow"}';
         if (host_target._type === "/infra/device") {
             var id_deployer_node_in_agent = uuidv4();
-            if ((host_target.device_type.indexOf("ardui") !== -1) ||  (host_target.device_type.indexOf("uno") !== -1) || (host_target.device_type.indexOf("mega") !== -1)) {
+            if ((host_target.device_type.indexOf("ardui") !== -1) || (host_target.device_type.indexOf("uno") !== -1)
+                || (host_target.device_type.indexOf("mega") !== -1) || (host_target.device_type.indexOf("leonardo") !== -1)) {
                 var lib_strigified = JSON.stringify(that.deployment_target.libraries);
-                var arduitype=host_target.device_type || "uno";
-                var arduicpu=host_target.cpu || "";
-                console.log("ssssss>"+JSON.stringify(host_target));
+                var arduitype = host_target.device_type || "uno";
+                var arduicpu = host_target.cpu || "";
+                console.log("ssssss>" + JSON.stringify(host_target));
                 if (deployment_target._type === "/internal/arduino") {
                     var ino_content = fs.readFileSync(deployment_target.sketch, "utf8");
                     var ino_stringified = JSON.stringify(ino_content);
                     that.flow += ',{"id":"' + uuidv4() + '","type":"inject","z":"dac41de7.a03033","name":"","topic":"","payload":"","payloadType":"str","repeat":"","crontab":"","once":true,"onceDelay":20,"x":230,"y":140,"wires":[["e23ea497.5b6678"]]}, {"id":"e23ea497.5b6678","type":"function","z":"dac41de7.a03033","name":"","func":' + JSON.stringify('msg.payload=' + ino_stringified + ';\nreturn msg;') + ',"outputs":1,"noerr":0,"x":410,"y":260,"wires":[["812a8df2.aa502"]]},{"id":"812a8df2.aa502","type":"file","z":"dac41de7.a03033","name":"","filename":"/data/tmp/tmp.ino","appendNewline":true,"createDir":true,"overwriteFile":"true","x":420,"y":140,"wires":[["e22ea497.5b6678"]]},{"id":"e22ea497.5b6678","type":"function","z":"dac41de7.a03033","name":"","func":' + JSON.stringify('msg.payload={};\nmsg.payload.name= "tmp";\nmsg.payload.output="/data";\nreturn msg;') + ',"outputs":1,"noerr":0,"x":410,"y":260,"wires":[["' + id_deployer_node_in_agent + '"]]}';
                 }
-                that.flow += ',{"id": "' + id_deployer_node_in_agent + '","type": "arduino","z": "dac41de7.a03033","name": "' + that.host_target.name + '","serial": "7d118b53.12e99c","ardtype": "'+arduitype+'","cpu": "' + arduicpu + '","libraries": ' + JSON.stringify(lib_strigified) + ',"x": 590,"y": 260, "wires": [["39ea4abb.22c316"]]},';
+                that.flow += ',{"id": "' + id_deployer_node_in_agent + '","type": "arduino","z": "dac41de7.a03033","name": "' + that.host_target.name + '","serial": "7d118b53.12e99c","ardtype": "' + arduitype + '","cpu": "' + arduicpu + '","libraries": ' + JSON.stringify(lib_strigified) + ',"x": 590,"y": 260, "wires": [["39ea4abb.22c316"]]},';
                 that.flow += '{"id":"39ea4abb.22c316","type":"function","z":"dac41de7.a03033","name":"add_target_name","func":' + JSON.stringify('var newmsg={ payload: {}};\nnewmsg.payload.target_name=' + JSON.stringify(that.deployment_target.name) + ';\nnewmsg.payload.data=msg.payload;\nreturn newmsg;') + ',"outputs":1,"noerr":0,"x":310,"y":940,"wires":[["4355eb1b.25b744"]]},'
                 that.flow += '{"id": "4355eb1b.25b744","type": "mqtt out","z": "dac41de7.a03033","name": "toGeneSIS","topic": "/deployment_agent","qos": "0","retain": "true","broker": "758af4ba.66f854","x": 690,"y": 320,"wires": []},{"id": "7d118b53.12e99c","type": "serial-port","z": "","serialport": "' + that.host_target.physical_port + '","serialbaud": "9600","databits": "8","parity": "none","stopbits": "1","newline": "\\n","bin": "false","out": "char","addchar": false},{"id":"758af4ba.66f854","type":"mqtt-broker","z":"","name":"GeneSIS","broker":"ws://' + that.ip + ':9001","port":"9001","clientid":"","usetls":false,"compatmode":true,"keepalive":"6000","cleansession":true,"birthTopic":"","birthQos":"0","birthRetain":"false","birthPayload":"","closeTopic":"","closeQos":"0","closeRetain":"false","closePayload":"","willTopic":"","willQos":"0","willRetain":"false","willPayload":""}';
             }
             if (deployment_target._type === "/internal/thingml") {
                 var language = "nodejs";
-                if ((host_target.device_type.indexOf("ardui") !== -1) ||  (host_target.device_type.indexOf("uno") !== -1) || (host_target.device_type.indexOf("mega") !== -1)) {
+                if ((host_target.device_type.indexOf("ardui") !== -1) || (host_target.device_type.indexOf("uno") !== -1) || (host_target.device_type.indexOf("mega") !== -1)) {
                     language = "arduino";
                 }
                 var thingml_stringified = deployment_target.code;

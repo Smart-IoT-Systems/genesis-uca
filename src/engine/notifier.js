@@ -5,7 +5,7 @@ var notifier = (function (client, dm) {
     that.MQTTClient = client;
 
     that.start = function () {
-        
+
         that.MQTTClient.on('connect', function () {
             client.subscribe('/deployment_agent');
         });
@@ -13,19 +13,19 @@ var notifier = (function (client, dm) {
         that.MQTTClient.on('message', function (topic, message) {
             if (topic === '/deployment_agent') {
                 var content = JSON.parse(message);
-                if(content.data.status === "success"){
+                if (content.data.status === "success") {
                     bus.emit('d_agent_success', content.target_name);
-                }else{
+                } else {
                     bus.emit('d_agent_error', content.target_name);
                 }
             }
         });
 
-        bus.on('remove-all', function(){
+        bus.on('remove-all', function () {
             that.MQTTClient.publish("/Notifications", JSON.stringify("Remove all completed!"));
         });
 
-        bus.on('deployment-completed', function(){
+        bus.on('deployment-completed', function () {
             that.MQTTClient.publish("/Notifications", JSON.stringify("Deployment completed!"));
         });
 
@@ -116,7 +116,7 @@ var notifier = (function (client, dm) {
             bus.emit('node-started2', container_id, comp_name);
         });
 
-        bus.on('runtime-info', function(comp_name, status){
+        bus.on('runtime-info', function (comp_name, status) {
             var s = {
                 node: comp_name,
                 status: status
@@ -124,10 +124,18 @@ var notifier = (function (client, dm) {
             that.MQTTClient.publish("/Status", JSON.stringify(s));
         });
 
-        bus.on('removed', function(comp_name){
+        bus.on('removed', function (comp_name) {
             var s = {
                 node: comp_name,
                 status: 'config'
+            };
+            that.MQTTClient.publish("/Status", JSON.stringify(s));
+        });
+
+        bus.on('tas', function (body) {
+            var s = {
+                result: body,
+                status: 'test_result_ready'
             };
             that.MQTTClient.publish("/Status", JSON.stringify(s));
         });

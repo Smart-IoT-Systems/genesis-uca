@@ -1,0 +1,74 @@
+import "datatypes.thingml" from stl
+
+thing fragment API {
+	message m1(a : Double, b : Double);
+	message m2(x : Double, y : Double, z : Double);
+	message customPrint(myString : String);
+	message cmd(myString : String);
+	message sensorData(sensorData : String);
+	message msg(humid : String, temp : String);
+}
+
+thing fragment TimerMsgs {
+	// Start the Timer
+	message timer_start(delay : Integer);
+	// Cancel the Timer
+	message timer_cancel();
+	// Notification that the timer has expired
+	message timer_timeout();
+}
+
+thing fragment Timer includes TimerMsgs
+{
+	provided port timer
+    {
+		sends timer_timeout
+		receives timer_start, timer_cancel
+	}
+}
+
+thing fragment TimerClient includes TimerMsgs
+{
+	required port timer
+    {
+		receives timer_timeout
+		sends timer_start, timer_cancel
+	}
+    
+}
+
+
+
+
+/**
+ * Other things here
+ */
+
+thing fragment PrintMsgs {
+
+	message printOperation(op : String);
+	message printResult(rez : Integer);
+	message parameterz(myparam1 : Integer, myparam2 : Integer);
+	
+}
+
+thing fragment Printer includes PrintMsgs {
+
+	required port Print {
+	
+		receives printOperation, printResult, parameterz
+		
+	}
+
+}
+
+
+thing fragment PrinterClientPort includes PrintMsgs{
+	
+	provided port Print {
+	
+		sends printOperation, printResult, parameterz
+		
+	}
+}
+	

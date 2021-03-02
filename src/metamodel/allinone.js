@@ -43,6 +43,7 @@ var deployment_model = function (spec) {
         return this;
     };
 
+    
     that.add_component = function (component) {
         that.components.push(component);
     };
@@ -83,26 +84,32 @@ var deployment_model = function (spec) {
         //we also need to remove the associated links
         var tab_indexes = [];
         for (var i in that.links) {
-            if (that.links[i].target.indexOf(component.name) > -1 ||
-                that.links[i].src.indexOf(component.name) > -1) {
-                tab_indexes.push(i);
+            var tmp_l_name_target = that.get_comp_name_from_port_id(that.links[i].target);
+            var tmp_l_name_src = that.get_comp_name_from_port_id(that.links[i].src);
+            if (component.name !== tmp_l_name_target &&
+                component.name !== tmp_l_name_src) {
+                tab_indexes.push(that.links[i]);
             }
         }
         if (tab_indexes.length > 0) {
+            /*console.log(JSON.stringify(tab_indexes));
             tab_indexes.forEach(function (elem) {
                 that.links.splice(elem, 1);
-            });
+            });*/
+            that.links = tab_indexes;
         }
         //we also need to remove the associated containments
-        var tabc_indexes = [];
+        var tabc_indexes_cont = [];
         for (var i in that.containments) {
-            if (that.containments[i].target.indexOf(component.name) > -1 ||
-                that.containments[i].src.indexOf(component.name) > -1) {
-                tabc_indexes.push(i);
+            var tmp_c_name_target = that.get_comp_name_from_port_id(that.containments[i].target);
+            var tmp_c_name_src = that.get_comp_name_from_port_id(that.containments[i].src);
+            if (component.name === tmp_c_name_target ||
+                component.name === tmp_c_name_src) {
+                tabc_indexes_cont.push(i);
             }
         }
-        if (tabc_indexes.length > 0) {
-            tabc_indexes.forEach(function (elem) {
+        if (tabc_indexes_cont.length > 0) {
+            tabc_indexes_cont.forEach(function (elem) {
                 that.containments.splice(elem, 1);
             });
         }
@@ -318,7 +325,7 @@ var deployment_model = function (spec) {
             var id_p = that.generate_port_id(elem, e);
             var t = that.find_containment_of_provided_port(id_p);
             if (t !== null) {
-                result=false;
+                result = false;
             }
         };
         return result;
@@ -397,8 +404,17 @@ var deployment_model = function (spec) {
         }
     };
 
+    that.change_attribute_link = function (name, attribute, val) { //TODO: make it generic, xpath like stuff
+        let n = that.find_link_named(name);
+        if (n !== undefined) {
+            if (attribute.indexOf("name") < 0 && attribute.indexOf("port") < 0) {
+                n[attribute] = val;
+            }
+        }
+    };
 
-    that.change_port_name_in_links = function(old_id, new_id){
+
+    that.change_port_name_in_links = function (old_id, new_id) {
 
         var l = that.find_link_of_provided_port(old_id);
         if (l !== null) {
@@ -478,7 +494,9 @@ var deployment_model = function (spec) {
     that.find_target_port_of_link = function (l) {
         var resultat = undefined;
         var target_node_name = l.target.split('/')[1];
+        console.log('>>>' + JSON.stringify(target_node_name));
         var the_target_node = that.find_node_named(target_node_name);
+        console.log('>>>' + JSON.stringify(the_target_node));
         the_target_node.required_communication_port.forEach(function (elem) {
             if (that.get_port_name_from_port_id(l.target) === elem.name) {
                 resultat = elem;
@@ -489,10 +507,10 @@ var deployment_model = function (spec) {
 
     that.find_src_port_of_link = function (l) {
         var resultat = undefined;
-        var src_node_name = l.target.split('/')[1];
+        var src_node_name = l.src.split('/')[1];
         var the_src_node = that.find_node_named(src_node_name);
-        the_src_node.required_communication_port.forEach(function (elem) {
-            if (that.get_port_name_from_port_id(l.target) === elem.name) {
+        the_src_node.provided_communication_port.forEach(function (elem) {
+            if (that.get_port_name_from_port_id(l.src) === elem.name) {
                 resultat = elem;
             }
         });
@@ -536,6 +554,10 @@ var deployment_model = function (spec) {
                 //Then let's check capabilities
                 var tgt_port = that.find_target_port_of_link(elem);
                 var src_port = that.find_src_port_of_link(elem);
+
+                console.log(JSON.stringify(elem));
+                console.log(JSON.stringify(tgt_port));
+                console.log(JSON.stringify(src_port));
 
                 if (tgt_port.capabilities !== undefined && tgt_port.capabilities.length > 0) {
                     if (src_port.capabilities !== undefined && src_port.capabilities.length > 0) {
@@ -714,13 +736,71 @@ var device = function (spec) {
 };
 
 
-const DeploymentStrategies = {
-    SINGLE: "Normal",
-    BLUE_GREEN: "Blue/Green",
-    ROLLING: "Rolling Upgrade (Not Yet Implemented)",
-    CANARY: "Canary Release (Not Yet implemented)",
-};
 
+
+/**
+ * Represent availability strategies such as replication or blue/green
+ * deployment.
+ * 
+ * There are two basic strategies, namely 'builtin' and 'Docker
+ * Swarm'.
+ *
+ *    - Selecting 'builtin' implies the deplyment of a separate proxy
+ *      (i.e., NGinx) in front of the replicas and of watchdogs that
+ *      monitor their health (using the provided health check
+ *      script).
+ *
+ *    - Selecting 'DockerSwarm' implies that GeneSIS delegates to
+ *      DockerSwarm the management of the replicas. Note that the
+ *      health check script is not taken into account.
+ */
+class Availability {
+    
+    static defaultSettings () {
+	return new Availability(this.DEFAULT, "", 1, true);
+    }
+
+    
+    static fromObject (object) {
+	return new Availability(object.strategy || this.DEFAULT,
+				object.healthCheck || "",
+				object.replicaCount || 1,
+				object.zeroDownTime === null ? true : object.zeroDownTime,
+				object.exposedPort || 80);
+    }
+    
+    constructor (strategy, healthCheck, replicaCount, zeroDownTime, exposedPort) {
+	this.strategy = strategy;
+	this.healthCheck = healthCheck;
+	this.replicaCount = replicaCount;
+	this.zeroDownTime = zeroDownTime;
+	this.exposedPort = exposedPort;
+    }
+
+    usesDockerSwarm () {
+	return this.useStrategy(Availability.DOCKER_SWARM);
+    }
+
+    isBuiltin () {
+	return this.useStrategy(Availability.BUILTIN);
+    }
+
+    useStrategy (strategy) {
+	return this.strategy === strategy;
+    }
+
+    requireZeroDownTime() {
+	return this.zeroDownTime;
+    }
+	
+}
+
+
+Availability.DOCKER_SWARM = "Docker Swarm";
+
+Availability.BUILTIN = "Builtin";
+
+Availability.DEFAULT = Availability.BUILTIN
 
 /******************************************/
 /* Software node (aka. Internal component)*/
@@ -728,7 +808,35 @@ const DeploymentStrategies = {
 var software_node = function (spec) {
     var that = component(spec);
 
-    that.deployment_strategy = spec.deployment_strategy || DeploymentStrategies.SINGLE;
+    // Check if the component  has an availability Policy
+    that.hasAvailabilityPolicy = function ()  {
+	return (that.availability !== null
+		&& that.availability.strategy
+		&& that.availability.replicaCount
+		&& that.availability.zeroDownTime !== undefined);
+    }
+
+    
+    // Check if the component includes a proper Docker resource
+    that.hasDockerResource = function ()  {
+	return (that.docker_resource !== null
+		&& that.docker_resource.image
+		&& that.docker_resource.command);
+    }
+
+    // Check if the component includes a proper SSH resource
+    that.hasSSHResource = function () {
+	return (that.ssh_resource !== null
+		&& that.ssh_resource.startCommand
+		&& that.ssh_resource.downloadCommand
+		&& that.ssh_resource.installCommand);
+    }
+	
+    
+    that.availability = Availability.defaultSettings();
+    if (spec.availability != null) {
+	that.availability = Availability.fromObject(spec.availability);
+    }
     
     that.docker_resource = spec.docker_resource || docker_resource({});
     that.ssh_resource = spec.ssh_resource || ssh_resource({});
@@ -747,6 +855,8 @@ var software_node = function (spec) {
 
     return that;
 };
+
+
 
 /******************************/
 /* Specific Node-red component*/
@@ -826,6 +936,7 @@ var docker_resource = function (spec) {
     that.image = spec.image || "ubuntu";
     that.command = spec.command || "";
     that.links = spec.links || [];
+    that.extra_options = spec.extra_options || "";
     that.port_bindings = spec.port_bindings || {
         "1880": "1880"
     };
@@ -1001,6 +1112,5 @@ module.exports = {
     hosting: hosting,
     security_capability: security_capability,
     hardware_capability: hardware_capability,
-    soft_capability: soft_capability,
-    DeploymentStrategies: DeploymentStrategies
+    soft_capability: soft_capability
 }

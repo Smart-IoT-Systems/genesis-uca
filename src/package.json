@@ -26,9 +26,11 @@
         "concurrently": "^5.1.0",
         "cookie-parser": "~1.4.3",
         "debug": "~2.6.3",
-        "dockerode": "2.4.3",
+        "dockerode": "^3.2.1",
         "express": "~4.15.2",
         "fstream": "^1.0.12",
+        "insert-line": "^1.1.0",
+        "internal-ip": "^5.0.0",
         "ip": "^1.1.5",
         "jade": "~1.11.0",
         "lodash": "4.17.11",
@@ -36,6 +38,7 @@
         "morgan": "~1.8.1",
         "mqtt": "^2.18.8",
         "node-ansible-wrapper": "^0.5.6",
+        "node-fetch": "^2.6.1",
         "node-plantuml": "~0.8.1",
         "nodemon": "^1.19.4",
         "path": "~0.12.7",
@@ -49,6 +52,7 @@
         "ssh2": "0.6.1",
         "swagger-ui-express": "2.0.6",
         "tar": "^5.0.5",
+        "temp": "^0.9.1",
         "uuid": "3.1.0",
         "walk": "2.3.9",
         "websocket-stream": "^5.1.2",
@@ -56,7 +60,8 @@
         "ws": "3.1.0",
         "zlib": "1.0.5",
         "internal-ip": "^5.0.0",
-        "insert-line": "^1.1.0"
+        "insert-line": "^1.1.0",
+        "rimraf": "3.0.2"
     },
     "devDependencies": {
         "@babel/cli": "^7.8.4",
