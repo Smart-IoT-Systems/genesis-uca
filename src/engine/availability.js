@@ -14,7 +14,7 @@ var utils = require("../util.js");
 /*
  * Maintains a mapping between components and their "availability"
  * agent. This agent varies according to the strategy (i.e., built-in
- * or Docker Swarm).
+ * or Docker Swarm) selected by the user.
  */
 class AvailabilityManager {
 
@@ -24,7 +24,8 @@ class AvailabilityManager {
 
 
     /*
-     * Manage the availability of a given component.
+     * Manage the availability of a given component. Returns the
+     * container Id of the component.
      *
      * Install from scratch when given a new component, or adjust
      * configuration of already managed components. If the strategy
@@ -33,7 +34,7 @@ class AvailabilityManager {
      */
     async handle(givenComponent, givenHost) {
         if (this.knowsAbout(givenComponent)) {
-            const agent = this._agents.get(givenComponent.name);
+            let agent = this._agents.get(givenComponent.name);
             if (agent.canHandle(givenComponent)) {
                 await agent.update(givenComponent);
 
@@ -43,15 +44,16 @@ class AvailabilityManager {
                     `changed to ${givenComponent.availability.strategy}`
                 );
                 await agent.uninstall();
-                const newAgent = this._selectAgentFor(givenComponent, givenHost);
-                await newAgent.installFromScratch();
+                agent = this._selectAgentFor(givenComponent, givenHost);
+                await agent.installFromScratch();
 
             }
+            return agent.containerId;
 
         } else {
             const agent = this._selectAgentFor(givenComponent, givenHost);
             await agent.installFromScratch();
-
+            return agent.containerId;
         }
     }
 
@@ -303,6 +305,10 @@ class BuiltinAgent extends AvailabilityAgent {
         };
     }
 
+
+    get containerId() {
+        return this._runtime.proxyID;
+    }
 
     canHandle(givenComponent) {
         return givenComponent.availability.strategy === "Builtin";
@@ -711,7 +717,7 @@ class BuiltinAgent extends AvailabilityAgent {
                     "-c",
                     `bash ./endpoints.sh discard ${this._urlOf(givenReplica)}`
                 ],
-            }
+            };
             await this.docker.executeCommand(this.host,
                                               this._runtime.proxyID,
                                               commandSpecs);
@@ -759,6 +765,12 @@ class DockerSwarmAgent extends AvailabilityAgent {
 
     constructor (givenComponent, givenHost) {
         super(givenComponent, givenHost);
+        this._containerId = null;
+    }
+
+
+    get containerId () {
+        return this._containerId;
     }
 
     canHandle(givenComponent) {
@@ -770,7 +782,7 @@ class DockerSwarmAgent extends AvailabilityAgent {
         try {
             await this.docker.initializeDockerSwarm(this.host); // Idempotent
             const exposedPort = this.component.availability.exposedPort;
-            await this.docker.startSwarmService(
+            this._containerId = await this.docker.startSwarmService(
                 this.host,
                 this.component,
                 {
@@ -800,6 +812,7 @@ class DockerSwarmAgent extends AvailabilityAgent {
                     }
                 }
             );
+
         } catch (error) {
             const message = `Unable to create a Swarm service for Component ${this.component.name}`;
             utils.chainError(message, error);
@@ -820,7 +833,7 @@ class DockerSwarmAgent extends AvailabilityAgent {
     }
 
     async _updateHealthCheckScript(newScript) {
-        const message = "Health check script are not supported by DockerSwarm";
+        const message = "Health check scripts are not supported by DockerSwarm";
         throw new Error(message);
     }
 
@@ -893,6 +906,12 @@ class SSHAdapter extends AvailabilityAgent {
         super(null);
         this._delegate = delegate;
     }
+
+
+    get containerId () {
+        return this._delegate.containerId;
+    }
+
 
     canHandle(givenComponent) {
         return this._delegate.canHandle(givenComponent)

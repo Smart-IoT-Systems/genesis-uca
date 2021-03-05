@@ -545,7 +545,9 @@ var docker_connector = function () {
         try {
             await that.resetDockerHost(host);
             const response = await that.docker.createService(serviceSpecs);
-            logger.info(`Swarm service '${component.name}' started with ID '${response.id}'.`);
+            logger.info(`Swarm service '${component.name}' started ` +
+                        `with ID '${response.id}'.`);
+            return response.id;
 
         } catch (error) {
             const message = `Could not start Swarm service '${component.name}`;
