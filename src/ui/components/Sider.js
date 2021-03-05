@@ -313,13 +313,15 @@ class SiderDemo extends React.Component {
   }
 
   sendToACM = () => {
+    let model_toSend = {};
+    model_toSend.dm = dm;
     fetch(config_ui.acm.endpoint + '/acm-model-editor/conflictCheck', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(dm)
+      body: JSON.stringify(model_toSend)
     }).then(response => response.json())
       .then(response => {
         if (response.newconflicts) {
@@ -406,18 +408,14 @@ class SiderDemo extends React.Component {
                   </SubMenu>
                 </SubMenu>
                 <Menu.Item key="1"><Icon type="deployment-unit" /><span>Editor</span><Link to="/" /></Menu.Item>
-                <Menu.Item key="9">
+                <Menu.Item key="9" onClick={() => window.open(window.lastresults.reportURL)}>
                   <Icon type="file" />
                   <Badge dot={this.state.testShow}><span>Test results</span></Badge>
-                  <Link to="/test_results" />
                 </Menu.Item>
               </Menu>
             </Sider>
             <Layout>
               <Content >
-                <Route path="/test_results">
-                  <TestResult data={window.lastresults} />
-                </Route>
                 <Route exact path="/">
                   <DrawerEdit />
                   <EditContainment />
