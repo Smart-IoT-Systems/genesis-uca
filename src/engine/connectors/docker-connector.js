@@ -237,7 +237,7 @@ var docker_connector = function () {
             return false;
 
         }
-    }
+    };
 
 
     /*
