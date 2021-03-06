@@ -80,9 +80,8 @@ var engine = (function () {
     };
 
     that.update_component = function (req, res) {
-        logger.info("UPDATE COMPONENT!");
         var input = req.body;
-        logger.log("info", "Received request to update Target model in memory " + JSON.stringify(input));
+        logger.log("info", "Received request to update Target model in memory " + JSON.stringify(input, null, 2));
         try {
             that.target_model.change_attribute(input.name, input.attribute, input.value);
 
@@ -114,12 +113,10 @@ var engine = (function () {
             logger.error(error);
 
         }
-        logger.info("Done with push_model");
     };
 
 
     that.update_target_model = function (req, res) {
-        logger.info("UPDATE TARGET MODEL!");
         let data = req.body;
         that.target_model = mm.deployment_model({});
         that.target_model.type_registry = that.modules;
@@ -512,8 +509,6 @@ var engine = (function () {
             bus.emit('ssh-started', component.name);
             bus.emit('node-started', "", component.name);
 
-            logger.info("Notifications sent.");
-
         } catch (error) {
             const message = `Unable to deploy component ${component.name}' using SSH`;
             utils.chainError(message, error);
@@ -696,7 +691,6 @@ var engine = (function () {
             (one_level._type.indexOf('infra') < 0) &&
             one_level_new) {
             await that.recursive_deploy(one_level);
-            logger.info(`Finished deploying the host of ${cpnt.name}`);
         }
 
         // Deploy the mandatory dependencies, if not yet deployed
@@ -707,17 +701,15 @@ var engine = (function () {
                 await that.deploy_one_component(comp_mandatories[m]); // Unclear, why not recursively?
 
             }
-            logger.info(`Finished deploying dependencies`);
+
         }
 
         // Deploy the 'cpnt' component
         if (that.compo_already_deployed[cpnt.name] === undefined) {
             that.compo_already_deployed[cpnt.name] = true;
             await that.deploy_one_component(cpnt);
-            logger.info(`Finished deploying ${cpnt.name}`);
         }
 
-        logger.info(`Finished recursive_deploy(${cpnt.name})`);
     };
 
 
@@ -766,7 +758,6 @@ var engine = (function () {
                 console.log("Link done: " + tmp_link + " :::: " + diff.list_of_added_links.length);
                 if (tmp_link >= diff.list_of_added_links.length) {
                     tmp_link = 0;
-                    logger.info("RETURN 2");
                     resolve(tmp_link);
                 }
             });
@@ -781,7 +772,6 @@ var engine = (function () {
             await that.monitoring_agents(diff.list_of_added_hosts);
 
             if (comp.length === 0 && diff.list_of_added_links.length === 0) { //No new component then and no new links, we are done
-                logger.info("RETURN 1");
                 resolve(0);
             }
 
@@ -819,17 +809,10 @@ var engine = (function () {
 
             try {
                 for (var i in comp) {
-                    //await that.recursive_deploy(comp[i]);
                     if (that.dep_model.is_top_component(comp[i])) {
                         await that.recursive_deploy(comp[i]);
-                        logger.info(`Finished deploying top component ${comp[i].name}`);
-                        // (async function (one_component) {
-                        //     await that.recursive_deploy(one_component);
-                        //     logger.info(`Finished deploying top component ${one_component.name}`);
-                        // }(comp[i]));
                     }
                 }
-                logger.info("Done with run!");
                 resolve(0);
 
             } catch (error) {
@@ -1007,7 +990,6 @@ var engine = (function () {
             }));
         }
 
-        logger.info("DONE with deploy");
     }
 
 

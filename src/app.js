@@ -5,7 +5,7 @@ var logger = require('./engine/logger.js');
 var express = require("express");
 var app = express();
 var fs = require('fs');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 var swaggerUi = require('swagger-ui-express');
 var swaggerDocument = require('./swagger.json');
 var http = require('http');
@@ -69,5 +69,3 @@ function getLogs(req, res) {
     var contents = fs.readFileSync(__dirname + '/genesis.log', 'utf8');
     res.end(contents);
 }
-
-

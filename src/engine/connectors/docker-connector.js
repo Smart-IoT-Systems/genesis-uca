@@ -293,7 +293,7 @@ var docker_connector = function () {
             force: force,
             noprune: false
         });
-    }
+    };
 
 
     /**
@@ -380,7 +380,7 @@ var docker_connector = function () {
         const container = that.docker.getContainer(containerID);
         const execution = await container.exec(commandSpecs);
         const stream = await execution.start();
-        // Was stream.output.pipe
+
         stream.pipe(process.stdout, {end: true});
         await that.endOf(stream);
     };
@@ -394,7 +394,6 @@ var docker_connector = function () {
      */
     that.saveContainerAsImage = async function(dockerHost, containerID, imageName) {
         await that.resetDockerHost(dockerHost);
-
         const container = that.docker.getContainer(containerID);
         const commitSpecs = {
             repo: imageName,
@@ -494,7 +493,7 @@ var docker_connector = function () {
      */
     that.initializeDockerSwarm = async function (host) {
         try {
-            console.log(JSON.stringify(host));
+            console.log(JSON.stringify(host, null, 2));
             await that.resetDockerHost(host);
             await that.docker.swarmInit({
                 ListenAddr: "0.0.0.0:4567",
