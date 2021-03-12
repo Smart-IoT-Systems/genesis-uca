@@ -408,7 +408,7 @@ class SiderDemo extends React.Component {
                   </SubMenu>
                 </SubMenu>
                 <Menu.Item key="1"><Icon type="deployment-unit" /><span>Editor</span><Link to="/" /></Menu.Item>
-                <Menu.Item key="9" onClick={() => window.open(window.lastresults.reportURL)}>
+                <Menu.Item key="9" onClick={() => window.open(config_ui.tas.endpoint + window.lastresults.reportURL)}>
                   <Icon type="file" />
                   <Badge dot={this.state.testShow}><span>Test results</span></Badge>
                 </Menu.Item>
