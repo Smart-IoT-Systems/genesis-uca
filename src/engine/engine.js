@@ -19,6 +19,7 @@ var mqtt = require('mqtt');
 var nodered_connector = require('./connectors/nodered_connector.js');
 var fs = require('fs');
 var config_file = require('../config.json');
+var utils = require("../util.js");
 
 
 var engine = (function () {
@@ -42,7 +43,7 @@ var engine = (function () {
     that.compo_already_deployed = [];
     that.compo_already_started = [];
 
-     that.map_host_agent = [];
+    that.map_host_agent = [];
 
     that.getDM_UI = function (req, res) {
         var all_in_one = {
@@ -79,9 +80,8 @@ var engine = (function () {
     };
 
     that.update_component = function (req, res) {
-        logger.info("UPDATE COMPONENT!");
         var input = req.body;
-        logger.log("info", "Received request to update Target model in memory " + JSON.stringify(input));
+        logger.log("info", "Received request to update Target model in memory " + JSON.stringify(input, null, 2));
         try {
             that.target_model.change_attribute(input.name, input.attribute, input.value);
 
@@ -105,14 +105,18 @@ var engine = (function () {
     };
 
     that.push_model = function (req, res) {
-        logger.info("PUSH MODEL!");
         req.body = that.target_model;
-        that.deploy(req, res);
+        try {
+            that.deploy(req, res);
+
+        } catch (error) {
+            logger.error(error);
+
+        }
     };
 
 
     that.update_target_model = function (req, res) {
-        logger.info("UPDATE TARGET MODEL!");
         let data = req.body;
         that.target_model = mm.deployment_model({});
         that.target_model.type_registry = that.modules;
@@ -220,7 +224,7 @@ var engine = (function () {
                 var device_host = diff.old_dm.find_host(item);
                 var connector = dc();
                 bus.emit('removed', item.name);
-                await connector.stopAndRemove(item.container_id, device_host.ip, host.port, host.properties)
+                await connector.stopAndRemove(item.container_id, device_host.ip, host.port, host.properties);
             }));
         }
 
@@ -444,68 +448,73 @@ var engine = (function () {
     };
 
 
-    /**
-     * Deploy a component using SSH
+    /*
+     * Deploy a component using SSH.
+     *
+     * We first check whether the component has an availability
+     * policy. If it does, we delegate the installation to the
+     * availability manager. Otherwise, we upload the needed
+     * file and then execute the SSH commands specified in the SSH
+     * resource.
+     *
      */
-    that.deploy_ssh = function (component, host) {
-        return new Promise(async function (resolve, reject) {
+    that.deploy_ssh = async function (component, host) {
+        let ssh_port = host.port;
+        if (host._type === "/infra/docker_host") {
+            ssh_port = "22";
 
-            var ssh_port = host.port;
-            if (host._type === "/infra/docker_host") {
-                ssh_port = "22";
-            }
+        }
 
+        try {
             if (component.hasAvailabilityPolicy()) {
-                try {
-                    that.availabilityManager.handle(component, host);
-
-                } catch (error) {
-                    logger.error(error.message);
-                    reject(error);
-                }
+                console.log(JSON.stringify(component.availability, null, 2));
+                await that.availabilityManager.handle(component, host);
 
             } else {
-                let src_upload = comp.ssh_resource.uploadCommand[0];
-                let tgt_upload = comp.ssh_resource.uploadCommand[1];
+                const ssh = sshc(host.ip,
+                                 ssh_port,
+                                 component.ssh_resource.credentials.username,
+                                 component.ssh_resource.credentials.password,
+                                 component.ssh_resource.credentials.sshkey,
+                                 component.ssh_resource.credentials.agent);
 
-                sc.upload_file(src_upload, tgt_upload).then(function () {
-                    logger.log("info", "Upload command executed");
-                    sc.execute_command(comp.ssh_resource.downloadCommand).then(function () {
-                        logger.log("info", "Download command executed");
-                        sc.execute_command(comp.ssh_resource.installCommand).then(function () {
-                            logger.log("info", "Install command executed");
-                            sc.execute_command(comp.ssh_resource.configureCommand).then(function () {
-                                logger.log("info", "Configure command executed");
-                                sc.execute_command(comp.ssh_resource.startCommand).then(function () {
-                                    logger.log("info", "Start command executed");
-                                    bus.emit('ssh-started', host.name);
-                                    bus.emit('ssh-started', comp.name);
-                                    bus.emit('node-started', "", comp.name);
-                                    resolve(true);
-                                }).catch(function (err) {
-                                    logger.log("error", "Start command error " + err);
-                                    reject(err);
-                                });
-                            }).catch(function (err) {
-                                logger.log("error", "Configure command error " + err);
-                                reject(err);
-                            });
-                        }).catch(function (err) {
-                            logger.log("error", "Install command error " + err);
-                            reject(err);
-                        });
-                    }).catch(function (err) {
-                        logger.log("error", "Download command error " + err);
-                        reject(err);
+                // Upload command if defined
+                const source = component.ssh_resource.uploadCommand[0];
+                const target = component.ssh_resource.uploadCommand[1];
+                if (source && target) {
+                    await ssh.upload_file(source, target);
+                }
 
-                    });
-                }).catch(function (err) {
-                    logger.log("error", "Upload command error " + err);
-                    reject(err);
+                // Execute the commands specified in the SSH resource
+                const installation = [ "downloadCommand",
+                                       "installCommand",
+                                       "configureCommand",
+                                       "startCommand" ];
+                for (let eachStep of installation) {
+                    const eachCommand = component.ssh_resource[eachStep];
+                    if (eachCommand) {
+                        await ssh.execute_command(eachCommand);
+                        logger.info(`${eachStep} executed successfully.`);
 
-                });
+                    } else {
+                        logger.info(`No '${eachStep}' given.`);
+
+                    }
+                }
+                logger.info("All SSH commands executed.");
+
             }
-        });
+
+            bus.emit('ssh-started', host.name);
+            bus.emit('ssh-started', component.name);
+            bus.emit('node-started', "", component.name);
+
+        } catch (error) {
+            const message = `Unable to deploy component ${component.name}' using SSH`;
+            utils.chainError(message, error);
+
+        }
+
     };
 
 
@@ -537,17 +546,20 @@ var engine = (function () {
         if (component.docker_resource.image !== "") {
 
             if (component.hasAvailabilityPolicy()) {
-                return that.availabilityManager.handle(component, host);
+                const id = that.availabilityManager.handle(component, host);
+                bus.emit('ssh-started', host.name);
+
+                return id;
 
             } else {
-                var connector = dc();
+                var docker = dc();
 
                 if (component.docker_resource.extra_options !== undefined
                     && component.docker_resource.extra_options !== "") {
-                    connector.add_extra_options_all(compo.docker_resource.extra_options);
+                    docker.add_extra_options_all(compo.docker_resource.extra_options);
                 }
 
-                const id = await connector.buildAndDeploy(
+                const id = await docker.buildAndDeploy(
                     host.ip,
                     host.port,
                     component.docker_resource.port_bindings,
@@ -604,7 +616,7 @@ var engine = (function () {
                             // Manage simple docker
                             var id = "unknown";
                             if (compo.docker_resource.image !== "") {
-                                id = that.deploy_docker(compo, host);
+                                id = await that.deploy_docker(compo, host);
 
                             }
                             bus.emit('node-started', id, compo.name);
@@ -626,7 +638,7 @@ var engine = (function () {
 
                     //Manage component via ssh
                     if (that.need_ssh(compo)) {
-                        logger.log('info', 'Deploy via SSH ' + compo.name);
+                        logger.info('Deploy via SSH ' + compo.name);
                         await that.deploy_ssh(compo, host);
                     }
                 }
@@ -687,7 +699,9 @@ var engine = (function () {
             for (var m in comp_mandatories) {
                 that.compo_already_deployed[comp_mandatories[m].name] = true;
                 await that.deploy_one_component(comp_mandatories[m]); // Unclear, why not recursively?
+
             }
+
         }
 
         // Deploy the 'cpnt' component
@@ -695,6 +709,7 @@ var engine = (function () {
             that.compo_already_deployed[cpnt.name] = true;
             await that.deploy_one_component(cpnt);
         }
+
     };
 
 
@@ -704,7 +719,6 @@ var engine = (function () {
      * at model-comparison.js).
      */
     that.run = function (diff) { //TODO: factorize
-        logger.info("RUN!");
         return new Promise(async function (resolve, reject) {
             bus.removeAllListeners('node-error2');
             bus.removeAllListeners('node-started2');
@@ -729,7 +743,7 @@ var engine = (function () {
                 tmp++;
                 //Add container id to the component
                 logger.log('info', "Started node: " + tmp + " :::: " + comp.length + "( " + comp_name + " )");
-                logger.log('info', "==> " + JSON.stringify(comp));
+                logger.log('info', "==> " + JSON.stringify(comp, null, 2));
                 var compon = that.dep_model.find_node_named(comp_name);
                 compon.container_id = container_id;
 
@@ -787,19 +801,24 @@ var engine = (function () {
                   }
                   }(comp_tab, ct_elem));
                   }*/
-                resolve(0);
+  //                resolve(0);
             }
 
 
             that.compo_already_deployed = [];
 
-            for (var i in comp) {
-                //await that.recursive_deploy(comp[i]);
-                if (that.dep_model.is_top_component(comp[i])) {
-                    (function (one_component) {
-                        that.recursive_deploy(one_component);
-                    }(comp[i]));
+            try {
+                for (var i in comp) {
+                    if (that.dep_model.is_top_component(comp[i])) {
+                        await that.recursive_deploy(comp[i]);
+                    }
                 }
+                resolve(0);
+
+            } catch (error) {
+                logger.error("Error in top component");
+                logger.error(error);
+                reject(error);
             }
 
         });
@@ -876,7 +895,7 @@ var engine = (function () {
         //We concat the old flow with the new one
         if (flow.length > 2) { // not empty "[]"
             var t = JSON.parse(flow);
-            var result = filtered_old_components.concat(t)
+            var result = filtered_old_components.concat(t);
             var nr_connector = nodered_connector();
             if (dependencies !== "") {
                 nr_connector.installNodeType(ip_host, tgt_port, dependencies).then(function () {
@@ -943,21 +962,25 @@ var engine = (function () {
 
             // First do all the removal stuff - TODO refactor
             logger.log("info", "Stopping removed containers");
-            await that.remove_containers(that.diff);
+            try {
+                await that.remove_containers(that.diff);
 
-            // Deploy only the added stuff
-            logger.log("info", "Starting deployment");
-            that.run(that.diff)
-                .then(function () {
-                    bus.emit('deployment-completed');
-                    logger.log("info", "Deployment completed!");
-                    if (config_file.tas && config_file.tas.connected) {
-                        fetch(config_file.tas.endpoint)
-                            .then((response) => {
-                                console.log(response);
-                            }).catch(error => console.error);
-                    }
-                });
+                // Deploy only the added stuff
+                logger.log("info", "Starting deployment");
+
+                await that.run(that.diff);
+                bus.emit('deployment-completed');
+                logger.log("info", "Deployment completed!");
+
+                if (config_file.tas && config_file.tas.connected) {
+                    const response = await fetch(config_file.tas.endpoint);
+                    console.log(response);
+                }
+
+            } catch (error) {
+                logger.error(error);
+
+            }
 
         } else {
             logger.log("info", "Model not loaded since not valid: " + JSON.stringify(dm));
@@ -966,6 +989,7 @@ var engine = (function () {
                 error: "Model not loaded since not valid"
             }));
         }
+
     }
 
 

@@ -43,7 +43,7 @@ var deployment_model = function (spec) {
         return this;
     };
 
-    
+
     that.add_component = function (component) {
         that.components.push(component);
     };
@@ -79,7 +79,7 @@ var deployment_model = function (spec) {
     that.remove_component = function (component) {
         var i = that.components.indexOf(component);
         if (i > -1) {
-            that.components.splice(i, 1); //The second parameter of splice is the number of elements to remove. Note that splice modifies the array in place and returns a new array containing the elements that have been removed. 
+            that.components.splice(i, 1); //The second parameter of splice is the number of elements to remove. Note that splice modifies the array in place and returns a new array containing the elements that have been removed.
         }
         //we also need to remove the associated links
         var tab_indexes = [];
@@ -658,7 +658,7 @@ var component = function (spec) {
     that.remove_property = function (prop) {
         var i = that.properties.indexOf(prop);
         if (i > -1) {
-            that.properties.splice(i, 1); //The second parameter of splice is the number of elements to remove. Note that splice modifies the array in place and returns a new array containing the elements that have been removed. 
+            that.properties.splice(i, 1); //The second parameter of splice is the number of elements to remove. Note that splice modifies the array in place and returns a new array containing the elements that have been removed.
         }
     };
 
@@ -741,7 +741,7 @@ var device = function (spec) {
 /**
  * Represent availability strategies such as replication or blue/green
  * deployment.
- * 
+ *
  * There are two basic strategies, namely 'builtin' and 'Docker
  * Swarm'.
  *
@@ -755,44 +755,44 @@ var device = function (spec) {
  *      health check script is not taken into account.
  */
 class Availability {
-    
+
     static defaultSettings () {
-	return new Availability(this.DEFAULT, "", 1, true);
+        return new Availability(this.DEFAULT, "", 1, true);
     }
 
-    
+
     static fromObject (object) {
-	return new Availability(object.strategy || this.DEFAULT,
-				object.healthCheck || "",
-				object.replicaCount || 1,
-				object.zeroDownTime === null ? true : object.zeroDownTime,
-				object.exposedPort || 80);
+        return new Availability(object.strategy || this.DEFAULT,
+                                object.healthCheck || "",
+                                object.replicaCount || 1,
+                                object.zeroDownTime === null ? true : object.zeroDownTime,
+                                object.exposedPort || 80);
     }
-    
+
     constructor (strategy, healthCheck, replicaCount, zeroDownTime, exposedPort) {
-	this.strategy = strategy;
-	this.healthCheck = healthCheck;
-	this.replicaCount = replicaCount;
-	this.zeroDownTime = zeroDownTime;
-	this.exposedPort = exposedPort;
+        this.strategy = strategy;
+        this.healthCheck = healthCheck;
+        this.replicaCount = replicaCount;
+        this.zeroDownTime = zeroDownTime;
+        this.exposedPort = exposedPort;
     }
 
     usesDockerSwarm () {
-	return this.useStrategy(Availability.DOCKER_SWARM);
+        return this.useStrategy(Availability.DOCKER_SWARM);
     }
 
     isBuiltin () {
-	return this.useStrategy(Availability.BUILTIN);
+        return this.useStrategy(Availability.BUILTIN);
     }
 
     useStrategy (strategy) {
-	return this.strategy === strategy;
+        return this.strategy === strategy;
     }
 
     requireZeroDownTime() {
-	return this.zeroDownTime;
+        return this.zeroDownTime;
     }
-	
+
 }
 
 
@@ -800,7 +800,7 @@ Availability.DOCKER_SWARM = "Docker Swarm";
 
 Availability.BUILTIN = "Builtin";
 
-Availability.DEFAULT = Availability.BUILTIN
+Availability.DEFAULT = Availability.BUILTIN;
 
 /******************************************/
 /* Software node (aka. Internal component)*/
@@ -810,34 +810,34 @@ var software_node = function (spec) {
 
     // Check if the component  has an availability Policy
     that.hasAvailabilityPolicy = function ()  {
-	return (that.availability !== null
-		&& that.availability.strategy
-		&& that.availability.replicaCount
-		&& that.availability.zeroDownTime !== undefined);
+        return (that.availability !== null
+                && that.availability.strategy
+                && that.availability.replicaCount
+                && that.availability.zeroDownTime !== undefined);
     }
 
-    
+
     // Check if the component includes a proper Docker resource
     that.hasDockerResource = function ()  {
-	return (that.docker_resource !== null
-		&& that.docker_resource.image
-		&& that.docker_resource.command);
+        return (that.docker_resource !== null
+                && that.docker_resource.image
+                && that.docker_resource.command);
     }
 
     // Check if the component includes a proper SSH resource
     that.hasSSHResource = function () {
-	return (that.ssh_resource !== null
-		&& that.ssh_resource.startCommand
-		&& that.ssh_resource.downloadCommand
-		&& that.ssh_resource.installCommand);
+        return (that.ssh_resource !== null
+                && that.ssh_resource.startCommand
+                && that.ssh_resource.downloadCommand
+                && that.ssh_resource.installCommand);
     }
-	
-    
-    that.availability = Availability.defaultSettings();
+
+
+    that.availability = null;
     if (spec.availability != null) {
-	that.availability = Availability.fromObject(spec.availability);
+        that.availability = Availability.fromObject(spec.availability);
     }
-    
+
     that.docker_resource = spec.docker_resource || docker_resource({});
     that.ssh_resource = spec.ssh_resource || ssh_resource({});
     that.ansible_resource = spec.ansible_resource || ansible_resource({});
