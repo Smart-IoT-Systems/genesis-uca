@@ -15,6 +15,7 @@ import EditLink from './EditLink.js'
 import ListView from './ListView.js'
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import TestResult from "./TestResult.js";
+import uuidv4 from 'uuid/v4';
 
 //We load it here to avoid sync between server and client
 var mm = require('../../metamodel/allinone.js');
@@ -125,6 +126,7 @@ class SiderDemo extends React.Component {
         if (modules[j].module._type === type) {
           var tmp = JSON.stringify(modules[j].module);
           elem = JSON.parse(tmp);
+          elem.id = uuidv4();
           break;
         }
       }

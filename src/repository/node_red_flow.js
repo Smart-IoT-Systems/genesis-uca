@@ -7,12 +7,12 @@ var node_red_flow = function (spec) {
     var that = mm.software_node(spec);
     that._type += "/node_red_flow";
     that.name = spec.name || "node-red-flow";
-    
+
     that.nr_flow = spec.nr_flow || [];
     that.path_flow = spec.path_flow || "";
     that.packages = spec.packages || [];
 
-    if(spec.required_communication_port === undefined){
+    if (spec.required_communication_port === undefined) {
         that.required_communication_port[0].port_number = '1880';
     }
 
