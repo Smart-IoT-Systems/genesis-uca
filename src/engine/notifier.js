@@ -21,6 +21,11 @@ var notifier = (function (client, dm) {
             }
         });
 
+
+        bus.on('deploy-started', function () {
+            that.MQTTClient.publish("/Notifications", JSON.stringify("A deployment is started!"));
+        });
+
         bus.on('remove-all', function () {
             that.MQTTClient.publish("/Notifications", JSON.stringify("Remove all completed!"));
         });

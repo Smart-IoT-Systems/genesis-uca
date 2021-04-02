@@ -150,6 +150,7 @@ var docker_connector = function () {
 			}
 
 			if (environment !== undefined && environment !== "") {
+				console.log("+++++++enviro" + environment);
 				options.Env = environment;
 			}
 

@@ -58,7 +58,9 @@ var engine = (function () {
 	that.getRuntime_info = function (req, res) {
 		//Update runtime info
 		that.dep_model.components.forEach(element => {
-			bus.emit('runtime-info', element.name, element._runtime.Status);
+			if (element._runtime !== undefined) {
+				bus.emit('runtime-info', element.name, element._runtime.Status);
+			}
 		});
 		res.end(JSON.stringify(that.dep_model));
 	}
@@ -692,8 +694,7 @@ var engine = (function () {
 			bus.on('node-started2', function (container_id, comp_name) {
 				tmp++;
 				//Add container id to the component
-				logger.log('info', "Started node: " + tmp + " :::: " + comp.length + "( " + comp_name + " )");
-				logger.log('info', "==> " + JSON.stringify(comp));
+				logger.log('info', "Started node: " + tmp + " :::: " + comp.length + " ( " + comp_name + " )");
 				var compon = that.dep_model.find_node_named(comp_name);
 				compon.container_id = container_id;
 

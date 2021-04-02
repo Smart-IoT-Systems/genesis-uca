@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var logger = require('./logger.js');
 
-const useless_properties = ["add_property","remove_property","get_all_properties","_runtime", "container_id", "_configure"];
+const useless_properties = ["add_property", "remove_property", "get_all_properties", "_runtime", "container_id", "_configure"];
 
 var comparator = function (dm) {
     var that = {};
@@ -27,22 +27,22 @@ var comparator = function (dm) {
 
         result.old_dm = that.dm;
 
-	/* 
-	 * Check if the given component is updated, as opposed to
-	 * merely added or removed.
-	 */
-	result.isUpdateOf = function(component) {
-	    const isUpdate = this.list_of_added_components.some(c => c.name === component.name)
-		  && this.list_of_removed_components.some(c => c.name === component.name);
-	    logger.info(`Component ${component.name} updated? ${isUpdate}!`);
-	    return isUpdate;
-	}
+        /* 
+         * Check if the given component is updated, as opposed to
+         * merely added or removed.
+         */
+        result.isUpdateOf = function (component) {
+            const isUpdate = this.list_of_added_components.some(c => c.name === component.name)
+                && this.list_of_removed_components.some(c => c.name === component.name);
+            logger.info(`Component ${component.name} updated? ${isUpdate}!`);
+            return isUpdate;
+        }
 
         //Added Hosts and components
         var target_comps = target_dm.components;
         for (var i in target_comps) {
             var tmp_node = dm.find_node_named(target_comps[i].name);
-            if (tmp_node === undefined) { 
+            if (tmp_node === undefined) {
                 logger.log('info', target_comps[i].name + " is not in old model so it has been added");
                 if (target_comps[i]._type.indexOf('internal') > -1) {
                     if (target_dm.find_host(target_comps[i]) !== null) {
@@ -54,7 +54,7 @@ var comparator = function (dm) {
                 }
             } else if (tmp_node.name === target_comps[i].name) {
                 var r = that.compareObjects(_.omit(tmp_node, useless_properties), _.omit(target_comps[i], useless_properties));
-                console.log("WWWW>"+ JSON.stringify(r));
+                console.log("WWWW>" + tmp_node.name + " " + JSON.stringify(r));
                 if (r.length > 0) { // There are some differences
                     if (target_comps[i]._type.indexOf('internal') > -1) {
                         if (target_dm.find_host(target_comps[i]) !== null) {
@@ -62,7 +62,7 @@ var comparator = function (dm) {
                         }
                         result.list_of_added_components.push(target_comps[i]);
 
-		    } else {
+                    } else {
                         result.list_of_added_hosts.push(target_comps[i]);
                     }
                 } else { //we save the runtime info
@@ -107,8 +107,8 @@ var comparator = function (dm) {
                 }
             } else {
                 //We need to check if input or output have changed
-                result.list_of_added_components.forEach(function(c){
-                    if(dm.get_comp_name_from_port_id(target_links[i].target) === c.name || dm.get_comp_name_from_port_id(target_links[i].src) === c.name){
+                result.list_of_added_components.forEach(function (c) {
+                    if (dm.get_comp_name_from_port_id(target_links[i].target) === c.name || dm.get_comp_name_from_port_id(target_links[i].src) === c.name) {
                         result.list_of_removed_links.push(tmp_link[i]);
                         if (target_links[i].isDeployer) {
                             result.list_of_added_links_deployer.push(target_links[i]);
@@ -116,17 +116,17 @@ var comparator = function (dm) {
                             //In the long term should be handle by the resource in the link
                             //i.e., stop and restar the other side or at least should be a property 
                             let other = dm.get_comp_name_from_port_id(target_links[i].src);
-                            if(dm.get_comp_name_from_port_id(target_links[i].src) === c.name){
+                            if (dm.get_comp_name_from_port_id(target_links[i].src) === c.name) {
                                 other = dm.get_comp_name_from_port_id(target_links[i].target);
                             }
-                            let node_to_be_redeployed=dm.find_node_named(other);
-                            let in_removed=false;
+                            let node_to_be_redeployed = dm.find_node_named(other);
+                            let in_removed = false;
                             for (var k in result.list_of_removed_components) {
-                                if(result.list_of_removed_components[k].name === node_to_be_redeployed.name){
-                                    in_removed=true;
+                                if (result.list_of_removed_components[k].name === node_to_be_redeployed.name) {
+                                    in_removed = true;
                                 }
                             }
-                            if(!in_removed){
+                            if (!in_removed) {
                                 result.list_of_removed_components.push(node_to_be_redeployed);
                                 result.list_of_added_hosted_components.push(node_to_be_redeployed);
                                 result.list_of_added_components.push(node_to_be_redeployed);
@@ -166,7 +166,10 @@ var comparator = function (dm) {
             }
         }
 
-        logger.log("info", "Added Components:" + JSON.stringify(result.list_of_added_components));
+        for (let ae of result.list_of_added_components) {
+            logger.log("info", "Added Components:" + ae.name);
+        }
+        //logger.log("info", "Added Components:" + JSON.stringify(result.list_of_added_components));
         logger.log("info", "Removed Components:" + JSON.stringify(result.list_of_removed_components));
         logger.log("info", "Removed Hosts:" + JSON.stringify(result.list_removed_hosts));
 
@@ -183,7 +186,7 @@ var comparator = function (dm) {
             }
             return result;
         }, Object.keys(obj2));
-    
+
         return diff;
     }
 
