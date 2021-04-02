@@ -756,20 +756,20 @@ var device = function (spec) {
  */
 class Availability {
 
-    static defaultSettings () {
+    static defaultSettings() {
         return new Availability(this.DEFAULT, "", 1, true);
     }
 
 
-    static fromObject (object) {
+    static fromObject(object) {
         return new Availability(object.strategy || this.DEFAULT,
-                                object.healthCheck || "",
-                                object.replicaCount || 1,
-                                object.zeroDownTime === null ? true : object.zeroDownTime,
-                                object.exposedPort || 80);
+            object.healthCheck || "",
+            object.replicaCount || 1,
+            object.zeroDownTime === null ? true : object.zeroDownTime,
+            object.exposedPort || 80);
     }
 
-    constructor (strategy, healthCheck, replicaCount, zeroDownTime, exposedPort) {
+    constructor(strategy, healthCheck, replicaCount, zeroDownTime, exposedPort) {
         this.strategy = strategy;
         this.healthCheck = healthCheck;
         this.replicaCount = replicaCount;
@@ -777,15 +777,15 @@ class Availability {
         this.exposedPort = exposedPort;
     }
 
-    usesDockerSwarm () {
+    usesDockerSwarm() {
         return this.useStrategy(Availability.DOCKER_SWARM);
     }
 
-    isBuiltin () {
+    isBuiltin() {
         return this.useStrategy(Availability.BUILTIN);
     }
 
-    useStrategy (strategy) {
+    useStrategy(strategy) {
         return this.strategy === strategy;
     }
 
@@ -809,27 +809,27 @@ var software_node = function (spec) {
     var that = component(spec);
 
     // Check if the component  has an availability Policy
-    that.hasAvailabilityPolicy = function ()  {
+    that.hasAvailabilityPolicy = function () {
         return (that.availability !== null
-                && that.availability.strategy
-                && that.availability.replicaCount
-                && that.availability.zeroDownTime !== undefined);
+            && that.availability.strategy
+            && that.availability.replicaCount
+            && that.availability.zeroDownTime !== undefined);
     }
 
 
     // Check if the component includes a proper Docker resource
-    that.hasDockerResource = function ()  {
+    that.hasDockerResource = function () {
         return (that.docker_resource !== null
-                && that.docker_resource.image
-                && that.docker_resource.command);
+            && that.docker_resource.image
+            && that.docker_resource.command);
     }
 
     // Check if the component includes a proper SSH resource
     that.hasSSHResource = function () {
         return (that.ssh_resource !== null
-                && that.ssh_resource.startCommand
-                && that.ssh_resource.downloadCommand
-                && that.ssh_resource.installCommand);
+            && that.ssh_resource.startCommand
+            && that.ssh_resource.downloadCommand
+            && that.ssh_resource.installCommand);
     }
 
 

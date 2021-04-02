@@ -77,10 +77,10 @@ var docker_connector = function () {
                 host: endpoint,
                 port: port
             });
-
         }
 
         try {
+            console.log(JSON.stringify(that.docker));
             await that.docker.ping();
             logger.info(`Docker Host ${host_id} is reachable ${endpoint}`);
             that.comp_name = compo_name;
@@ -96,7 +96,6 @@ var docker_connector = function () {
             bus.emit('container-error', host_id);
             const message = `Unable to build and deploy image '${image}' on '${host_id}'`;
             utils.chainError(message, error);
-
         }
 
     };
