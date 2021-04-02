@@ -1,0 +1,2 @@
+# Defines the available endpoints, together with their last seen
+# status (either 'up' or 'down' by  default).
