@@ -546,7 +546,6 @@ var engine = (function () {
 
     that.deploy_docker = async function (component, host) {
         if (component.docker_resource.image !== "") {
-
             if (component.hasAvailabilityPolicy()) {
                 const id = that.availabilityManager.handle(component, host);
                 bus.emit('ssh-started', host.name);
@@ -558,7 +557,7 @@ var engine = (function () {
 
                 if (component.docker_resource.extra_options !== undefined
                     && component.docker_resource.extra_options !== "") {
-                    docker.add_extra_options_all(compo.docker_resource.extra_options);
+                    docker.add_extra_options_all(component.docker_resource.extra_options);
                 }
 
                 const id = await docker.buildAndDeploy(
@@ -617,8 +616,10 @@ var engine = (function () {
                         } else {
                             // Manage simple docker
                             var id = "unknown";
+                            console.log("xxxxxxx______>" + JSON.stringify(compo));
                             if (compo.docker_resource.image !== "") {
                                 id = await that.deploy_docker(compo, host);
+                                console.log("xxxxxxx______>" + id);
 
                             }
                             bus.emit('node-started', id, compo.name);
@@ -811,7 +812,9 @@ var engine = (function () {
 
             try {
                 for (var i in comp) {
+                    console.log(JSON.stringify(comp[i]) + ">>>>>>>");
                     if (that.dep_model.is_top_component(comp[i])) {
+                        console.log(">>>>>>>" + that.dep_model.is_top_component(comp[i]));
                         await that.recursive_deploy(comp[i]);
                     }
                 }
