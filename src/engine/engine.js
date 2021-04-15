@@ -616,10 +616,8 @@ var engine = (function () {
                         } else {
                             // Manage simple docker
                             var id = "unknown";
-                            console.log("xxxxxxx______>" + JSON.stringify(compo));
                             if (compo.docker_resource.image !== "") {
                                 id = await that.deploy_docker(compo, host);
-                                console.log("xxxxxxx______>" + id);
 
                             }
                             bus.emit('node-started', id, compo.name);
@@ -812,9 +810,7 @@ var engine = (function () {
 
             try {
                 for (var i in comp) {
-                    console.log(JSON.stringify(comp[i]) + ">>>>>>>");
                     if (that.dep_model.is_top_component(comp[i])) {
-                        console.log(">>>>>>>" + that.dep_model.is_top_component(comp[i]));
                         await that.recursive_deploy(comp[i]);
                     }
                 }
