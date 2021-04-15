@@ -744,7 +744,6 @@ var engine = (function () {
                 tmp++;
                 //Add container id to the component
                 logger.log('info', "Started node: " + tmp + " :::: " + comp.length + "( " + comp_name + " )");
-                logger.log('info', "==> " + JSON.stringify(comp, null, 2));
                 var compon = that.dep_model.find_node_named(comp_name);
                 compon.container_id = container_id;
 
@@ -802,7 +801,7 @@ var engine = (function () {
                   }
                   }(comp_tab, ct_elem));
                   }*/
-                //                resolve(0);
+                resolve(0);
             }
 
 
@@ -811,10 +810,11 @@ var engine = (function () {
             try {
                 for (var i in comp) {
                     if (that.dep_model.is_top_component(comp[i])) {
-                        await that.recursive_deploy(comp[i]);
+                        (function (one_component) {
+                            that.recursive_deploy(one_component);
+                        }(comp[i]));
                     }
                 }
-                resolve(0);
 
             } catch (error) {
                 logger.error("Error in top component");
