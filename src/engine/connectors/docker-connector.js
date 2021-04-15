@@ -41,7 +41,8 @@ var docker_connector = function () {
             } else {
                 that.docker = new Docker({
                     host: endpoint,
-                    port: port
+                    port: port,
+                    protocol: 'http'
                 });
             }
             that.docker.getContainer(container_id).stop(function (done) {
