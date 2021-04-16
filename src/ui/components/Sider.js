@@ -49,6 +49,8 @@ class SiderDemo extends React.Component {
     window.testShow = this.setTestShow;
     this.openNotificationWithIcon = this.openNotificationWithIcon.bind(this);
     window.openNotificationWithIcon = this.openNotificationWithIcon;
+    window.loadFromServer = this.loadFromServer;
+    window.deploying = false;
   }
 
 
@@ -233,7 +235,7 @@ class SiderDemo extends React.Component {
   }
 
   deploy = () => {
-
+    window.deploying = true;
     load.loading('Deployment in progress..', 0);
     this.openNotificationWithIcon('success', 'Deployment Started', 'Model sent!');
 
@@ -315,8 +317,10 @@ class SiderDemo extends React.Component {
   }
 
   sendToACM = () => {
-    let model_toSend = {};
-    model_toSend.dm = dm;
+	let model_toSend = {
+      dm: dm,
+      graph: cy.json()
+    };
     fetch(config_ui.acm.endpoint + '/acm-model-editor/conflictCheck', {
       method: 'POST',
       headers: {

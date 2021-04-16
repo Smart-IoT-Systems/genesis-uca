@@ -19,6 +19,16 @@ const openNotification = (type, title, desc) => {
   }
 }
 
+const notificationDeploymentCompleted = (title, desc) => {
+  const key = `open${Date.now()}`;
+  notification['success']({
+    key,
+    message: "Deployment Completed!",
+    description: <div>If the deployment was not triggered from this editor, please consider reloading the deployment model.<br /> <a onClick={() => { window.loadFromServer(); notification.close(key) }}>Reload Model</a></div>,
+    duration: 0,
+  });
+}
+
 class Notification extends React.Component {
 
   constructor() {
@@ -40,10 +50,15 @@ class Notification extends React.Component {
           openNotification("success", "Notification", JSON.parse(message));
         }
         if (JSON.parse(message) === "Deployment completed!") {
-          window.loader.destroy();
-          window.loader.success('Deployment finished', 5).then(() => {
+          if (window.deploying) {
+            window.deploying = false;
+            notificationDeploymentCompleted();
+          } else {
             window.loader.destroy();
-          });
+            window.loader.success('Deployment finished', 5).then(() => {
+              window.loader.destroy();
+            });
+          }
         }
         if (JSON.parse(message) === "Remove all completed!") {
           openNotification('success', 'Remove', 'All removed component were uninstalled!');
@@ -111,4 +126,4 @@ class Notification extends React.Component {
     );
   }
 }
-export default Notification;  
+export default Notification;
